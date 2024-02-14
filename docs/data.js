@@ -145,6 +145,9 @@ const dataModule = {
         },
       },
     },
+    selectedCollection: null,
+    collection: {}, // ChainId, tokenContractAddress, tokenId => data
+
     addresses: {}, // Address => Info
     registry: {}, // Address => StealthMetaAddress
     stealthTransfers: {}, // ChainId, blockNumber, logIndex => data
@@ -160,7 +163,7 @@ const dataModule = {
       halt: false,
     },
     db: {
-      name: "magicalinternetmoneydata081b",
+      name: "nftspreadsdata080a",
       version: 1,
       schemaDefinition: {
         announcements: '[chainId+blockNumber+logIndex],[blockNumber+contract],contract,confirmations,stealthAddress',
@@ -173,6 +176,9 @@ const dataModule = {
   },
   getters: {
     collections: state => state.collections,
+    selectedCollection: state => state.selectedCollection,
+    collection: state => state.collection,
+
     addresses: state => state.addresses,
     registry: state => state.registry,
     stealthTransfers: state => state.stealthTransfers,
@@ -189,6 +195,11 @@ const dataModule = {
       // logInfo("dataModule", "mutations.setState - info: " + JSON.stringify(info, null, 2));
       Vue.set(state, info.name, info.data);
     },
+    setSelectedCollection(state, selectedCollection) {
+      Vue.set(state, 'selectedCollection', selectedCollection);
+      logInfo("dataModule", "mutations.setSelectedCollection: " + selectedCollection);
+    },
+
     toggleAddressField(state, info) {
       Vue.set(state.addresses[info.account], info.field, !state.addresses[info.account][info.field]);
       logInfo("dataModule", "mutations.toggleAddressField - accounts[" + info.account + "]." + info.field + " = " + state.addresses[info.account][info.field]);
@@ -407,7 +418,7 @@ const dataModule = {
       if (Object.keys(context.state.stealthTransfers).length == 0) {
         const db0 = new Dexie(context.state.db.name);
         db0.version(context.state.db.version).stores(context.state.db.schemaDefinition);
-        for (let type of ['addresses', 'registry', 'stealthTransfers', 'tokenContracts', 'tokenMetadata']) {
+        for (let type of ['selectedCollection', 'addresses', 'registry', 'stealthTransfers', 'tokenContracts', 'tokenMetadata']) {
           const data = await db0.cache.where("objectName").equals(type).toArray();
           if (data.length == 1) {
             // logInfo("dataModule", "actions.restoreState " + type + " => " + JSON.stringify(data[0].object));
@@ -427,6 +438,12 @@ const dataModule = {
         });
       }
       db0.close();
+    },
+
+    async setSelectedCollection(context, selectedCollection) {
+      logInfo("dataModule", "actions.setSelectedCollection: " + selectedCollection);
+      await context.commit('setSelectedCollection', selectedCollection);
+      await context.dispatch('saveData', ['selectedCollection']);
     },
 
     async toggleAddressField(context, info) {

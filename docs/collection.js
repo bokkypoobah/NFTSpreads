@@ -3,8 +3,6 @@ const Collection = {
     <div class="m-0 p-0">
       <b-card no-body no-header class="border-0">
 
-        {{ collectionsOptions }}
-
         <!-- :MODALFAUCETS -->
         <b-modal ref="modalfaucet" id="modal-faucets" hide-footer body-bg-variant="light" size="md">
           <template #modal-title>ERC-721 Faucets</template>
@@ -13,6 +11,9 @@ const Collection = {
         </b-modal>
 
         <div class="d-flex flex-wrap m-0 p-0">
+          <div class="mt-0 pr-1">
+            <b-form-select size="sm" v-model="selectedCollection" @change="saveSettings" :options="collectionsOptions" v-b-popover.hover.top="'Yeah. Sort'"></b-form-select>
+          </div>
           <div v-if="false" class="mt-0 pr-1" style="width: 200px;">
             <b-form-input type="text" size="sm" v-model.trim="settings.filter" @change="saveSettings" debounce="600" v-b-popover.hover.top="'Regex filter by address, symbol or name'" placeholder="🔍 addr/symb/name regex"></b-form-input>
           </div>
@@ -307,6 +308,18 @@ const Collection = {
     collections() {
       return store.getters['data/collections'];
     },
+
+    selectedCollection: {
+      get: function () {
+        return store.getters['data/selectedCollection'];
+      },
+      set: function (sc) {
+        store.dispatch('data/setSelectedCollection', sc);
+        // store.dispatch('viewToken/setMine', mine);
+      },
+    },
+
+
     addresses() {
       return store.getters['data/addresses'];
     },
