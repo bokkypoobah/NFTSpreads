@@ -740,9 +740,36 @@ const dataModule = {
               tokenId: sale.token.tokenId,
               blockNumber: sale.block,
               confirmations: parameter.blockNumber - sale.block,
-              ...sale,
-              token: undefined,
-              block: undefined,
+              logIndex: sale.logIndex,
+              timestamp: sale.timestamp,
+              txHash: sale.txHash,
+
+              amount: sale.amount,
+              batchIndex: sale.batchIndex,
+              createdAt: sale.createdAt,
+              feeBreakdown: sale.feeBreakdown,
+              fillSource: sale.fillSource,
+              from: ethers.utils.getAddress(sale.from),
+              id: sale.id,
+              isDeleted: sale.isDeleted,
+              amount: sale.amount,
+              to: ethers.utils.getAddress(sale.to),
+
+              marketplaceFeeBps: sale.marketplaceFeeBps,
+              orderId: sale.orderId,
+              orderKind: sale.orderKind,
+              orderSide: sale.orderSide,
+              orderSource: sale.orderSource,
+              paidFullRoyalty: sale.paidFullRoyalty,
+              price: sale.price,
+
+              saleId: sale.saleId,
+              updatedAt: sale.updatedAt,
+              washTradingScore: sale.washTradingScore,
+
+              // ...sale,
+              // token: undefined,
+              // block: undefined,
             });
           //   const token = tokenData.token;
           //
