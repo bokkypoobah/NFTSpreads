@@ -11,10 +11,10 @@ const Collections = {
         </b-modal>
 
         <div class="d-flex flex-wrap m-0 p-0">
-          <div class="mt-0 pr-1" style="width: 200px;">
+          <div v-if="false" class="mt-0 pr-1" style="width: 200px;">
             <b-form-input type="text" size="sm" v-model.trim="settings.filter" @change="saveSettings" debounce="600" v-b-popover.hover.top="'Regex filter by address, symbol or name'" placeholder="🔍 addr/symb/name regex"></b-form-input>
           </div>
-          <div class="mt-0 pr-1">
+          <div v-if="false" class="mt-0 pr-1">
             <b-dropdown size="sm" variant="link" v-b-popover.hover="'Junk filter'">
               <template #button-content>
                 <span v-if="settings.junkFilter == 'excludejunk'">
@@ -57,13 +57,13 @@ const Collections = {
               </b-dropdown-item>
             </b-dropdown>
           </div>
-          <div class="mt-0 pr-1">
+          <div v-if="false" class="mt-0 pr-1">
             <b-button size="sm" :pressed.sync="settings.favouritesOnly" @click="saveSettings" variant="transparent" v-b-popover.hover.bottom="'Show favourited only'"><b-icon :icon="settings.favouritesOnly ? 'heart-fill' : 'heart'" font-scale="0.95" variant="danger"></b-icon></b-button>
           </div>
-          <div class="mt-0 flex-grow-1">
+          <div v-if="false" class="mt-0 flex-grow-1">
           </div>
-          <div class="mt-0 pr-1">
-            <b-button disabled size="sm" @click="viewFaucets" variant="link" v-b-popover.hover.bottom="'Drip tokens from ERC-20 and ERC-721 faucets'"><b-icon-plus shift-v="+1" font-scale="1.0"></b-icon-plus></b-button>
+          <div v-if="false" class="mt-0 pr-1">
+            <b-button size="sm" @click="viewFaucets" variant="link" v-b-popover.hover.bottom="'Drip tokens from ERC-20 and ERC-721 faucets'"><b-icon-plus shift-v="+1" font-scale="1.0"></b-icon-plus></b-button>
           </div>
           <div class="mt-0 flex-grow-1">
           </div>
@@ -82,12 +82,12 @@ const Collections = {
           </div>
           <div class="mt-0 flex-grow-1">
           </div>
-          <div class="mt-0 pr-1">
+          <div v-if="false" class="mt-0 pr-1">
             <b-button size="sm" :disabled="!coinbase" @click="newTransfer(null); " variant="link" v-b-popover.hover.top="'New Stealth Transfer'"><b-icon-caret-right shift-v="+1" font-scale="1.1"></b-icon-caret-right></b-button>
           </div>
-          <div class="mt-0 flex-grow-1">
+          <div v-if="false" class="mt-0 flex-grow-1">
           </div>
-          <div class="mt-0 pr-1">
+          <div v-if="false" class="mt-0 pr-1">
             <b-form-select size="sm" v-model="settings.sortOption" @change="saveSettings" :options="sortOptions" v-b-popover.hover.top="'Yeah. Sort'"></b-form-select>
           </div>
           <div class="mt-0 pr-1">
@@ -101,7 +101,8 @@ const Collections = {
           </div>
         </div>
 
-        <b-table ref="tokenContractsTable" small fixed striped responsive hover selectable select-mode="single" @row-selected='rowSelected' :fields="fields" :items="pagedFilteredSortedItems" show-empty head-variant="light" class="m-0 mt-1">
+        <!-- <b-table ref="tokenContractsTable" small fixed striped responsive hover selectable select-mode="single" @row-selected='rowSelected' :fields="fields" :items="pagedFilteredSortedItems" show-empty head-variant="light" class="m-0 mt-1"> -->
+        <b-table ref="tokenContractsTable" small fixed striped responsive hover :fields="fields" :items="pagedFilteredSortedItems" show-empty head-variant="light" class="m-0 mt-1">
           <template #empty="scope">
             <h6>{{ scope.emptyText }}</h6>
             <div>
