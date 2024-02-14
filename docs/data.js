@@ -146,8 +146,8 @@ const dataModule = {
       },
     },
     selectedCollection: null,
-    collection: {}, // ChainId, tokenContractAddress, tokenId => data
-
+    collection: {}, // contract, id, symbol, name, image, slug, creator, tokenCount
+    tokens: {}, // TokenId => { chainId, contract, tokenId, name, description, image, kind, isFlagged, isSpam, isNsfw, metadataDisabled, rarity, rarityRank, attributes
     addresses: {}, // Address => Info
     registry: {}, // Address => StealthMetaAddress
     stealthTransfers: {}, // ChainId, blockNumber, logIndex => data
@@ -200,6 +200,14 @@ const dataModule = {
     setSelectedCollection(state, selectedCollection) {
       Vue.set(state, 'selectedCollection', selectedCollection);
       // logInfo("dataModule", "mutations.setSelectedCollection: " + selectedCollection);
+    },
+    setCollection(state, collection) {
+      Vue.set(state, 'collection', collection);
+      // logInfo("dataModule", "mutations.setCollection - collection: " + JSON.stringify(collection, null, 2));
+    },
+    setTokens(state, tokens) {
+      Vue.set(state, 'tokens', tokens);
+      // logInfo("dataModule", "mutations.setTokens tokens: " + JSON.stringify(tokens, null, 2));
     },
 
     toggleAddressField(state, info) {
@@ -420,7 +428,7 @@ const dataModule = {
       if (Object.keys(context.state.stealthTransfers).length == 0) {
         const db0 = new Dexie(context.state.db.name);
         db0.version(context.state.db.version).stores(context.state.db.schemaDefinition);
-        for (let type of ['collections', 'selectedCollection', 'collection']) {
+        for (let type of ['collections', 'selectedCollection', 'collection', 'tokens']) {
           const data = await db0.cache.where("objectName").equals(type).toArray();
           if (data.length == 1) {
             // logInfo("dataModule", "actions.restoreState " + type + " => " + JSON.stringify(data[0].object));
@@ -578,6 +586,8 @@ const dataModule = {
       if (options.collectionSales) {
         await context.dispatch('syncCollectionSales', parameter);
       }
+
+      await context.dispatch('collateTokens', parameter);
 
       // if (options.devThing) {
       //   console.log("Dev Thing");
@@ -752,6 +762,79 @@ const dataModule = {
       } while (continuation != null /*&& !state.halt && !state.sync.error */);
     },
 
+    async collateTokens(context, parameter) {
+      logInfo("dataModule", "actions.collateTokens: " + JSON.stringify(parameter));
+      const db = new Dexie(context.state.db.name);
+      db.version(context.state.db.version).stores(context.state.db.schemaDefinition);
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
+
+      let rows = 0;
+      let done = false;
+
+      let collection = null;
+      const tokens = {};
+      do {
+        let data = await db.tokens.where('[chainId+contract+tokenId]').between([parameter.chainId, context.state.selectedCollection, Dexie.minKey],[parameter.chainId, context.state.selectedCollection, Dexie.maxKey]).offset(rows).limit(context.state.DB_PROCESSING_BATCH_SIZE).toArray();
+        logInfo("dataModule", "actions.collateTokens - data.length: " + data.length + ", first[0..9]: " + JSON.stringify(data.slice(0, 10).map(e => e.blockNumber + '.' + e.logIndex )));
+        for (const item of data) {
+
+          if (collection == null) {
+            collection = {
+              contract: item.contract,
+              id: item.collection.id,
+              name: item.collection.name,
+              image: item.collection.image,
+              slug: item.collection.slug,
+              creator: item.collection.creator,
+              tokenCount: item.collection.tokenCount,
+            };
+          }
+          tokens[item.tokenId] = {
+            chainId: item.chainId,
+            contract: item.contract,
+            tokenId: item.tokenId,
+            name: item.name,
+            description: item.description,
+            image: item.image,
+            kind: item.kind,
+            isFlagged: item.isFlagged,
+            isSpam: item.isSpam,
+            isNsfw: item.isNsfw,
+            metadataDisabled: item.metadataDisabled,
+            rarity: item.rarity,
+            rarityRank: item.rarityRank,
+            attributes: item.attributes,
+            owner: item.owner,
+          };
+        }
+        rows = parseInt(rows) + data.length;
+        done = data.length < context.state.DB_PROCESSING_BATCH_SIZE;
+      } while (!done);
+
+      context.commit('setCollection', collection);
+      context.commit('setTokens', tokens);
+
+      // console.log("tokens: " + JSON.stringify(tokens, null, 2));
+
+      rows = 0;
+      done = false;
+
+      // do {
+      //   let data = await db.sales.where('[chainId+blockNumber+logIndex]').between([parameter.chainId, Dexie.minKey, Dexie.minKey],[parameter.chainId, Dexie.maxKey, Dexie.maxKey]).offset(rows).limit(context.state.DB_PROCESSING_BATCH_SIZE).toArray();
+      //   logInfo("dataModule", "actions.collateTokens - data.length: " + data.length + ", first[0..9]: " + JSON.stringify(data.slice(0, 10).map(e => e.blockNumber + '.' + e.logIndex )));
+      //   for (const item of data) {
+      //     console.log(JSON.stringify(item));
+      //     // if (item.schemeId == 0) {
+      //     //   context.commit('addStealthTransfer', item);
+      //     // }
+      //   }
+      //   rows = parseInt(rows) + data.length;
+      //   done = data.length < context.state.DB_PROCESSING_BATCH_SIZE;
+      // } while (!done);
+
+      await context.dispatch('saveData', ['collection', 'tokens']);
+      logInfo("dataModule", "actions.collateTokens END");
+    },
 
 
     async syncImportExchangeRates(context, parameter) {
