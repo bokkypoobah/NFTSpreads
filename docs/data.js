@@ -131,6 +131,20 @@ const dataModule = {
   namespaced: true,
   state: {
     DB_PROCESSING_BATCH_SIZE: 123,
+    collections: {
+      "1": {
+        "0xc92cedDfb8dd984A89fb494c376f9A48b999aAFc": {
+          symbol: "CREATURE",
+          name: "Creature World",
+          type: "erc721",
+        },
+        "0x8FA600364B93C53e0c71C7A33d2adE21f4351da3": {
+          symbol: "LChads",
+          name: "Larva Chads",
+          type: "erc721",
+        },
+      },
+    },
     addresses: {}, // Address => Info
     registry: {}, // Address => StealthMetaAddress
     stealthTransfers: {}, // ChainId, blockNumber, logIndex => data
@@ -158,6 +172,7 @@ const dataModule = {
     },
   },
   getters: {
+    collections: state => state.collections,
     addresses: state => state.addresses,
     registry: state => state.registry,
     stealthTransfers: state => state.stealthTransfers,

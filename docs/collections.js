@@ -63,7 +63,7 @@ const Collections = {
           <div class="mt-0 flex-grow-1">
           </div>
           <div class="mt-0 pr-1">
-            <b-button size="sm" @click="viewFaucets" variant="link" v-b-popover.hover.bottom="'Drip tokens from ERC-20 and ERC-721 faucets'"><b-icon-plus shift-v="+1" font-scale="1.0"></b-icon-plus></b-button>
+            <b-button disabled size="sm" @click="viewFaucets" variant="link" v-b-popover.hover.bottom="'Drip tokens from ERC-20 and ERC-721 faucets'"><b-icon-plus shift-v="+1" font-scale="1.0"></b-icon-plus></b-button>
           </div>
           <div class="mt-0 flex-grow-1">
           </div>
@@ -91,7 +91,7 @@ const Collections = {
             <b-form-select size="sm" v-model="settings.sortOption" @change="saveSettings" :options="sortOptions" v-b-popover.hover.top="'Yeah. Sort'"></b-form-select>
           </div>
           <div class="mt-0 pr-1">
-            <font size="-2" v-b-popover.hover.top="'# tokens'">{{ filteredSortedItems.length + '/' + totalERC721Tokens }}</font>
+            <font size="-2" v-b-popover.hover.top="'# tokens'">{{ filteredSortedItems.length + '/' + totalCollections }}</font>
           </div>
           <div class="mt-0 pr-1">
             <b-pagination size="sm" v-model="settings.currentPage" @input="saveSettings" :total-rows="filteredSortedItems.length" :per-page="settings.pageSize" style="height: 0;"></b-pagination>
@@ -119,19 +119,12 @@ const Collections = {
             {{ parseInt(data.index) + ((settings.currentPage - 1) * settings.pageSize) + 1 }}
           </template>
 
-          <!-- <b-avatar button @click="toggleTrait(layer, trait.value)" rounded size="7rem" :src="getSVG(layer, trait.value)">
-            <template v-if="selectedTraits[layer] && selectedTraits[layer][trait.value]" #badge><b-icon icon="check"></b-icon></template>
-          </b-avatar> -->
-
-          <template #cell(image)="data">
-            <!-- <b-avatar v-if="data.item.image" button rounded fluid size="7rem" :src="data.item.image"> -->
-              <!-- <template v-if="selectedTraits[layer] && selectedTraits[layer][trait.value]" #badge><b-icon icon="check"></b-icon></template> -->
-            <!-- </b-avatar> -->
+          <!-- <template #cell(image)="data">
             <b-img v-if="data.item.image" button rounded fluid size="7rem" :src="data.item.image">
             </b-img>
-          </template>
+          </template> -->
 
-          <template #cell(info)="data">
+          <!-- <template #cell(info)="data">
             <b-link v-if="chainInfo[chainId]" :href="chainInfo[chainId].nftTokenPrefix + data.item.address + '/' + data.item.tokenId" target="_blank">
               <span v-if="data.item.name">
                 <font size="-1">{{ data.item.name }}</font>
@@ -147,50 +140,47 @@ const Collections = {
             </b-link>
             <b-button size="sm" @click="toggleTokenContractJunk(data.item);" variant="transparent"><b-icon :icon="data.item.junk ? 'trash-fill' : 'trash'" font-scale="0.9" :variant="data.item.junk ? 'info' : 'secondary'"></b-icon></b-button>
             <b-button size="sm" :disabled="data.item.junk" @click="toggleTokenContractFavourite(data.item);" variant="transparent"><b-icon :icon="data.item.favourite & !data.item.junk ? 'heart-fill' : 'heart'" font-scale="0.9" :variant="data.item.junk ? 'dark' : 'danger'"></b-icon></b-button>
-          </template>
+          </template> -->
 
-          <template #cell(expiry)="data">
+          <!-- <template #cell(expiry)="data">
             {{ formatTimestamp(data.item.expiry) }}
-          </template>
+          </template> -->
 
-          <template #cell(attributes)="data">
-            <!-- {{ data.item.attributes }} -->
+          <!-- <template #cell(attributes)="data">
             <b-row v-for="(attribute, i) in data.item.attributes"  v-bind:key="i" class="m-0 p-0">
               <b-col cols="3" class="m-0 px-2 text-right"><font size="-3">{{ attribute.trait_type }}</font></b-col>
               <b-col cols="9" class="m-0 px-2"><b><font size="-2">{{ ["Created Date", "Registration Date", "Expiration Date"].includes(attribute.trait_type) ? formatTimestamp(attribute.value) : attribute.value }}</font></b></b-col>
             </b-row>
-          </template>
+          </template> -->
 
-
-
-          <template #cell(favourite)="data">
+          <!-- <template #cell(favourite)="data">
             <b-button size="sm" @click="toggleTokenContractFavourite(data.item);" variant="transparent"><b-icon :icon="data.item.favourite ? 'heart-fill' : 'heart'" font-scale="0.9" variant="danger"></b-icon></b-button>
-          </template>
+          </template> -->
 
-          <template #cell(contract)="data">
+          <!-- <template #cell(contract)="data">
             <b-link v-if="chainInfo[chainId]" :href="chainInfo[chainId].explorerTokenPrefix + data.item.address + '#code'" target="_blank">
               <font size="-1">{{ data.item.address.substring(0, 10) + '...' + data.item.address.slice(-8) }}</font>
             </b-link>
-          </template>
-          <template #cell(type)="data">
+          </template> -->
+          <!-- <template #cell(type)="data"> -->
             <!-- <font size="-1">{{ data.item.type == "erc20" ? "ERC-20" : "ERC-721" }}</font> -->
-          </template>
+          <!-- </template> -->
           <template #cell(symbol)="data">
-            <!-- <font size="-1">{{ data.item.symbol }}</font> -->
+            {{ data.item.symbol }}
           </template>
           <template #cell(name)="data">
-            <!-- <font size="-1">{{ data.item.name }}</font> -->
+            {{ data.item.name }}
           </template>
-          <template #cell(firstEventBlockNumber)="data">
+          <!-- <template #cell(firstEventBlockNumber)="data"> -->
             <!-- <font size="-1">{{ commify0(data.item.firstEventBlockNumber) }}</font> -->
-          </template>
-          <template #cell(lastEventBlockNumber)="data">
+          <!-- </template> -->
+          <!-- <template #cell(lastEventBlockNumber)="data"> -->
             <!-- <font size="-1">{{ commify0(data.item.lastEventBlockNumber) }}</font> -->
-          </template>
-          <template #cell(decimals)="data">
+          <!-- </template> -->
+          <!-- <template #cell(decimals)="data"> -->
             <!-- <font size="-1">{{ data.item.type == "erc20" ? parseInt(data.item.decimals) : "" }}</font> -->
-          </template>
-          <template #cell(balance)="data">
+          <!-- </template> -->
+          <!-- <template #cell(balance)="data"> -->
             <!-- <span v-if="data.item.balances[coinbase] && data.item.type == 'erc20'">
               <b-button size="sm" :href="'https://sepolia.etherscan.io/token/' + data.item.address + '?a=' + coinbase" variant="link" class="m-0 ml-2 p-0" target="_blank">{{ formatDecimals(data.item.balances[coinbase], data.item.decimals || 0) }}</b-button>
             </span>
@@ -201,11 +191,11 @@ const Collections = {
                 </span>
               </font>
             </span> -->
-          </template>
+          <!-- </template> -->
 
-          <template #cell(totalSupply)="data">
+          <!-- <template #cell(totalSupply)="data">
             <font size="-1">{{ data.item.type == "erc20" ? formatDecimals(data.item.totalSupply, data.item.decimals || 0) : data.item.totalSupply }}</font>
-          </template>
+          </template> -->
 
 
           <template #cell(timestamp)="data">
@@ -284,29 +274,11 @@ const Collections = {
         { value: 'registrantasc', text: '▲ Registrant' },
         { value: 'registrantdsc', text: '▼ Registrant' },
       ],
-      // fields: [
-      //   { key: 'number', label: '#', sortable: false, thStyle: 'width: 5%;', tdClass: 'text-truncate' },
-      //   { key: 'timestamp', label: 'When', sortable: false, thStyle: 'width: 10%;', tdClass: 'text-truncate' },
-      //   { key: 'sender', label: 'Sender', sortable: false, thStyle: 'width: 15%;', thClass: 'text-left', tdClass: 'text-truncate' },
-      //   { key: 'receiver', label: 'Receiver', sortable: false, thStyle: 'width: 15%;', thClass: 'text-left', tdClass: 'text-truncate' },
-      //   { key: 'tokens', label: 'Tokens', sortable: false, thStyle: 'width: 20%;', thClass: 'text-left', tdClass: 'text-truncate' },
-      // ],
       fields: [
         { key: 'number', label: '#', sortable: false, thStyle: 'width: 5%;', tdClass: 'text-truncate' },
-        { key: 'image', label: 'Image', sortable: false, thStyle: 'width: 10%;', thClass: 'text-right', tdClass: 'text-right' },
-        { key: 'info', label: 'Info', sortable: false, thStyle: 'width: 40%;', thClass: 'text-left', tdClass: 'text-truncate' },
-        { key: 'expiry', label: 'Expiry', sortable: false, thStyle: 'width: 15%;', thClass: 'text-left', tdClass: 'text-truncate' },
-        { key: 'attributes', label: 'Attributes', sortable: false, thStyle: 'width: 30%;', thClass: 'text-left', tdClass: 'text-truncate' },
-        // { key: 'favourite', label: '', sortable: false, thStyle: 'width: 3%;', thClass: 'text-right', tdClass: 'text-right' },
-        // { key: 'contract', label: 'Contract', sortable: false, thStyle: 'width: 16%;', thClass: 'text-left', tdClass: 'text-truncate' },
-        // { key: 'type', label: 'Type', sortable: false, thStyle: 'width: 7%;', thClass: 'text-left', tdClass: 'text-truncate' },
-        // { key: 'symbol', label: 'Symbol', sortable: false, thStyle: 'width: 10%;', thClass: 'text-left', tdClass: 'text-truncate' },
-        // { key: 'name', label: 'Name', sortable: false, thStyle: 'width: 20%;', thClass: 'text-left', tdClass: 'text-truncate' },
-        // { key: 'firstEventBlockNumber', label: 'First Ev#', sortable: false, thStyle: 'width: 10%;', thClass: 'text-right', tdClass: 'text-right' },
-        // { key: 'lastEventBlockNumber', label: 'Last Ev#', sortable: false, thStyle: 'width: 10%;', thClass: 'text-right', tdClass: 'text-right' },
-        // { key: 'decimals', label: 'Decs', sortable: false, thStyle: 'width: 5%;', thClass: 'text-right', tdClass: 'text-right' },
-        // { key: 'balance', label: 'Balance', sortable: false, thStyle: 'width: 20%;', thClass: 'text-right', tdClass: 'text-right' },
-        // { key: 'totalSupply', label: 'Total Supply', sortable: false, thStyle: 'width: 20%;', thClass: 'text-right', tdClass: 'text-right' },
+        { key: 'address', label: 'Address', sortable: false, thStyle: 'width: 16%;', thClass: 'text-left', tdClass: 'text-truncate' },
+        { key: 'symbol', label: 'Symbol', sortable: false, thStyle: 'width: 16%;', thClass: 'text-left', tdClass: 'text-truncate' },
+        { key: 'name', label: 'Name', sortable: false, thStyle: 'width: 16%;', thClass: 'text-left', tdClass: 'text-truncate' },
       ],
     }
   },
@@ -328,6 +300,9 @@ const Collections = {
     },
     pageSizes() {
       return store.getters['config/pageSizes'];
+    },
+    collections() {
+      return store.getters['data/collections'];
     },
     addresses() {
       return store.getters['data/addresses'];
@@ -360,12 +335,10 @@ const Collections = {
       return results;
     },
 
-    totalERC721Tokens() {
+    totalCollections() {
       let result = (store.getters['data/forceRefresh'] % 2) == 0 ? 0 : 0;
-      for (const [address, data] of Object.entries(this.tokenContracts[this.chainId] || {})) {
-        if (data.type == "erc721") {
-          result += Object.keys(data.tokenIds).length;
-        }
+      for (const [address, data] of Object.entries(this.collections[this.chainId] || {})) {
+        result++;
       }
       return result;
     },
@@ -380,57 +353,59 @@ const Collections = {
           regex = new RegExp(/thequickbrowndogjumpsoverthelazyfox/, 'i');
         }
       }
-      for (const [address, data] of Object.entries(this.tokenContracts[this.chainId] || {})) {
+      for (const [address, data] of Object.entries(this.collections[this.chainId] || {})) {
         if (data.type == "erc721") {
-          // console.log(address + " => " + JSON.stringify(data, null, 2));
-          const collectionName = data.name;
-          for (const [tokenId, tokenData] of Object.entries(data.tokenIds)) {
-            // console.log(address + "/" + tokenId + " => " + JSON.stringify(tokenData, null, 2));
+          console.log(address + " => " + JSON.stringify(data, null, 2));
+          results.push({ address, symbol: data.symbol, name: data.name });
 
-            const metadata = this.tokenMetadata[this.chainId] &&
-              this.tokenMetadata[this.chainId][address] &&
-              this.tokenMetadata[this.chainId][address][tokenId] ||
-              {};
+          // for (const [tokenId, tokenData] of Object.entries(data.tokenIds)) {
+          //   // console.log(address + "/" + tokenId + " => " + JSON.stringify(tokenData, null, 2));
+          //
+          //   const metadata = this.tokenMetadata[this.chainId] &&
+          //     this.tokenMetadata[this.chainId][address] &&
+          //     this.tokenMetadata[this.chainId][address][tokenId] ||
+          //     {};
+          //
+          //   let include = true;
+          //   if (this.settings.junkFilter) {
+          //     if (this.settings.junkFilter == 'junk' && !data.junk) {
+          //       include = false;
+          //     } else if (this.settings.junkFilter == 'excludejunk' && data.junk) {
+          //       include = false;
+          //     }
+          //   }
+          //   if (include && this.settings.favouritesOnly && (!data.favourite || data.junk)) {
+          //     include = false;
+          //   }
+          //   if (include && regex) {
+          //     const name = metadata.name || null;
+          //     const description = metadata.description || null;
+          //     if (!(regex.test(collectionName) || regex.test(name) || regex.test(description))) {
+          //       include = false;
+          //     }
+          //   }
+          //   if (include) {
+          //     results.push({
+          //       address,
+          //       junk: data.junk,
+          //       favourite: data.favourite,
+          //       collectionSymbol: address == ENS_ERC721_ADDRESS ? "ENS" : data.symbol,
+          //       collectionName: address == ENS_ERC721_ADDRESS ? "Ethereum Name Service" : data.name,
+          //       totalSupply: data.totalSupply,
+          //       tokenId,
+          //       owner: tokenData.owner,
+          //       name: metadata.name || null,
+          //       description: metadata.description || null,
+          //       expiry: metadata.expiry || undefined,
+          //       attributes: metadata.attributes || null,
+          //       imageSource: metadata.imageSource || null,
+          //       image: metadata.image || null,
+          //       blockNumber: tokenData.blockNumber,
+          //       logIndex: tokenData.logIndex,
+          //     });
+          //   }
+          // }
 
-            let include = true;
-            if (this.settings.junkFilter) {
-              if (this.settings.junkFilter == 'junk' && !data.junk) {
-                include = false;
-              } else if (this.settings.junkFilter == 'excludejunk' && data.junk) {
-                include = false;
-              }
-            }
-            if (include && this.settings.favouritesOnly && (!data.favourite || data.junk)) {
-              include = false;
-            }
-            if (include && regex) {
-              const name = metadata.name || null;
-              const description = metadata.description || null;
-              if (!(regex.test(collectionName) || regex.test(name) || regex.test(description))) {
-                include = false;
-              }
-            }
-            if (include) {
-              results.push({
-                address,
-                junk: data.junk,
-                favourite: data.favourite,
-                collectionSymbol: address == ENS_ERC721_ADDRESS ? "ENS" : data.symbol,
-                collectionName: address == ENS_ERC721_ADDRESS ? "Ethereum Name Service" : data.name,
-                totalSupply: data.totalSupply,
-                tokenId,
-                owner: tokenData.owner,
-                name: metadata.name || null,
-                description: metadata.description || null,
-                expiry: metadata.expiry || undefined,
-                attributes: metadata.attributes || null,
-                imageSource: metadata.imageSource || null,
-                image: metadata.image || null,
-                blockNumber: tokenData.blockNumber,
-                logIndex: tokenData.logIndex,
-              });
-            }
-          }
         }
       }
       return results;
@@ -512,8 +487,8 @@ const Collections = {
       return e ? ethers.utils.formatUnits(e, decimals).replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",") : null;
     },
     saveSettings() {
-      logInfo("Collections", "methods.saveSettings - erc721sSettings: " + JSON.stringify(this.settings, null, 2));
-      localStorage.erc721sSettings = JSON.stringify(this.settings);
+      logInfo("Collections", "methods.saveSettings - collectionsSettings: " + JSON.stringify(this.settings, null, 2));
+      localStorage.collectionsSettings = JSON.stringify(this.settings);
     },
     async viewSyncOptions(blah) {
       store.dispatch('syncOptions/viewSyncOptions', blah);
@@ -622,8 +597,8 @@ const Collections = {
   mounted() {
     logDebug("Collections", "mounted() $route: " + JSON.stringify(this.$route.params));
     store.dispatch('data/restoreState');
-    if ('erc721sSettings' in localStorage) {
-      const tempSettings = JSON.parse(localStorage.erc721sSettings);
+    if ('collectionsSettings' in localStorage) {
+      const tempSettings = JSON.parse(localStorage.collectionsSettings);
       if ('version' in tempSettings && tempSettings.version == 0) {
         this.settings = tempSettings;
         this.settings.currentPage = 1;
