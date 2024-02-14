@@ -163,13 +163,14 @@ const dataModule = {
       halt: false,
     },
     db: {
-      name: "nftspreadsdata080a",
+      name: "nftspreadsdata080b",
       version: 1,
       schemaDefinition: {
         // announcements: '[chainId+blockNumber+logIndex],[blockNumber+contract],contract,confirmations,stealthAddress',
         // registrations: '[chainId+blockNumber+logIndex],[blockNumber+contract],contract,confirmations',
         // tokenEvents: '[chainId+blockNumber+logIndex],[blockNumber+contract],contract,confirmations',
         tokens: '[chainId+contract+tokenId]',
+        sales: '[chainId+blockNumber+logIndex],contract,confirmations',
         cache: '&objectName',
       },
       updated: null,
@@ -419,7 +420,7 @@ const dataModule = {
       if (Object.keys(context.state.stealthTransfers).length == 0) {
         const db0 = new Dexie(context.state.db.name);
         db0.version(context.state.db.version).stores(context.state.db.schemaDefinition);
-        for (let type of ['selectedCollection', 'addresses', 'registry', 'stealthTransfers', 'tokenContracts', 'tokenMetadata']) {
+        for (let type of ['collections', 'selectedCollection', 'collection']) {
           const data = await db0.cache.where("objectName").equals(type).toArray();
           if (data.length == 1) {
             // logInfo("dataModule", "actions.restoreState " + type + " => " + JSON.stringify(data[0].object));
@@ -570,7 +571,13 @@ const dataModule = {
 
       const parameter = { chainId, coinbase, blockNumber, confirmations, cryptoCompareAPIKey, ...options };
 
-      await context.dispatch('syncCollection', parameter);
+      if (options.collection) {
+        await context.dispatch('syncCollection', parameter);
+      }
+
+      if (options.collectionSales) {
+        await context.dispatch('syncCollectionSales', parameter);
+      }
 
       // if (options.stealthTransfers && !options.devThing) {
       //   await context.dispatch('syncStealthTransfers', parameter);
@@ -639,7 +646,9 @@ const dataModule = {
              // state.sync.error = true;
              return [];
           });
-        continuation = data.continuation;
+        if (!parameter.devThing) {
+          continuation = data.continuation;
+        }
         if (data && data.tokens) {
           // console.log("tokens: " + JSON.stringify(data.tokens, null, 2));
           const records = [];
@@ -687,6 +696,97 @@ const dataModule = {
               console.log("syncCollection.bulkPut lastKey: " + JSON.stringify(lastKey));
             }).catch(Dexie.BulkError, function(e) {
               console.log("syncCollection.bulkPut e: " + JSON.stringify(e.failures, null, 2));
+            });
+          }
+        }
+        await delay(2000); // TODO: Adjust to avoid error 429 Too Many Requests. Fails at 200ms
+      } while (continuation != null /*&& !state.halt && !state.sync.error */);
+    },
+
+    async syncCollectionSales(context, parameter) {
+      logInfo("dataModule", "actions.syncCollectionSales BEGIN: " + JSON.stringify(parameter));
+      const db = new Dexie(context.state.db.name);
+      db.version(context.state.db.version).stores(context.state.db.schemaDefinition);
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
+
+      let collectionName = null;
+      let collectionSlug = null;
+      let collectionImage = null;
+      let kind = null;
+
+      let continuation = null;
+      do {
+        let url = "https://api.reservoir.tools/sales/v6?collection=" + context.state.selectedCollection + "&limit=1000" +
+          (continuation != null ? "&continuation=" + continuation : '');
+        console.log("url: " + url);
+        const data = await fetch(url)
+          .then(handleErrors)
+          .then(response => response.json())
+          .catch(function(error) {
+             console.log("ERROR - updateCollection: " + error);
+             // state.sync.error = true;
+             return [];
+          });
+        if (!parameter.devThing) {
+          continuation = data.continuation;
+        }
+        if (data && data.sales) {
+          console.log("sales: " + JSON.stringify(data.sales, null, 2));
+          const records = [];
+          for (const sale of data.sales) {
+            records.push({
+              chainId: parameter.chainId,
+              contract: sale.token.contract,
+              tokenId: sale.token.tokenId,
+              blockNumber: sale.block,
+              confirmations: parameter.blockNumber - sale.block,
+              ...sale,
+              token: undefined,
+              block: undefined,
+            });
+          //   const token = tokenData.token;
+          //
+          //   const collectionAddress = token.contract;
+          //   const tokenId = token.tokenId;
+          //   const name = token.name;
+          //   const description = token.description;
+          //   const image = token.image;
+          //   if (!collectionName) {
+          //     collectionName = token.collection.name;
+          //   }
+          //   if (!collectionSlug) {
+          //     collectionSlug = token.collection.slug;
+          //   }
+          //   if (!collectionImage) {
+          //     collectionImage = token.collection.image;
+          //   }
+          //   if (!kind) {
+          //     kind = token.kind;
+          //   }
+          //   const owner = token.owner;
+          //   const attributes = token.attributes.map(e => ({ trait_type: e.key, value: e.value }));
+          //   attributes.sort((a, b) => {
+          //     return ('' + a.trait_type).localeCompare(b.trait_type);
+          //   });
+          //
+          //   // console.log(collectionAddress + "/" + tokenId + " " + owner + " " + JSON.stringify(attributes));
+          //   records.push({
+          //     chainId: parameter.chainId,
+          //     contract: token.contract,
+          //     tokenId: token.tokenId,
+          //     name: token.name,
+          //     description: token.description,
+          //     image: token.image,
+          //     owner: token.owner,
+          //     attributes,
+          //   });
+          }
+          console.log("records: " + JSON.stringify(records, null, 2));
+          if (records.length) {
+            await db.sales.bulkPut(records).then (function(lastKey) {
+              console.log("syncCollectionSales.bulkPut lastKey: " + JSON.stringify(lastKey));
+            }).catch(Dexie.BulkError, function(e) {
+              console.log("syncCollectionSales.bulkPut e: " + JSON.stringify(e.failures, null, 2));
             });
           }
         }
