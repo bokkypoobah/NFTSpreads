@@ -635,7 +635,7 @@ const dataModule = {
 
       let continuation = null;
       do {
-        let url = "https://api.reservoir.tools/tokens/v5?contract=" + context.state.selectedCollection + "&includeAttributes=true&limit=100" +
+        let url = "https://api.reservoir.tools/tokens/v7?contract=" + context.state.selectedCollection + "&sortBy=updatedAt&limit=1000&includeAttributes=true" +
           (continuation != null ? "&continuation=" + continuation : '');
         console.log("url: " + url);
         const data = await fetch(url)
@@ -699,7 +699,7 @@ const dataModule = {
             });
           }
         }
-        await delay(2000); // TODO: Adjust to avoid error 429 Too Many Requests. Fails at 200ms
+        await delay(2500); // TODO: Adjust to avoid error 429 Too Many Requests. Fails at 200ms
       } while (continuation != null /*&& !state.halt && !state.sync.error */);
     },
 
@@ -731,7 +731,7 @@ const dataModule = {
           continuation = data.continuation;
         }
         if (data && data.sales) {
-          console.log("sales: " + JSON.stringify(data.sales, null, 2));
+          // console.log("sales: " + JSON.stringify(data.sales, null, 2));
           const records = [];
           for (const sale of data.sales) {
             records.push({
@@ -781,7 +781,7 @@ const dataModule = {
           //     attributes,
           //   });
           }
-          console.log("records: " + JSON.stringify(records, null, 2));
+          // console.log("records: " + JSON.stringify(records, null, 2));
           if (records.length) {
             await db.sales.bulkPut(records).then (function(lastKey) {
               console.log("syncCollectionSales.bulkPut lastKey: " + JSON.stringify(lastKey));
@@ -790,7 +790,7 @@ const dataModule = {
             });
           }
         }
-        await delay(2000); // TODO: Adjust to avoid error 429 Too Many Requests. Fails at 200ms
+        await delay(2500); // TODO: Adjust to avoid error 429 Too Many Requests. Fails at 200ms
       } while (continuation != null /*&& !state.halt && !state.sync.error */);
     },
 
