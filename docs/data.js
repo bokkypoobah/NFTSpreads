@@ -568,6 +568,9 @@ const dataModule = {
       }
 
       const parameter = { chainId, coinbase, blockNumber, confirmations, cryptoCompareAPIKey, ...options };
+
+      await context.dispatch('syncCollection', parameter);
+
       // if (options.stealthTransfers && !options.devThing) {
       //   await context.dispatch('syncStealthTransfers', parameter);
       // }
@@ -609,6 +612,33 @@ const dataModule = {
       context.commit('setSyncSection', { section: null, total: null });
       context.commit('setSyncHalt', false);
       context.commit('forceRefresh');
+    },
+
+    async syncCollection(context, parameter) {
+      logInfo("dataModule", "actions.syncCollection BEGIN: " + JSON.stringify(parameter));
+
+      let continuation = null;
+      do {
+        let url = "https://api.reservoir.tools/tokens/v5?contract=" + context.state.selectedCollection + "&includeAttributes=false&limit=100" +
+          (continuation != null ? "&continuation=" + continuation : '');
+        console.log("url: " + url);
+        const data = await fetch(url)
+          .then(handleErrors)
+          .then(response => response.json())
+          .catch(function(error) {
+             console.log("ERROR - updateCollection: " + error);
+             // state.sync.error = true;
+             return [];
+          });
+        // continuation = data.continuation;
+        if (data && data.tokens) {
+          console.log("tokens: " + JSON.stringify(data.tokens, null, 2));
+          for (const tokenData of data.tokens) {
+            const token = tokenData.token;
+          }
+        }
+        await delay(2000); // TODO: Adjust to avoid error 429 Too Many Requests. Fails at 200ms
+      } while (continuation != null /*&& !state.halt && !state.sync.error */);
     },
 
     async syncStealthTransfers(context, parameter) {
