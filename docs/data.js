@@ -166,9 +166,10 @@ const dataModule = {
       name: "nftspreadsdata080a",
       version: 1,
       schemaDefinition: {
-        announcements: '[chainId+blockNumber+logIndex],[blockNumber+contract],contract,confirmations,stealthAddress',
-        registrations: '[chainId+blockNumber+logIndex],[blockNumber+contract],contract,confirmations',
-        tokenEvents: '[chainId+blockNumber+logIndex],[blockNumber+contract],contract,confirmations',
+        // announcements: '[chainId+blockNumber+logIndex],[blockNumber+contract],contract,confirmations,stealthAddress',
+        // registrations: '[chainId+blockNumber+logIndex],[blockNumber+contract],contract,confirmations',
+        // tokenEvents: '[chainId+blockNumber+logIndex],[blockNumber+contract],contract,confirmations',
+        tokens: '[chainId+contract+tokenId]',
         cache: '&objectName',
       },
       updated: null,
@@ -616,6 +617,9 @@ const dataModule = {
 
     async syncCollection(context, parameter) {
       logInfo("dataModule", "actions.syncCollection BEGIN: " + JSON.stringify(parameter));
+      const db = new Dexie(context.state.db.name);
+      db.version(context.state.db.version).stores(context.state.db.schemaDefinition);
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
 
       let collectionName = null;
       let collectionSlug = null;
@@ -635,9 +639,10 @@ const dataModule = {
              // state.sync.error = true;
              return [];
           });
-        // continuation = data.continuation;
+        continuation = data.continuation;
         if (data && data.tokens) {
-          console.log("tokens: " + JSON.stringify(data.tokens, null, 2));
+          // console.log("tokens: " + JSON.stringify(data.tokens, null, 2));
+          const records = [];
           for (const tokenData of data.tokens) {
             const token = tokenData.token;
 
@@ -664,7 +669,25 @@ const dataModule = {
               return ('' + a.trait_type).localeCompare(b.trait_type);
             });
 
-            console.log(collectionAddress + "/" + tokenId + " " + owner + " " + JSON.stringify(attributes));
+            // console.log(collectionAddress + "/" + tokenId + " " + owner + " " + JSON.stringify(attributes));
+            records.push({
+              chainId: parameter.chainId,
+              contract: token.contract,
+              tokenId: token.tokenId,
+              name: token.name,
+              description: token.description,
+              image: token.image,
+              owner: token.owner,
+              attributes,
+            });
+          }
+          // console.log("records: " + JSON.stringify(records, null, 2));
+          if (records.length) {
+            await db.tokens.bulkPut(records).then (function(lastKey) {
+              console.log("syncCollection.bulkPut lastKey: " + JSON.stringify(lastKey));
+            }).catch(Dexie.BulkError, function(e) {
+              console.log("syncCollection.bulkPut e: " + JSON.stringify(e.failures, null, 2));
+            });
           }
         }
         await delay(2000); // TODO: Adjust to avoid error 429 Too Many Requests. Fails at 200ms
