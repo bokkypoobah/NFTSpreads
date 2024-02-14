@@ -385,7 +385,7 @@ const Collection = {
       }
       for (const [address, data] of Object.entries(this.collections[this.chainId] || {})) {
         if (data.type == "erc721") {
-          console.log(address + " => " + JSON.stringify(data, null, 2));
+          // console.log(address + " => " + JSON.stringify(data, null, 2));
           results.push({ address, symbol: data.symbol, name: data.name });
 
           // for (const [tokenId, tokenData] of Object.entries(data.tokenIds)) {

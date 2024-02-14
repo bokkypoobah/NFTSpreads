@@ -197,7 +197,7 @@ const dataModule = {
     },
     setSelectedCollection(state, selectedCollection) {
       Vue.set(state, 'selectedCollection', selectedCollection);
-      logInfo("dataModule", "mutations.setSelectedCollection: " + selectedCollection);
+      // logInfo("dataModule", "mutations.setSelectedCollection: " + selectedCollection);
     },
 
     toggleAddressField(state, info) {
@@ -428,7 +428,7 @@ const dataModule = {
       }
     },
     async saveData(context, types) {
-      logInfo("dataModule", "actions.saveData - types: " + JSON.stringify(types));
+      // logInfo("dataModule", "actions.saveData - types: " + JSON.stringify(types));
       const db0 = new Dexie(context.state.db.name);
       db0.version(context.state.db.version).stores(context.state.db.schemaDefinition);
       for (let type of types) {
@@ -441,7 +441,7 @@ const dataModule = {
     },
 
     async setSelectedCollection(context, selectedCollection) {
-      logInfo("dataModule", "actions.setSelectedCollection: " + selectedCollection);
+      // logInfo("dataModule", "actions.setSelectedCollection: " + selectedCollection);
       await context.commit('setSelectedCollection', selectedCollection);
       await context.dispatch('saveData', ['selectedCollection']);
     },
@@ -568,44 +568,44 @@ const dataModule = {
       }
 
       const parameter = { chainId, coinbase, blockNumber, confirmations, cryptoCompareAPIKey, ...options };
-      if (options.stealthTransfers && !options.devThing) {
-        await context.dispatch('syncStealthTransfers', parameter);
-      }
-      if (options.stealthTransfers && !options.devThing) {
-        await context.dispatch('syncStealthTransfersData', parameter);
-      }
-      if (options.stealthTransfers && !options.devThing) {
-        await context.dispatch('identifyMyStealthTransfers', parameter);
-      }
-      if (options.stealthTransfers && !options.devThing) {
-        await context.dispatch('collateStealthTransfers', parameter);
-      }
+      // if (options.stealthTransfers && !options.devThing) {
+      //   await context.dispatch('syncStealthTransfers', parameter);
+      // }
+      // if (options.stealthTransfers && !options.devThing) {
+      //   await context.dispatch('syncStealthTransfersData', parameter);
+      // }
+      // if (options.stealthTransfers && !options.devThing) {
+      //   await context.dispatch('identifyMyStealthTransfers', parameter);
+      // }
+      // if (options.stealthTransfers && !options.devThing) {
+      //   await context.dispatch('collateStealthTransfers', parameter);
+      // }
 
-      if (options.stealthMetaAddressRegistry && !options.devThing) {
-        await context.dispatch('syncRegistrations', parameter);
-      }
-      if (options.stealthMetaAddressRegistry && !options.devThing) {
-        await context.dispatch('syncRegistrationsData', parameter);
-      }
-      if (options.stealthMetaAddressRegistry && !options.devThing) {
-        await context.dispatch('collateRegistrations', parameter);
-      }
+      // if (options.stealthMetaAddressRegistry && !options.devThing) {
+      //   await context.dispatch('syncRegistrations', parameter);
+      // }
+      // if (options.stealthMetaAddressRegistry && !options.devThing) {
+      //   await context.dispatch('syncRegistrationsData', parameter);
+      // }
+      // if (options.stealthMetaAddressRegistry && !options.devThing) {
+      //   await context.dispatch('collateRegistrations', parameter);
+      // }
 
-      if (options.tokens && !options.devThing) {
-        await context.dispatch('syncTokens', parameter);
-      }
-      if (options.tokens && !options.devThing) {
-        await context.dispatch('collateTokens', parameter);
-      }
-      if (options.erc721Metadata && !options.devThing) {
-        await context.dispatch('syncERC721Metadata', parameter);
-      }
+      // if (options.tokens && !options.devThing) {
+      //   await context.dispatch('syncTokens', parameter);
+      // }
+      // if (options.tokens && !options.devThing) {
+      //   await context.dispatch('collateTokens', parameter);
+      // }
+      // if (options.erc721Metadata && !options.devThing) {
+      //   await context.dispatch('syncERC721Metadata', parameter);
+      // }
 
       // if (options.devThing) {
       //   console.log("Dev Thing");
       // }
 
-      context.dispatch('saveData', ['addresses', 'registry' /*, 'blocks', 'txs', 'ensMap'*/]);
+      // context.dispatch('saveData', ['addresses', 'registry' /*, 'blocks', 'txs', 'ensMap'*/]);
       context.commit('setSyncSection', { section: null, total: null });
       context.commit('setSyncHalt', false);
       context.commit('forceRefresh');
