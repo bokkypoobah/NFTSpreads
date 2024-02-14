@@ -681,12 +681,12 @@ const dataModule = {
             // console.log(collectionAddress + "/" + tokenId + " " + owner + " " + JSON.stringify(attributes));
             records.push({
               chainId: parameter.chainId,
-              contract: token.contract,
+              contract: ethers.utils.getAddress(token.contract),
               tokenId: token.tokenId,
               name: token.name,
               description: token.description,
               image: token.image,
-              owner: token.owner,
+              owner: ethers.utils.getAddress(token.owner),
               attributes,
             });
           }
@@ -736,7 +736,7 @@ const dataModule = {
           for (const sale of data.sales) {
             records.push({
               chainId: parameter.chainId,
-              contract: sale.token.contract,
+              contract: ethers.utils.getAddress(sale.token.contract),
               tokenId: sale.token.tokenId,
               blockNumber: sale.block,
               confirmations: parameter.blockNumber - sale.block,
