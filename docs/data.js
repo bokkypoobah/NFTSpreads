@@ -617,9 +617,14 @@ const dataModule = {
     async syncCollection(context, parameter) {
       logInfo("dataModule", "actions.syncCollection BEGIN: " + JSON.stringify(parameter));
 
+      let collectionName = null;
+      let collectionSlug = null;
+      let collectionImage = null;
+      let kind = null;
+
       let continuation = null;
       do {
-        let url = "https://api.reservoir.tools/tokens/v5?contract=" + context.state.selectedCollection + "&includeAttributes=false&limit=100" +
+        let url = "https://api.reservoir.tools/tokens/v5?contract=" + context.state.selectedCollection + "&includeAttributes=true&limit=100" +
           (continuation != null ? "&continuation=" + continuation : '');
         console.log("url: " + url);
         const data = await fetch(url)
@@ -635,6 +640,31 @@ const dataModule = {
           console.log("tokens: " + JSON.stringify(data.tokens, null, 2));
           for (const tokenData of data.tokens) {
             const token = tokenData.token;
+
+            const collectionAddress = token.contract;
+            const tokenId = token.tokenId;
+            const name = token.name;
+            const description = token.description;
+            const image = token.image;
+            if (!collectionName) {
+              collectionName = token.collection.name;
+            }
+            if (!collectionSlug) {
+              collectionSlug = token.collection.slug;
+            }
+            if (!collectionImage) {
+              collectionImage = token.collection.image;
+            }
+            if (!kind) {
+              kind = token.kind;
+            }
+            const owner = token.owner;
+            const attributes = token.attributes.map(e => ({ trait_type: e.key, value: e.value }));
+            attributes.sort((a, b) => {
+              return ('' + a.trait_type).localeCompare(b.trait_type);
+            });
+
+            console.log(collectionAddress + "/" + tokenId + " " + owner + " " + JSON.stringify(attributes));
           }
         }
         await delay(2000); // TODO: Adjust to avoid error 429 Too Many Requests. Fails at 200ms
