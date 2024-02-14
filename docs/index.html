@@ -62,6 +62,7 @@
     <script src="registry.js"></script>
     <script src="newTransfer.js"></script>
     <script src="stealthTransfers.js"></script>
+    <script src="collections.js"></script>
     <script src="erc20s.js"></script>
     <script src="erc721s.js"></script>
     <script src="newAddress.js"></script>
@@ -93,12 +94,13 @@
             </b-navbar-brand>
             <b-navbar-nav class="ml-auto">
               <!-- <b-nav-item size="sm" to="/" active-class="active" v-b-popover.hover="'Welcome'">Home</b-nav-item> -->
-              <b-nav-item size="sm" to="/addresses" active-class="active" v-b-popover.hover="'View/edit addresses'"><strike>Addresses</strike></b-nav-item>
-              <b-nav-item size="sm" to="/erc20s" active-class="active" v-b-popover.hover="'ERC-20 Fungible Tokens'"><strike>Fungible Tokens</strike></b-nav-item>
-              <b-nav-item size="sm" to="/erc721s" active-class="active" v-b-popover.hover="'ERC-721 Non-Fungible Tokens'"><strike>Non-Fungible Tokens</strike></b-nav-item>
-              <b-nav-item size="sm" to="/registry" active-class="active" v-b-popover.hover="'Registry of Addresses to Stealth Meta-Addresses'"><strike>Registry</strike></b-nav-item>
-              <b-nav-item size="sm" to="/stealthtransfers" active-class="active" v-b-popover.hover="'Stealth Transfers'"><strike>Stealth Transfers</strike></b-nav-item>
-              <b-nav-item size="sm" to="/config" active-class="active" v-b-popover.hover="'Configuration'"><strike>Config</strike></b-nav-item>
+              <b-nav-item size="sm" to="/collections" active-class="active" v-b-popover.hover="'View/edit collections'">Collections</b-nav-item>
+              <!-- <b-nav-item size="sm" to="/addresses" active-class="active" v-b-popover.hover="'View/edit addresses'"><strike>Addresses</strike></b-nav-item> -->
+              <!-- <b-nav-item size="sm" to="/erc20s" active-class="active" v-b-popover.hover="'ERC-20 Fungible Tokens'"><strike>Fungible Tokens</strike></b-nav-item> -->
+              <!-- <b-nav-item size="sm" to="/erc721s" active-class="active" v-b-popover.hover="'ERC-721 Non-Fungible Tokens'"><strike>Non-Fungible Tokens</strike></b-nav-item> -->
+              <!-- <b-nav-item size="sm" to="/registry" active-class="active" v-b-popover.hover="'Registry of Addresses to Stealth Meta-Addresses'"><strike>Registry</strike></b-nav-item> -->
+              <!-- <b-nav-item size="sm" to="/stealthtransfers" active-class="active" v-b-popover.hover="'Stealth Transfers'"><strike>Stealth Transfers</strike></b-nav-item> -->
+              <!-- <b-nav-item size="sm" to="/config" active-class="active" v-b-popover.hover="'Configuration'"><strike>Config</strike></b-nav-item> -->
               <b-nav-form>
                 <b-button size="sm" variant="link" class="ml-4" v-b-popover.hover="'Power up this app'" @click="setPowerOn();" v-if="!powerOn"><b-icon-power shift-v="-1" font-scale="1.5"></b-icon-power></b-button>
                 <b-button size="sm" variant="link" v-b-popover.hover="'Show status'" v-b-toggle.sidebar-status v-if="powerOn"><b-icon-layout-sidebar-reverse class="ml-4 mr-2" shift-v="-1" font-scale="1.3"></b-icon-layout-sidebar-reverse><b-spinner class="m-0" :variant="spinnerVariant" v-if="powerOn" style="animation: spinner-grow 3.75s linear infinite;" small type="grow" label="Spinning"></b-spinner></b-button>

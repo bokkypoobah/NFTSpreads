@@ -11,6 +11,10 @@ const routes = [{
   //   component: Account,
   //   name: 'Account',
   }, {
+    path: '/collections',
+    component: Collections,
+    name: 'Collections',
+  }, {
     path: '/erc721s',
     component: ERC721s,
     name: 'ERC721s',
