@@ -616,11 +616,8 @@ const dataModule = {
       db.version(context.state.db.version).stores(context.state.db.schemaDefinition);
       const provider = new ethers.providers.Web3Provider(window.ethereum);
 
-      let collectionName = null;
-      let collectionSlug = null;
-      let collectionImage = null;
-      let kind = null;
-
+      context.commit('setSyncSection', { section: "Collection", total: null });
+      let total = 0;
       let continuation = null;
       do {
         let url = "https://api.reservoir.tools/tokens/v7?contract=" + context.state.selectedCollection + "&sortBy=updatedAt&limit=1000&includeAttributes=true" +
@@ -680,6 +677,8 @@ const dataModule = {
               console.log("syncCollection.bulkPut e: " + JSON.stringify(e.failures, null, 2));
             });
           }
+          total = parseInt(total) + records.length;
+          context.commit('setSyncCompleted', total);
         }
         await delay(2500); // TODO: Adjust to avoid error 429 Too Many Requests. Fails at 200ms
       } while (continuation != null /*&& !state.halt && !state.sync.error */);
@@ -691,11 +690,9 @@ const dataModule = {
       db.version(context.state.db.version).stores(context.state.db.schemaDefinition);
       const provider = new ethers.providers.Web3Provider(window.ethereum);
 
-      let collectionName = null;
-      let collectionSlug = null;
-      let collectionImage = null;
-      let kind = null;
+      context.commit('setSyncSection', { section: "Sales", total: null });
 
+      let total = 0;
       let continuation = null;
       do {
         let url = "https://api.reservoir.tools/sales/v6?collection=" + context.state.selectedCollection + "&limit=1000" +
@@ -768,6 +765,8 @@ const dataModule = {
               console.log("syncCollectionSales.bulkPut e: " + JSON.stringify(e.failures, null, 2));
             });
           }
+          total = parseInt(total) + records.length;
+          context.commit('setSyncCompleted', total);
         }
         await delay(2500); // TODO: Adjust to avoid error 429 Too Many Requests. Fails at 200ms
       } while (continuation != null /*&& !state.halt && !state.sync.error */);
