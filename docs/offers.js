@@ -104,7 +104,8 @@ const Offers = {
           </div>
         </div>
 
-        <b-table ref="tokenContractsTable" small fixed striped responsive hover selectable select-mode="single" @row-selected='rowSelected' :fields="fields" :items="pagedFilteredSortedItems" show-empty head-variant="light" class="m-0 mt-1">
+        <!-- <b-table ref="tokenContractsTable" small fixed striped responsive hover selectable select-mode="single" @row-selected='rowSelected' :fields="fields" :items="pagedFilteredSortedItems" show-empty head-variant="light" class="m-0 mt-1"> -->
+        <b-table ref="tokenContractsTable" small fixed striped responsive hover selectable select-mode="single" @row-selected='rowSelected' :items="pagedFilteredSortedItems" show-empty head-variant="light" class="m-0 mt-1">
           <template #empty="scope">
             <h6>{{ scope.emptyText }}</h6>
             <div>
@@ -363,6 +364,9 @@ const Offers = {
     sales() {
       return store.getters['data/sales'];
     },
+    offers() {
+      return store.getters['data/offers'];
+    },
 
     addresses() {
       return store.getters['data/addresses'];
@@ -507,27 +511,27 @@ const Offers = {
       // //   }
       // // }
       // return results;
-      return this.sales;
+      return this.offers;
     },
     filteredSortedItems() {
       const results = this.filteredItems;
-      if (this.settings.sortOption == 'txorderasc') {
-        results.sort((a, b) => {
-          if (a.blockNumber == b.blockNumber) {
-            return a.logIndex - b.logIndex;
-          } else {
-            return a.blockNumber - b.blockNumber;
-          }
-        });
-      } else if (this.settings.sortOption == 'txorderdsc') {
-        results.sort((a, b) => {
-          if (a.blockNumber == b.blockNumber) {
-            return b.logIndex - a.logIndex;
-          } else {
-            return b.blockNumber - a.blockNumber;
-          }
-        });
-      }
+      // if (this.settings.sortOption == 'txorderasc') {
+      //   results.sort((a, b) => {
+      //     if (a.blockNumber == b.blockNumber) {
+      //       return a.logIndex - b.logIndex;
+      //     } else {
+      //       return a.blockNumber - b.blockNumber;
+      //     }
+      //   });
+      // } else if (this.settings.sortOption == 'txorderdsc') {
+      //   results.sort((a, b) => {
+      //     if (a.blockNumber == b.blockNumber) {
+      //       return b.logIndex - a.logIndex;
+      //     } else {
+      //       return b.blockNumber - a.blockNumber;
+      //     }
+      //   });
+      // }
       return results;
     },
     pagedFilteredSortedItems() {
