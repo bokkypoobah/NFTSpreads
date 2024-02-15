@@ -138,9 +138,11 @@ const Collection = {
           </template>
 
           <template #cell(name)="data">
-            <b>{{ data.item.name }}</b>
+            <b-link :href="'https://opensea.io/assets/ethereum/' + data.item.contract + '/' + data.item.tokenId" target="_blank">
+              <b>{{ data.item.name }}</b>
+            </b-link>
             <br />
-            <font size="-1">
+            <font size="-2">
               {{ data.item.description }}
             </font>
           </template>
