@@ -11,6 +11,10 @@ const routes = [{
   //   component: Account,
   //   name: 'Account',
   }, {
+    path: '/sales',
+    component: Sales,
+    name: 'Sales',
+  }, {
     path: '/collection',
     component: Collection,
     name: 'Collection',

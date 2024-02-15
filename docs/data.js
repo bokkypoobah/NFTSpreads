@@ -910,6 +910,7 @@ const dataModule = {
             if (price && price.currency && price.currency.contract) {
               price.currency.contract = ethers.utils.getAddress(price.currency.contract);
             }
+            // TODO: Fix up fields
             records.push({
               chainId: parameter.chainId,
               id: order.id,

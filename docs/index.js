@@ -58,28 +58,26 @@ const store = new Vuex.Store({
     }
   },
   modules: {
+    data: dataModule,
     connection: connectionModule,
     welcome: welcomeModule,
+    collections: collectionsModule,
+    collection: collectionModule,
+    sales: salesModule,
+    syncOptions: syncOptionsModule,
+
+    // TODO: Delete below
     registry: registryModule,
     stealthTransfers: stealthTransfersModule,
-    collection: collectionModule,
-    collections: collectionsModule,
     erc20s: erc20sModule,
     erc721s: erc721sModule,
     newTransfer: newTransferModule,
     newAddress: newAddressModule,
-    syncOptions: syncOptionsModule,
     viewAddress: viewAddressModule,
     viewStealthMetaAddress: viewStealthMetaAddressModule,
     viewToken: viewTokenModule,
     config: configModule,
-    // mappings: mappingsModule,
-    data: dataModule,
-    // account: accountModule,
     addresses: addressesModule,
-    // assets: assetsModule,
-    // report: reportModule,
-    // transactions: transactionsModule,
   }
 });
 
