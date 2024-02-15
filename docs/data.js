@@ -227,7 +227,7 @@ const dataModule = {
     },
     setSales(state, sales) {
       Vue.set(state, 'sales', sales);
-      logInfo("dataModule", "mutations.setSales sales: " + JSON.stringify(sales, null, 2));
+      // logInfo("dataModule", "mutations.setSales sales: " + JSON.stringify(sales, null, 2));
     },
 
     toggleAddressField(state, info) {
@@ -917,7 +917,6 @@ const dataModule = {
             if (price && price.currency && price.currency.contract) {
               price.currency.contract = ethers.utils.getAddress(price.currency.contract);
             }
-            // TODO: Fix up fields
             records.push({
               chainId: parameter.chainId,
               id: order.id,
@@ -935,14 +934,12 @@ const dataModule = {
               validUntil: order.validUntil,
               quantityFilled: order.quantityFilled,
               quantityRemaining: order.quantityRemaining,
-              dynamicPricing: order.dynamicPricing,
               criteria: order.criteria,
               source: order.source,
               feeBps: order.feeBps,
               feeBreakdown,
               expiration: order.expiration,
               isReservoir: order.isReservoir,
-              isDynamic: order.isDynamic,
               createdAt: order.createdAt,
               updatedAt: order.updatedAt,
               originatedAt: order.originatedAt,
