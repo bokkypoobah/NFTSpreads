@@ -158,6 +158,8 @@ const dataModule = {
     selectedCollection: null,
     collection: {}, // contract, id, symbol, name, image, slug, creator, tokenCount
     tokens: {}, // TokenId => { chainId, contract, tokenId, name, description, image, kind, isFlagged, isSpam, isNsfw, metadataDisabled, rarity, rarityRank, attributes
+    sales: [], //
+
     addresses: {}, // Address => Info
     registry: {}, // Address => StealthMetaAddress
     stealthTransfers: {}, // ChainId, blockNumber, logIndex => data
@@ -193,6 +195,7 @@ const dataModule = {
     selectedCollection: state => state.selectedCollection,
     collection: state => state.collection,
     tokens: state => state.tokens,
+    sales: state => state.sales,
 
     addresses: state => state.addresses,
     registry: state => state.registry,
@@ -221,6 +224,10 @@ const dataModule = {
     setTokens(state, tokens) {
       Vue.set(state, 'tokens', tokens);
       // logInfo("dataModule", "mutations.setTokens tokens: " + JSON.stringify(tokens, null, 2));
+    },
+    setSales(state, sales) {
+      Vue.set(state, 'sales', sales);
+      logInfo("dataModule", "mutations.setSales sales: " + JSON.stringify(sales, null, 2));
     },
 
     toggleAddressField(state, info) {
@@ -441,7 +448,7 @@ const dataModule = {
       if (Object.keys(context.state.stealthTransfers).length == 0) {
         const db0 = new Dexie(context.state.db.name);
         db0.version(context.state.db.version).stores(context.state.db.schemaDefinition);
-        for (let type of ['collections', 'selectedCollection', 'collection', 'tokens']) {
+        for (let type of ['collections', 'selectedCollection', 'collection', 'tokens', 'sales']) {
           const data = await db0.cache.where("objectName").equals(type).toArray();
           if (data.length == 1) {
             // logInfo("dataModule", "actions.restoreState " + type + " => " + JSON.stringify(data[0].object));
@@ -1011,21 +1018,25 @@ const dataModule = {
 
       rows = 0;
       done = false;
+      const sales = [];
+      do {
+        let data = await db.sales.where('[chainId+blockNumber+logIndex]').between([parameter.chainId, Dexie.minKey, Dexie.minKey],[parameter.chainId, Dexie.maxKey, Dexie.maxKey]).offset(rows).limit(context.state.DB_PROCESSING_BATCH_SIZE).toArray();
+        logInfo("dataModule", "actions.collateTokens - data.length: " + data.length + ", first[0..9]: " + JSON.stringify(data.slice(0, 10).map(e => e.blockNumber + '.' + e.logIndex )));
+        for (const item of data) {
+          console.log("sale: " + JSON.stringify(item));
+          sales.push(item);
+          // if (item.schemeId == 0) {
+          //   context.commit('addStealthTransfer', item);
+          // }
+        }
+        rows = parseInt(rows) + data.length;
+        done = data.length < context.state.DB_PROCESSING_BATCH_SIZE;
+      } while (!done);
 
-      // do {
-      //   let data = await db.sales.where('[chainId+blockNumber+logIndex]').between([parameter.chainId, Dexie.minKey, Dexie.minKey],[parameter.chainId, Dexie.maxKey, Dexie.maxKey]).offset(rows).limit(context.state.DB_PROCESSING_BATCH_SIZE).toArray();
-      //   logInfo("dataModule", "actions.collateTokens - data.length: " + data.length + ", first[0..9]: " + JSON.stringify(data.slice(0, 10).map(e => e.blockNumber + '.' + e.logIndex )));
-      //   for (const item of data) {
-      //     console.log(JSON.stringify(item));
-      //     // if (item.schemeId == 0) {
-      //     //   context.commit('addStealthTransfer', item);
-      //     // }
-      //   }
-      //   rows = parseInt(rows) + data.length;
-      //   done = data.length < context.state.DB_PROCESSING_BATCH_SIZE;
-      // } while (!done);
+      console.log("sales: " + JSON.stringify(sales, null, 2));
+      context.commit('setSales', sales);
 
-      await context.dispatch('saveData', ['collection', 'tokens']);
+      await context.dispatch('saveData', ['collection', 'tokens', 'sales']);
       logInfo("dataModule", "actions.collateTokens END");
     },
 
