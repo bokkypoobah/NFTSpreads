@@ -65,6 +65,7 @@ const store = new Vuex.Store({
     collection: collectionModule,
     sales: salesModule,
     listings: listingsModule,
+    offers: offersModule,
     syncOptions: syncOptionsModule,
 
     // TODO: Delete below
