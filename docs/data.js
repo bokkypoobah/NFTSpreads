@@ -133,14 +133,19 @@ const dataModule = {
     DB_PROCESSING_BATCH_SIZE: 123,
     collections: {
       "1": {
-        "0xc92cedDfb8dd984A89fb494c376f9A48b999aAFc": {
-          symbol: "CREATURE",
-          name: "Creature World",
+        "0x0Ee24c748445Fb48028a74b0ccb6b46d7D3e3b33": {
+          symbol: "NFB",
+          name: "NAH FUNGIBLE BONES",
           type: "erc721",
         },
         "0x8FA600364B93C53e0c71C7A33d2adE21f4351da3": {
           symbol: "LChads",
           name: "Larva Chads",
+          type: "erc721",
+        },
+        "0xc92cedDfb8dd984A89fb494c376f9A48b999aAFc": {
+          symbol: "CREATURE",
+          name: "Creature World",
           type: "erc721",
         },
       },
