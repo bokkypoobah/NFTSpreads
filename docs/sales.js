@@ -105,7 +105,8 @@ const Sales = {
         </div>
 
         <!-- <b-table ref="tokenContractsTable" small fixed striped responsive hover selectable select-mode="single" @row-selected='rowSelected' :fields="fields" :items="pagedFilteredSortedItems" show-empty head-variant="light" class="m-0 mt-1"> -->
-        <b-table ref="tokenContractsTable" small fixed striped responsive hover :fields="fields" :items="pagedFilteredSortedItems" show-empty head-variant="light" class="m-0 mt-1">
+        <!-- <b-table ref="tokenContractsTable" small fixed striped responsive hover :fields="fields" :items="pagedFilteredSortedItems" show-empty head-variant="light" class="m-0 mt-1"> -->
+        <b-table ref="tokenContractsTable" small fixed striped responsive hover :items="pagedFilteredSortedItems" show-empty head-variant="light" class="m-0 mt-1">
           <template #empty="scope">
             <h6>{{ scope.emptyText }}</h6>
             <div>
@@ -352,6 +353,9 @@ const Sales = {
     tokens() {
       return store.getters['data/tokens'];
     },
+    sales() {
+      return store.getters['data/sales'];
+    },
 
     addresses() {
       return store.getters['data/addresses'];
@@ -400,10 +404,10 @@ const Sales = {
 
     totalCollections() {
       let result = (store.getters['data/forceRefresh'] % 2) == 0 ? 0 : 0;
-      for (const [tokenId, token] of Object.entries(this.tokens)) {
-        result++;
-      }
-      return result;
+      // for (const sale of Object.entries(this.sales)) {
+      //   result++;
+      // }
+      return this.sales.length;
     },
     filteredItems() {
       const results = (store.getters['data/forceRefresh'] % 2) == 0 ? [] : [];
@@ -418,84 +422,85 @@ const Sales = {
         }
       }
 
-      for (const [tokenId, token] of Object.entries(this.tokens)) {
-        // console.log(tokenId + " => " + JSON.stringify(token));
-
-        results.push({
-          chainId: token.chainId,
-          contract: token.contract,
-          tokenId: token.tokenId,
-          name: token.name || ('#' + token.tokenId),
-          description: token.description,
-          image: token.image,
-          kind: token.kind,
-          isFlagged: token.isFlagged,
-          isSpam: token.isSpam,
-          isNsfw: token.isNsfw,
-          metadataDisabled: token.metadataDisabled,
-          rarity: token.rarity,
-          rarityRank: token.rarityRank,
-          attributes: token.attributes,
-          owner: token.owner,
-        });
-      }
-
-      // for (const [address, data] of Object.entries(this.collections[this.chainId] || {})) {
-      //   if (data.type == "erc721") {
-      //     // console.log(address + " => " + JSON.stringify(data, null, 2));
-      //     results.push({ address, symbol: data.symbol, name: data.name });
+      // for (const [tokenId, token] of Object.entries(this.tokens)) {
+      //   // console.log(tokenId + " => " + JSON.stringify(token));
       //
-      //     // for (const [tokenId, tokenData] of Object.entries(data.tokenIds)) {
-      //     //   // console.log(address + "/" + tokenId + " => " + JSON.stringify(tokenData, null, 2));
-      //     //
-      //     //   const metadata = this.tokenMetadata[this.chainId] &&
-      //     //     this.tokenMetadata[this.chainId][address] &&
-      //     //     this.tokenMetadata[this.chainId][address][tokenId] ||
-      //     //     {};
-      //     //
-      //     //   let include = true;
-      //     //   if (this.settings.junkFilter) {
-      //     //     if (this.settings.junkFilter == 'junk' && !data.junk) {
-      //     //       include = false;
-      //     //     } else if (this.settings.junkFilter == 'excludejunk' && data.junk) {
-      //     //       include = false;
-      //     //     }
-      //     //   }
-      //     //   if (include && this.settings.favouritesOnly && (!data.favourite || data.junk)) {
-      //     //     include = false;
-      //     //   }
-      //     //   if (include && regex) {
-      //     //     const name = metadata.name || null;
-      //     //     const description = metadata.description || null;
-      //     //     if (!(regex.test(collectionName) || regex.test(name) || regex.test(description))) {
-      //     //       include = false;
-      //     //     }
-      //     //   }
-      //     //   if (include) {
-      //     //     results.push({
-      //     //       address,
-      //     //       junk: data.junk,
-      //     //       favourite: data.favourite,
-      //     //       collectionSymbol: address == ENS_ERC721_ADDRESS ? "ENS" : data.symbol,
-      //     //       collectionName: address == ENS_ERC721_ADDRESS ? "Ethereum Name Service" : data.name,
-      //     //       totalSupply: data.totalSupply,
-      //     //       tokenId,
-      //     //       owner: tokenData.owner,
-      //     //       name: metadata.name || null,
-      //     //       description: metadata.description || null,
-      //     //       expiry: metadata.expiry || undefined,
-      //     //       attributes: metadata.attributes || null,
-      //     //       imageSource: metadata.imageSource || null,
-      //     //       image: metadata.image || null,
-      //     //       blockNumber: tokenData.blockNumber,
-      //     //       logIndex: tokenData.logIndex,
-      //     //     });
-      //     //   }
-      //     // }
-      //
-      //   }
+      //   results.push({
+      //     chainId: token.chainId,
+      //     contract: token.contract,
+      //     tokenId: token.tokenId,
+      //     name: token.name || ('#' + token.tokenId),
+      //     description: token.description,
+      //     image: token.image,
+      //     kind: token.kind,
+      //     isFlagged: token.isFlagged,
+      //     isSpam: token.isSpam,
+      //     isNsfw: token.isNsfw,
+      //     metadataDisabled: token.metadataDisabled,
+      //     rarity: token.rarity,
+      //     rarityRank: token.rarityRank,
+      //     attributes: token.attributes,
+      //     owner: token.owner,
+      //   });
       // }
-      return results;
+      //
+      // // for (const [address, data] of Object.entries(this.collections[this.chainId] || {})) {
+      // //   if (data.type == "erc721") {
+      // //     // console.log(address + " => " + JSON.stringify(data, null, 2));
+      // //     results.push({ address, symbol: data.symbol, name: data.name });
+      // //
+      // //     // for (const [tokenId, tokenData] of Object.entries(data.tokenIds)) {
+      // //     //   // console.log(address + "/" + tokenId + " => " + JSON.stringify(tokenData, null, 2));
+      // //     //
+      // //     //   const metadata = this.tokenMetadata[this.chainId] &&
+      // //     //     this.tokenMetadata[this.chainId][address] &&
+      // //     //     this.tokenMetadata[this.chainId][address][tokenId] ||
+      // //     //     {};
+      // //     //
+      // //     //   let include = true;
+      // //     //   if (this.settings.junkFilter) {
+      // //     //     if (this.settings.junkFilter == 'junk' && !data.junk) {
+      // //     //       include = false;
+      // //     //     } else if (this.settings.junkFilter == 'excludejunk' && data.junk) {
+      // //     //       include = false;
+      // //     //     }
+      // //     //   }
+      // //     //   if (include && this.settings.favouritesOnly && (!data.favourite || data.junk)) {
+      // //     //     include = false;
+      // //     //   }
+      // //     //   if (include && regex) {
+      // //     //     const name = metadata.name || null;
+      // //     //     const description = metadata.description || null;
+      // //     //     if (!(regex.test(collectionName) || regex.test(name) || regex.test(description))) {
+      // //     //       include = false;
+      // //     //     }
+      // //     //   }
+      // //     //   if (include) {
+      // //     //     results.push({
+      // //     //       address,
+      // //     //       junk: data.junk,
+      // //     //       favourite: data.favourite,
+      // //     //       collectionSymbol: address == ENS_ERC721_ADDRESS ? "ENS" : data.symbol,
+      // //     //       collectionName: address == ENS_ERC721_ADDRESS ? "Ethereum Name Service" : data.name,
+      // //     //       totalSupply: data.totalSupply,
+      // //     //       tokenId,
+      // //     //       owner: tokenData.owner,
+      // //     //       name: metadata.name || null,
+      // //     //       description: metadata.description || null,
+      // //     //       expiry: metadata.expiry || undefined,
+      // //     //       attributes: metadata.attributes || null,
+      // //     //       imageSource: metadata.imageSource || null,
+      // //     //       image: metadata.image || null,
+      // //     //       blockNumber: tokenData.blockNumber,
+      // //     //       logIndex: tokenData.logIndex,
+      // //     //     });
+      // //     //   }
+      // //     // }
+      // //
+      // //   }
+      // // }
+      // return results;
+      return this.sales;
     },
     filteredSortedItems() {
       const results = this.filteredItems;
