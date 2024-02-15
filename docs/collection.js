@@ -123,10 +123,42 @@ const Collection = {
             {{ parseInt(data.index) + ((settings.currentPage - 1) * settings.pageSize) + 1 }}
           </template>
 
-          <!-- <template #cell(image)="data">
-            <b-img v-if="data.item.image" button rounded fluid size="7rem" :src="data.item.image">
+<!--
+          { key: 'number', label: '#', sortable: false, thStyle: 'width: 5%;', tdClass: 'text-truncate text-muted small' },
+          { key: 'tokenId', label: 'TokenId', sortable: false, thStyle: 'width: 16%;', thClass: 'text-left', tdClass: 'text-truncate' },
+          { key: 'image', label: 'Image', sortable: false, thStyle: 'width: 16%;', thClass: 'text-left', tdClass: 'text-truncate' },
+          { key: 'name', label: 'Name/Description', sortable: false, thStyle: 'width: 16%;', thClass: 'text-left', tdClass: 'text-truncate' },
+          { key: 'owner', label: 'Owner', sortable: false, thStyle: 'width: 16%;', thClass: 'text-left', tdClass: 'text-truncate' },
+          { key: 'attributes', label: 'Attributes', sortable: false, thStyle: 'width: 16%;', thClass: 'text-left', tdClass: 'text-truncate' },
+ -->
+
+          <template #cell(image)="data">
+            <b-img v-if="data.item.image" button rounded fluid :src="data.item.image">
             </b-img>
-          </template> -->
+          </template>
+
+          <template #cell(name)="data">
+            <b>{{ data.item.name }}</b>
+            <br />
+            <font size="-1">
+              {{ data.item.description }}
+            </font>
+          </template>
+
+          <template #cell(owner)="data">
+            <b-link :href="'https://etherscan.io/address/' + data.item.owner" target="_blank">
+              <font size="-1">{{ data.item.owner.substring(0, 10) + '...' + data.item.owner.slice(-8) }}</font>
+            </b-link>
+          </template>
+
+          <template #cell(attributes)="data">
+            <!-- {{ data.item.attributes }} -->
+            <b-row v-for="(attribute, i) in data.item.attributes"  v-bind:key="i" class="m-0 p-0">
+              <b-col cols="3" class="m-0 px-2 text-right"><font size="-3">{{ attribute.trait_type }}</font></b-col>
+              <b-col cols="9" class="m-0 px-2"><b><font size="-2">{{ ["Created Date", "Registration Date", "Expiration Date"].includes(attribute.trait_type) ? formatTimestamp(attribute.value) : attribute.value }}</font></b></b-col>
+            </b-row>
+          </template>
+
 
           <!-- <template #cell(info)="data">
             <b-link v-if="chainInfo[chainId]" :href="chainInfo[chainId].nftTokenPrefix + data.item.address + '/' + data.item.tokenId" target="_blank">
@@ -171,9 +203,6 @@ const Collection = {
           <!-- </template> -->
           <template #cell(symbol)="data">
             {{ data.item.symbol }}
-          </template>
-          <template #cell(name)="data">
-            {{ data.item.name }}
           </template>
           <!-- <template #cell(firstEventBlockNumber)="data"> -->
             <!-- <font size="-1">{{ commify0(data.item.firstEventBlockNumber) }}</font> -->
@@ -279,10 +308,12 @@ const Collection = {
         { value: 'tokeniddsc', text: '▼ TokenId' },
       ],
       fields: [
-        { key: 'number', label: '#', sortable: false, thStyle: 'width: 5%;', tdClass: 'text-truncate' },
-        { key: 'address', label: 'Address', sortable: false, thStyle: 'width: 16%;', thClass: 'text-left', tdClass: 'text-truncate' },
-        { key: 'symbol', label: 'Symbol', sortable: false, thStyle: 'width: 16%;', thClass: 'text-left', tdClass: 'text-truncate' },
-        { key: 'name', label: 'Name', sortable: false, thStyle: 'width: 16%;', thClass: 'text-left', tdClass: 'text-truncate' },
+        { key: 'number', label: '#', sortable: false, thStyle: 'width: 5%;', tdClass: 'text-truncate text-muted small' },
+        // { key: 'tokenId', label: 'TokenId', sortable: false, thStyle: 'width: 16%;', thClass: 'text-left', tdClass: 'text-truncate' },
+        { key: 'image', label: 'Image', sortable: false, thStyle: 'width: 10%;', thClass: 'text-left', tdClass: 'text-truncate' },
+        { key: 'name', label: 'Name/Description', sortable: false, thStyle: 'width: 16%;', thClass: 'text-left', tdClass: 'text-left' },
+        { key: 'owner', label: 'Owner', sortable: false, thStyle: 'width: 16%;', thClass: 'text-left', tdClass: 'text-left' },
+        { key: 'attributes', label: 'Attributes', sortable: false, thStyle: 'width: 16%;', thClass: 'text-left', tdClass: 'text-left' },
       ],
     }
   },
@@ -388,8 +419,8 @@ const Collection = {
       }
 
       for (const [tokenId, token] of Object.entries(this.tokens)) {
-        // console.log(tokenId + " => " + JSON.stringify(token));
-        //
+        console.log(tokenId + " => " + JSON.stringify(token));
+
         results.push({
           chainId: token.chainId,
           contract: token.contract,
