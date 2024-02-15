@@ -302,8 +302,6 @@ const Collection = {
         selectedFaucet: null,
       },
       sortOptions: [
-        // { value: 'nameregistrantasc', text: '▲ Name, ▲ Registrant' },
-        // { value: 'nameregistrantdsc', text: '▼ Name, ▲ Registrant' },
         { value: 'tokenidasc', text: '▲ TokenId' },
         { value: 'tokeniddsc', text: '▼ TokenId' },
       ],
@@ -499,15 +497,15 @@ const Collection = {
     },
     filteredSortedItems() {
       const results = this.filteredItems;
-      // if (this.settings.sortOption == 'registrantasc') {
-      //   results.sort((a, b) => {
-      //     return ('' + a.registrant).localeCompare(b.registrant);
-      //   });
-      // } else if (this.settings.sortOption == 'registrantdsc') {
-      //   results.sort((a, b) => {
-      //     return ('' + b.registrant).localeCompare(a.registrant);
-      //   });
-      // }
+      if (this.settings.sortOption == 'tokenidasc') {
+        results.sort((a, b) => {
+          return a.tokenId - b.tokenId;
+        });
+      } else if (this.settings.sortOption == 'tokeniddsc') {
+        results.sort((a, b) => {
+          return b.tokenId - a.tokenId;
+        });
+      }
       return results;
     },
     pagedFilteredSortedItems() {
