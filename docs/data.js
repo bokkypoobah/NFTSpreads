@@ -130,7 +130,7 @@ const Data = {
 const dataModule = {
   namespaced: true,
   state: {
-    DB_PROCESSING_BATCH_SIZE: 123,
+    DB_PROCESSING_BATCH_SIZE: 1234,
     collections: {
       "1": {
         "0x0Ee24c748445Fb48028a74b0ccb6b46d7D3e3b33": {
@@ -975,9 +975,8 @@ const dataModule = {
       const tokens = {};
       do {
         let data = await db.tokens.where('[chainId+contract+tokenId]').between([parameter.chainId, context.state.selectedCollection, Dexie.minKey],[parameter.chainId, context.state.selectedCollection, Dexie.maxKey]).offset(rows).limit(context.state.DB_PROCESSING_BATCH_SIZE).toArray();
-        logInfo("dataModule", "actions.collateTokens - data.length: " + data.length + ", first[0..9]: " + JSON.stringify(data.slice(0, 10).map(e => e.blockNumber + '.' + e.logIndex )));
+        logInfo("dataModule", "actions.collateTokens - tokens - data.length: " + data.length + ", first[0..1]: " + JSON.stringify(data.slice(0, 2).map(e => e.contract + '/' + e.tokenId )));
         for (const item of data) {
-
           if (collection == null) {
             collection = {
               contract: item.contract,
@@ -1010,30 +1009,23 @@ const dataModule = {
         rows = parseInt(rows) + data.length;
         done = data.length < context.state.DB_PROCESSING_BATCH_SIZE;
       } while (!done);
-
       context.commit('setCollection', collection);
       context.commit('setTokens', tokens);
-
-      // console.log("tokens: " + JSON.stringify(tokens, null, 2));
 
       rows = 0;
       done = false;
       const sales = [];
       do {
         let data = await db.sales.where('[chainId+blockNumber+logIndex]').between([parameter.chainId, Dexie.minKey, Dexie.minKey],[parameter.chainId, Dexie.maxKey, Dexie.maxKey]).offset(rows).limit(context.state.DB_PROCESSING_BATCH_SIZE).toArray();
-        logInfo("dataModule", "actions.collateTokens - data.length: " + data.length + ", first[0..9]: " + JSON.stringify(data.slice(0, 10).map(e => e.blockNumber + '.' + e.logIndex )));
+        logInfo("dataModule", "actions.collateTokens - sales - data.length: " + data.length + ", first[0..1]: " + JSON.stringify(data.slice(0, 2).map(e => e.blockNumber + '.' + e.logIndex )));
         for (const item of data) {
-          console.log("sale: " + JSON.stringify(item));
-          sales.push(item);
-          // if (item.schemeId == 0) {
-          //   context.commit('addStealthTransfer', item);
-          // }
+          if (item.contract == context.state.selectedCollection) {
+            sales.push(item);
+          }
         }
         rows = parseInt(rows) + data.length;
         done = data.length < context.state.DB_PROCESSING_BATCH_SIZE;
       } while (!done);
-
-      console.log("sales: " + JSON.stringify(sales, null, 2));
       context.commit('setSales', sales);
 
       await context.dispatch('saveData', ['collection', 'tokens', 'sales']);
