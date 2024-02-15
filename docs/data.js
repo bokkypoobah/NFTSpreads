@@ -143,6 +143,11 @@ const dataModule = {
           name: "Larva Chads",
           type: "erc721",
         },
+        "0xBC4CA0EdA7647A8aB7C2061c2E118A18a936f13D": {
+          symbol: "BAYC",
+          name: "BoredApeYachtClub",
+          type: "erc721",
+        },
         "0xc92cedDfb8dd984A89fb494c376f9A48b999aAFc": {
           symbol: "CREATURE",
           name: "Creature World",
@@ -635,7 +640,7 @@ const dataModule = {
           const records = [];
           for (const tokenData of data.tokens) {
             const token = tokenData.token;
-            // console.log("token: " + JSON.stringify(token, null, 2));
+            console.log("token: " + JSON.stringify(token, null, 2));
             const owner = token.owner;
             const attributes = token.attributes.map(e => ({ trait_type: e.key, value: e.value }));
             attributes.sort((a, b) => {
