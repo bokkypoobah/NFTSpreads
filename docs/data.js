@@ -190,6 +190,7 @@ const dataModule = {
     collections: state => state.collections,
     selectedCollection: state => state.selectedCollection,
     collection: state => state.collection,
+    tokens: state => state.tokens,
 
     addresses: state => state.addresses,
     registry: state => state.registry,

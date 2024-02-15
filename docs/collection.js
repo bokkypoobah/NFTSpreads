@@ -318,7 +318,9 @@ const Collection = {
         // store.dispatch('viewToken/setMine', mine);
       },
     },
-
+    tokens() {
+      return store.getters['data/tokens'];
+    },
 
     addresses() {
       return store.getters['data/addresses'];
@@ -374,6 +376,7 @@ const Collection = {
     },
     filteredItems() {
       const results = (store.getters['data/forceRefresh'] % 2) == 0 ? [] : [];
+      console.log("filteredItems - tokens: " + JSON.stringify(this.tokens, null, 2));
       let regex = null;
       if (this.settings.filter != null && this.settings.filter.length > 0) {
         try {
@@ -383,61 +386,84 @@ const Collection = {
           regex = new RegExp(/thequickbrowndogjumpsoverthelazyfox/, 'i');
         }
       }
-      for (const [address, data] of Object.entries(this.collections[this.chainId] || {})) {
-        if (data.type == "erc721") {
-          // console.log(address + " => " + JSON.stringify(data, null, 2));
-          results.push({ address, symbol: data.symbol, name: data.name });
 
-          // for (const [tokenId, tokenData] of Object.entries(data.tokenIds)) {
-          //   // console.log(address + "/" + tokenId + " => " + JSON.stringify(tokenData, null, 2));
-          //
-          //   const metadata = this.tokenMetadata[this.chainId] &&
-          //     this.tokenMetadata[this.chainId][address] &&
-          //     this.tokenMetadata[this.chainId][address][tokenId] ||
-          //     {};
-          //
-          //   let include = true;
-          //   if (this.settings.junkFilter) {
-          //     if (this.settings.junkFilter == 'junk' && !data.junk) {
-          //       include = false;
-          //     } else if (this.settings.junkFilter == 'excludejunk' && data.junk) {
-          //       include = false;
-          //     }
-          //   }
-          //   if (include && this.settings.favouritesOnly && (!data.favourite || data.junk)) {
-          //     include = false;
-          //   }
-          //   if (include && regex) {
-          //     const name = metadata.name || null;
-          //     const description = metadata.description || null;
-          //     if (!(regex.test(collectionName) || regex.test(name) || regex.test(description))) {
-          //       include = false;
-          //     }
-          //   }
-          //   if (include) {
-          //     results.push({
-          //       address,
-          //       junk: data.junk,
-          //       favourite: data.favourite,
-          //       collectionSymbol: address == ENS_ERC721_ADDRESS ? "ENS" : data.symbol,
-          //       collectionName: address == ENS_ERC721_ADDRESS ? "Ethereum Name Service" : data.name,
-          //       totalSupply: data.totalSupply,
-          //       tokenId,
-          //       owner: tokenData.owner,
-          //       name: metadata.name || null,
-          //       description: metadata.description || null,
-          //       expiry: metadata.expiry || undefined,
-          //       attributes: metadata.attributes || null,
-          //       imageSource: metadata.imageSource || null,
-          //       image: metadata.image || null,
-          //       blockNumber: tokenData.blockNumber,
-          //       logIndex: tokenData.logIndex,
-          //     });
-          //   }
-          // }
-
-        }
+      for (const [tokenId, token] of Object.entries(this.tokens)) {
+        // console.log(tokenId + " => " + JSON.stringify(token));
+        //
+        results.push({
+          chainId: token.chainId,
+          contract: token.contract,
+          tokenId: token.tokenId,
+          name: token.name,
+          description: token.description,
+          image: token.image,
+          kind: token.kind,
+          isFlagged: token.isFlagged,
+          isSpam: token.isSpam,
+          isNsfw: token.isNsfw,
+          metadataDisabled: token.metadataDisabled,
+          rarity: token.rarity,
+          rarityRank: token.rarityRank,
+          attributes: token.attributes,
+          owner: token.owner,
+        });
       }
+
+      // for (const [address, data] of Object.entries(this.collections[this.chainId] || {})) {
+      //   if (data.type == "erc721") {
+      //     // console.log(address + " => " + JSON.stringify(data, null, 2));
+      //     results.push({ address, symbol: data.symbol, name: data.name });
+      //
+      //     // for (const [tokenId, tokenData] of Object.entries(data.tokenIds)) {
+      //     //   // console.log(address + "/" + tokenId + " => " + JSON.stringify(tokenData, null, 2));
+      //     //
+      //     //   const metadata = this.tokenMetadata[this.chainId] &&
+      //     //     this.tokenMetadata[this.chainId][address] &&
+      //     //     this.tokenMetadata[this.chainId][address][tokenId] ||
+      //     //     {};
+      //     //
+      //     //   let include = true;
+      //     //   if (this.settings.junkFilter) {
+      //     //     if (this.settings.junkFilter == 'junk' && !data.junk) {
+      //     //       include = false;
+      //     //     } else if (this.settings.junkFilter == 'excludejunk' && data.junk) {
+      //     //       include = false;
+      //     //     }
+      //     //   }
+      //     //   if (include && this.settings.favouritesOnly && (!data.favourite || data.junk)) {
+      //     //     include = false;
+      //     //   }
+      //     //   if (include && regex) {
+      //     //     const name = metadata.name || null;
+      //     //     const description = metadata.description || null;
+      //     //     if (!(regex.test(collectionName) || regex.test(name) || regex.test(description))) {
+      //     //       include = false;
+      //     //     }
+      //     //   }
+      //     //   if (include) {
+      //     //     results.push({
+      //     //       address,
+      //     //       junk: data.junk,
+      //     //       favourite: data.favourite,
+      //     //       collectionSymbol: address == ENS_ERC721_ADDRESS ? "ENS" : data.symbol,
+      //     //       collectionName: address == ENS_ERC721_ADDRESS ? "Ethereum Name Service" : data.name,
+      //     //       totalSupply: data.totalSupply,
+      //     //       tokenId,
+      //     //       owner: tokenData.owner,
+      //     //       name: metadata.name || null,
+      //     //       description: metadata.description || null,
+      //     //       expiry: metadata.expiry || undefined,
+      //     //       attributes: metadata.attributes || null,
+      //     //       imageSource: metadata.imageSource || null,
+      //     //       image: metadata.image || null,
+      //     //       blockNumber: tokenData.blockNumber,
+      //     //       logIndex: tokenData.logIndex,
+      //     //     });
+      //     //   }
+      //     // }
+      //
+      //   }
+      // }
       return results;
     },
     filteredSortedItems() {
@@ -454,7 +480,7 @@ const Collection = {
       return results;
     },
     pagedFilteredSortedItems() {
-      // logInfo("Collection", "pagedFilteredSortedItems - results[0..1]: " + JSON.stringify(this.filteredSortedItems.slice(0, 2), null, 2));
+      logInfo("Collection", "pagedFilteredSortedItems - results[0..1]: " + JSON.stringify(this.filteredSortedItems.slice(0, 2), null, 2));
       return this.filteredSortedItems.slice((this.settings.currentPage - 1) * this.settings.pageSize, this.settings.currentPage * this.settings.pageSize);
     },
 
