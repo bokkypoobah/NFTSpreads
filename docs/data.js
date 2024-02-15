@@ -148,6 +148,11 @@ const dataModule = {
           name: "BoredApeYachtClub",
           type: "erc721",
         },
+        "0xBd3531dA5CF5857e7CfAA92426877b022e612cf8": {
+          symbol: "PPG",
+          name: "PudgyPenguins",
+          type: "erc721",
+        },
         "0xc92cedDfb8dd984A89fb494c376f9A48b999aAFc": {
           symbol: "CREATURE",
           name: "Creature World",
@@ -159,6 +164,7 @@ const dataModule = {
     collection: {}, // contract, id, symbol, name, image, slug, creator, tokenCount
     tokens: {}, // TokenId => { chainId, contract, tokenId, name, description, image, kind, isFlagged, isSpam, isNsfw, metadataDisabled, rarity, rarityRank, attributes
     sales: [], //
+    listings: [], //
 
     addresses: {}, // Address => Info
     registry: {}, // Address => StealthMetaAddress
@@ -196,6 +202,7 @@ const dataModule = {
     collection: state => state.collection,
     tokens: state => state.tokens,
     sales: state => state.sales,
+    listings: state => state.listings,
 
     addresses: state => state.addresses,
     registry: state => state.registry,
@@ -228,6 +235,10 @@ const dataModule = {
     setSales(state, sales) {
       Vue.set(state, 'sales', sales);
       // logInfo("dataModule", "mutations.setSales sales: " + JSON.stringify(sales, null, 2));
+    },
+    setListings(state, listings) {
+      Vue.set(state, 'listings', listings);
+      logInfo("dataModule", "mutations.setListings listings: " + JSON.stringify(listings, null, 2));
     },
 
     toggleAddressField(state, info) {
@@ -1025,7 +1036,23 @@ const dataModule = {
       } while (!done);
       context.commit('setSales', sales);
 
-      await context.dispatch('saveData', ['collection', 'tokens', 'sales']);
+      rows = 0;
+      done = false;
+      const listings = [];
+      do {
+        let data = await db.listings.where('[chainId+blockNumber+logIndex]').between([parameter.chainId, Dexie.minKey, Dexie.minKey],[parameter.chainId, Dexie.maxKey, Dexie.maxKey]).offset(rows).limit(context.state.DB_PROCESSING_BATCH_SIZE).toArray();
+        logInfo("dataModule", "actions.collateTokens - listings - data.length: " + data.length + ", first[0..1]: " + JSON.stringify(data.slice(0, 2).map(e => e.blockNumber + '.' + e.logIndex )));
+        for (const item of data) {
+          if (item.contract == context.state.selectedCollection) {
+            listings.push(item);
+          }
+        }
+        rows = parseInt(rows) + data.length;
+        done = data.length < context.state.DB_PROCESSING_BATCH_SIZE;
+      } while (!done);
+      context.commit('setListings', listings);
+
+      await context.dispatch('saveData', ['collection', 'tokens', 'sales', 'listings']);
       logInfo("dataModule", "actions.collateTokens END");
     },
 
