@@ -104,9 +104,7 @@ const Sales = {
           </div>
         </div>
 
-        <!-- <b-table ref="tokenContractsTable" small fixed striped responsive hover selectable select-mode="single" @row-selected='rowSelected' :fields="fields" :items="pagedFilteredSortedItems" show-empty head-variant="light" class="m-0 mt-1"> -->
-        <!-- <b-table ref="tokenContractsTable" small fixed striped responsive hover :fields="fields" :items="pagedFilteredSortedItems" show-empty head-variant="light" class="m-0 mt-1"> -->
-        <b-table ref="tokenContractsTable" small fixed striped responsive hover :items="pagedFilteredSortedItems" show-empty head-variant="light" class="m-0 mt-1">
+        <b-table ref="tokenContractsTable" small fixed striped responsive hover selectable select-mode="single" @row-selected='rowSelected' :fields="fields" :items="pagedFilteredSortedItems" show-empty head-variant="light" class="m-0 mt-1">
           <template #empty="scope">
             <h6>{{ scope.emptyText }}</h6>
             <div>
@@ -124,14 +122,24 @@ const Sales = {
             {{ parseInt(data.index) + ((settings.currentPage - 1) * settings.pageSize) + 1 }}
           </template>
 
-<!--
+          <!--
           { key: 'number', label: '#', sortable: false, thStyle: 'width: 5%;', tdClass: 'text-truncate text-muted small' },
-          { key: 'tokenId', label: 'TokenId', sortable: false, thStyle: 'width: 16%;', thClass: 'text-left', tdClass: 'text-truncate' },
-          { key: 'image', label: 'Image', sortable: false, thStyle: 'width: 16%;', thClass: 'text-left', tdClass: 'text-truncate' },
-          { key: 'name', label: 'Name/Description', sortable: false, thStyle: 'width: 16%;', thClass: 'text-left', tdClass: 'text-truncate' },
-          { key: 'owner', label: 'Owner', sortable: false, thStyle: 'width: 16%;', thClass: 'text-left', tdClass: 'text-truncate' },
-          { key: 'attributes', label: 'Attributes', sortable: false, thStyle: 'width: 16%;', thClass: 'text-left', tdClass: 'text-truncate' },
- -->
+          { key: 'when', label: 'When', sortable: false, thStyle: 'width: 16%;', thClass: 'text-left', tdClass: 'text-truncate' },
+          { key: 'from', label: 'From', sortable: false, thStyle: 'width: 16%;', thClass: 'text-left', tdClass: 'text-truncate' },
+          { key: 'to', label: 'To', sortable: false, thStyle: 'width: 16%;', thClass: 'text-left', tdClass: 'text-truncate' },
+          { key: 'what', label: 'What', sortable: false, thStyle: 'width: 16%;', thClass: 'text-left', tdClass: 'text-truncate' },
+           -->
+
+          <template #cell(when)="data">
+            <b-link :href="'https://etherscan.io/tx/' + data.item.txHash" target="_blank">
+              {{ formatTimestamp(data.item.timestamp) }}
+            </b-link>
+            <br />
+            <font size="-2">
+              {{ data.item.txHash.substring(0, 10) + '...' + data.item.txHash.slice(-8) }}
+            </font>
+          </template>
+
 
           <template #cell(image)="data">
             <b-img v-if="data.item.image" button rounded fluid :src="data.item.image">
@@ -305,16 +313,15 @@ const Sales = {
         selectedFaucet: null,
       },
       sortOptions: [
-        { value: 'tokenidasc', text: '▲ TokenId' },
-        { value: 'tokeniddsc', text: '▼ TokenId' },
+        { value: 'txorderasc', text: '▲ TxOrder' },
+        { value: 'txorderdsc', text: '▼ TxOrder' },
       ],
       fields: [
         { key: 'number', label: '#', sortable: false, thStyle: 'width: 5%;', tdClass: 'text-truncate text-muted small' },
-        // { key: 'tokenId', label: 'TokenId', sortable: false, thStyle: 'width: 16%;', thClass: 'text-left', tdClass: 'text-truncate' },
-        { key: 'image', label: 'Image', sortable: false, thStyle: 'width: 10%;', thClass: 'text-left', tdClass: 'text-truncate' },
-        { key: 'name', label: 'Name/Description', sortable: false, thStyle: 'width: 16%;', thClass: 'text-left', tdClass: 'text-left' },
-        { key: 'owner', label: 'Owner', sortable: false, thStyle: 'width: 16%;', thClass: 'text-left', tdClass: 'text-left' },
-        { key: 'attributes', label: 'Attributes', sortable: false, thStyle: 'width: 16%;', thClass: 'text-left', tdClass: 'text-left' },
+        { key: 'when', label: 'When', sortable: false, thStyle: 'width: 16%;', thClass: 'text-left', tdClass: 'text-truncate' },
+        { key: 'from', label: 'From', sortable: false, thStyle: 'width: 16%;', thClass: 'text-left', tdClass: 'text-truncate' },
+        { key: 'to', label: 'To', sortable: false, thStyle: 'width: 16%;', thClass: 'text-left', tdClass: 'text-truncate' },
+        { key: 'what', label: 'What', sortable: false, thStyle: 'width: 16%;', thClass: 'text-left', tdClass: 'text-truncate' },
       ],
     }
   },
@@ -504,13 +511,21 @@ const Sales = {
     },
     filteredSortedItems() {
       const results = this.filteredItems;
-      if (this.settings.sortOption == 'tokenidasc') {
+      if (this.settings.sortOption == 'txorderasc') {
         results.sort((a, b) => {
-          return a.tokenId - b.tokenId;
+          if (a.blockNumber == b.blockNumber) {
+            return a.logIndex - b.logIndex;
+          } else {
+            return a.blockNumber - b.blockNumber;
+          }
         });
-      } else if (this.settings.sortOption == 'tokeniddsc') {
+      } else if (this.settings.sortOption == 'txorderdsc') {
         results.sort((a, b) => {
-          return b.tokenId - a.tokenId;
+          if (a.blockNumber == b.blockNumber) {
+            return b.logIndex - a.logIndex;
+          } else {
+            return b.blockNumber - a.blockNumber;
+          }
         });
       }
       return results;
@@ -620,10 +635,10 @@ const Sales = {
     },
     rowSelected(item) {
       logInfo("Sales", "methods.rowSelected BEGIN: " + JSON.stringify(item, null, 2));
-      if (item && item.length > 0) {
-        store.dispatch('viewToken/viewToken', { address: item[0].address, tokenId: item[0].tokenId });
-        this.$refs.tokenContractsTable.clearSelected();
-      }
+      // if (item && item.length > 0) {
+      //   store.dispatch('viewToken/viewToken', { address: item[0].address, tokenId: item[0].tokenId });
+      //   this.$refs.tokenContractsTable.clearSelected();
+      // }
     },
 
     async revealTransferSpendingPrivateKey() {

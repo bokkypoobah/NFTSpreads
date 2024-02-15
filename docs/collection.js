@@ -104,8 +104,7 @@ const Collection = {
           </div>
         </div>
 
-        <!-- <b-table ref="tokenContractsTable" small fixed striped responsive hover selectable select-mode="single" @row-selected='rowSelected' :fields="fields" :items="pagedFilteredSortedItems" show-empty head-variant="light" class="m-0 mt-1"> -->
-        <b-table ref="tokenContractsTable" small fixed striped responsive hover :fields="fields" :items="pagedFilteredSortedItems" show-empty head-variant="light" class="m-0 mt-1">
+        <b-table ref="tokenContractsTable" small fixed striped responsive hover selectable select-mode="single" @row-selected='rowSelected' :fields="fields" :items="pagedFilteredSortedItems" show-empty head-variant="light" class="m-0 mt-1">
           <template #empty="scope">
             <h6>{{ scope.emptyText }}</h6>
             <div>
@@ -615,10 +614,10 @@ const Collection = {
     },
     rowSelected(item) {
       logInfo("Collection", "methods.rowSelected BEGIN: " + JSON.stringify(item, null, 2));
-      if (item && item.length > 0) {
-        store.dispatch('viewToken/viewToken', { address: item[0].address, tokenId: item[0].tokenId });
-        this.$refs.tokenContractsTable.clearSelected();
-      }
+      // if (item && item.length > 0) {
+      //   store.dispatch('viewToken/viewToken', { address: item[0].address, tokenId: item[0].tokenId });
+      //   this.$refs.tokenContractsTable.clearSelected();
+      // }
     },
 
     async revealTransferSpendingPrivateKey() {
