@@ -488,8 +488,8 @@ const Collections = {
       return e ? ethers.utils.formatUnits(e, decimals).replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",") : null;
     },
     saveSettings() {
-      logInfo("Collections", "methods.saveSettings - collectionsSettings: " + JSON.stringify(this.settings, null, 2));
-      localStorage.collectionsSettings = JSON.stringify(this.settings);
+      logInfo("Collections", "methods.saveSettings - nftSpreadsCollectionsSettings: " + JSON.stringify(this.settings, null, 2));
+      localStorage.nftSpreadsCollectionsSettings = JSON.stringify(this.settings);
     },
     async viewSyncOptions(blah) {
       store.dispatch('syncOptions/viewSyncOptions', blah);
@@ -598,8 +598,8 @@ const Collections = {
   mounted() {
     logDebug("Collections", "mounted() $route: " + JSON.stringify(this.$route.params));
     store.dispatch('data/restoreState');
-    if ('collectionsSettings' in localStorage) {
-      const tempSettings = JSON.parse(localStorage.collectionsSettings);
+    if ('nftSpreadsCollectionsSettings' in localStorage) {
+      const tempSettings = JSON.parse(localStorage.nftSpreadsCollectionsSettings);
       if ('version' in tempSettings && tempSettings.version == 0) {
         this.settings = tempSettings;
         this.settings.currentPage = 1;

@@ -69,8 +69,8 @@ const SyncOptions = {
   },
   methods: {
     saveSettings() {
-      // logInfo("SyncOptions", "methods.saveSettings - syncOptionsSettings: " + JSON.stringify(this.settings, null, 2));
-      localStorage.syncOptionsSettings = JSON.stringify(this.settings);
+      // logInfo("SyncOptions", "methods.saveSettings - nftSpreadsSyncOptionsSettings: " + JSON.stringify(this.settings, null, 2));
+      localStorage.nftSpreadsSyncOptionsSettings = JSON.stringify(this.settings);
     },
     syncNow() {
       store.dispatch('data/syncIt', {
@@ -92,8 +92,8 @@ const SyncOptions = {
   },
   mounted() {
     logDebug("SyncOptions", "mounted() $route: " + JSON.stringify(this.$route.params));
-    if ('syncOptionsSettings' in localStorage) {
-      const tempSettings = JSON.parse(localStorage.syncOptionsSettings);
+    if ('nftSpreadsSyncOptionsSettings' in localStorage) {
+      const tempSettings = JSON.parse(localStorage.nftSpreadsSyncOptionsSettings);
       if ('version' in tempSettings && tempSettings.version == 0) {
         this.settings = tempSettings;
       }

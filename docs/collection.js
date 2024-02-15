@@ -90,7 +90,7 @@ const Collection = {
           </div>
           <div v-if="false" class="mt-0 flex-grow-1">
           </div>
-          <div v-if="false" class="mt-0 pr-1">
+          <div class="mt-0 pr-1">
             <b-form-select size="sm" v-model="settings.sortOption" @change="saveSettings" :options="sortOptions" v-b-popover.hover.top="'Yeah. Sort'"></b-form-select>
           </div>
           <div class="mt-0 pr-1">
@@ -261,8 +261,8 @@ const Collection = {
         junkFilter: null,
         favouritesOnly: false,
         currentPage: 1,
-        pageSize: 10,
-        sortOption: 'registrantasc',
+        pageSize: 100,
+        sortOption: 'tokenidasc',
         version: 0,
       },
       transfer: {
@@ -275,8 +275,8 @@ const Collection = {
       sortOptions: [
         // { value: 'nameregistrantasc', text: '▲ Name, ▲ Registrant' },
         // { value: 'nameregistrantdsc', text: '▼ Name, ▲ Registrant' },
-        { value: 'registrantasc', text: '▲ Registrant' },
-        { value: 'registrantdsc', text: '▼ Registrant' },
+        { value: 'tokenidasc', text: '▲ TokenId' },
+        { value: 'tokeniddsc', text: '▼ TokenId' },
       ],
       fields: [
         { key: 'number', label: '#', sortable: false, thStyle: 'width: 5%;', tdClass: 'text-truncate' },
@@ -369,7 +369,7 @@ const Collection = {
 
     totalCollections() {
       let result = (store.getters['data/forceRefresh'] % 2) == 0 ? 0 : 0;
-      for (const [address, data] of Object.entries(this.collections[this.chainId] || {})) {
+      for (const [tokenId, token] of Object.entries(this.tokens)) {
         result++;
       }
       return result;
@@ -394,7 +394,7 @@ const Collection = {
           chainId: token.chainId,
           contract: token.contract,
           tokenId: token.tokenId,
-          name: token.name,
+          name: token.name || ('#' + token.tokenId),
           description: token.description,
           image: token.image,
           kind: token.kind,
@@ -543,8 +543,8 @@ const Collection = {
       return e ? ethers.utils.formatUnits(e, decimals).replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",") : null;
     },
     saveSettings() {
-      logInfo("Collection", "methods.saveSettings - collectionsSettings: " + JSON.stringify(this.settings, null, 2));
-      localStorage.collectionsSettings = JSON.stringify(this.settings);
+      logInfo("Collection", "methods.saveSettings - nftSpreadsCollectionSettings: " + JSON.stringify(this.settings, null, 2));
+      localStorage.nftSpreadsCollectionSettings = JSON.stringify(this.settings);
     },
     async viewSyncOptions(blah) {
       store.dispatch('syncOptions/viewSyncOptions', blah);
@@ -653,8 +653,8 @@ const Collection = {
   mounted() {
     logDebug("Collection", "mounted() $route: " + JSON.stringify(this.$route.params));
     store.dispatch('data/restoreState');
-    if ('collectionsSettings' in localStorage) {
-      const tempSettings = JSON.parse(localStorage.collectionsSettings);
+    if ('nftSpreadsCollectionSettings' in localStorage) {
+      const tempSettings = JSON.parse(localStorage.nftSpreadsCollectionSettings);
       if ('version' in tempSettings && tempSettings.version == 0) {
         this.settings = tempSettings;
         this.settings.currentPage = 1;
