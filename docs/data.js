@@ -173,7 +173,7 @@ const dataModule = {
       halt: false,
     },
     db: {
-      name: "nftspreadsdata080b",
+      name: "nftspreadsdata080c",
       version: 1,
       schemaDefinition: {
         // announcements: '[chainId+blockNumber+logIndex],[blockNumber+contract],contract,confirmations,stealthAddress',
@@ -181,6 +181,7 @@ const dataModule = {
         // tokenEvents: '[chainId+blockNumber+logIndex],[blockNumber+contract],contract,confirmations',
         tokens: '[chainId+contract+tokenId]',
         sales: '[chainId+blockNumber+logIndex],contract,confirmations',
+        listings: '[chainId+contract+tokenSetId],contract,confirmations',
         cache: '&objectName',
       },
       updated: null,
@@ -598,6 +599,10 @@ const dataModule = {
         await context.dispatch('syncCollectionSales', parameter);
       }
 
+      if (options.collectionListings) {
+        await context.dispatch('syncCollectionListings', parameter);
+      }
+
       await context.dispatch('collateTokens', parameter);
 
       // if (options.devThing) {
@@ -763,6 +768,113 @@ const dataModule = {
               console.log("syncCollectionSales.bulkPut - items: " + records.length + ", lastKey: " + JSON.stringify(lastKey));
             }).catch(Dexie.BulkError, function(e) {
               console.log("syncCollectionSales.bulkPut e: " + JSON.stringify(e.failures, null, 2));
+            });
+          }
+          total = parseInt(total) + records.length;
+          context.commit('setSyncCompleted', total);
+        }
+        await delay(2500); // TODO: Adjust to avoid error 429 Too Many Requests. Fails at 200ms
+      } while (continuation != null /*&& !state.halt && !state.sync.error */);
+    },
+
+    async syncCollectionListings(context, parameter) {
+      logInfo("dataModule", "actions.syncCollectionListings BEGIN: " + JSON.stringify(parameter));
+      const db = new Dexie(context.state.db.name);
+      db.version(context.state.db.version).stores(context.state.db.schemaDefinition);
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
+
+      context.commit('setSyncSection', { section: "Listings", total: null });
+
+      let total = 0;
+      let continuation = null;
+      do {
+        let url = "https://api.reservoir.tools/orders/asks/v5?contracts=" + context.state.selectedCollection + "&limit=1000" +
+          (continuation != null ? "&continuation=" + continuation : '');
+        console.log("url: " + url);
+        const data = await fetch(url)
+          .then(handleErrors)
+          .then(response => response.json())
+          .catch(function(error) {
+             console.log("ERROR - updateCollection: " + error);
+             // state.sync.error = true;
+             return [];
+          });
+        if (!parameter.devThing) {
+          continuation = data.continuation;
+        }
+        if (data && data.orders) {
+          const records = [];
+          for (const order of data.orders) {
+            console.log("order: " + JSON.stringify(order, null, 2));
+            const feeBreakdown = [];
+            for (const d of (order.feeBreakdown || [])) {
+              feeBreakdown.push({
+                kind: d.kind,
+                bps: d.bps,
+                recipient: ethers.utils.getAddress(d.recipient),
+              });
+            }
+            const price = order.price;
+            if (price && price.currency && price.currency.contract) {
+              price.currency.contract = ethers.utils.getAddress(price.currency.contract);
+            }
+            records.push({
+              chainId: parameter.chainId,
+
+              id: order.id,
+              kind: order.kind,
+              side: order.side,
+              status: order.status,
+              tokenSetId: order.tokenSetId,
+              tokenSetSchemaHash: order.tokenSetSchemaHash,
+              contract: ethers.utils.getAddress(order.contract),
+              contractKind: order.contractKind,
+              maker: ethers.utils.getAddress(order.maker),
+              taker: ethers.utils.getAddress(order.taker),
+              price,
+              validFrom: order.validFrom,
+              validUntil: order.validUntil,
+              quantityFilled: order.quantityFilled,
+              quantityRemaining: order.quantityRemaining,
+              dynamicPricing: order.dynamicPricing,
+              criteria: order.criteria,
+              source: order.source,
+              feeBps: order.feeBps,
+              feeBreakdown,
+              expiration: order.expiration,
+              isReservoir: order.isReservoir,
+              isDynamic: order.isDynamic,
+              createdAt: order.createdAt,
+              updatedAt: order.updatedAt,
+              originatedAt: order.originatedAt,
+
+              //  "feeBps": 750,
+              //  "feeBreakdown": [
+              //    {
+              //      "bps": 250,
+              //      "kind": "marketplace",
+              //      "recipient": "0x0000a26b00c1f0df003000390027140000faa719"
+              //    },
+              //    {
+              //      "bps": 500,
+              //      "kind": "royalty",
+              //      "recipient": "0x1b65a9816ef95229acc3384e67956a7dfab2b87c"
+              //    }
+              //  ],
+              //  "expiration": 1708419896,
+              //  "isReservoir": null,
+              //  "isDynamic": false,
+              //  "createdAt": "2023-11-20T09:05:26.706Z",
+              //  "updatedAt": "2023-11-20T09:05:26.706Z",
+              //  "originatedAt": "2023-11-20T09:05:25.707Z"
+
+            });
+          }
+          if (records.length) {
+            await db.listings.bulkPut(records).then (function(lastKey) {
+              console.log("syncCollectionListings.bulkPut - items: " + records.length + ", lastKey: " + JSON.stringify(lastKey));
+            }).catch(Dexie.BulkError, function(e) {
+              console.log("syncCollectionListings.bulkPut e: " + JSON.stringify(e.failures, null, 2));
             });
           }
           total = parseInt(total) + records.length;

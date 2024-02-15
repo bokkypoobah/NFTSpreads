@@ -6,6 +6,7 @@ const SyncOptions = {
 
         <b-form-checkbox size="sm" switch :disabled="chainId != 1" v-model="settings.collection" @input="saveSettings" v-b-popover.hover="'NFT Collection'" class="ml-2 mt-1">Collection</b-form-checkbox>
         <b-form-checkbox size="sm" switch :disabled="chainId != 1" v-model="settings.collectionSales" @input="saveSettings" v-b-popover.hover="'NFT Collection Sales'" class="ml-2 mt-1">Collection Sales</b-form-checkbox>
+        <b-form-checkbox size="sm" switch :disabled="chainId != 1" v-model="settings.collectionListings" @input="saveSettings" v-b-popover.hover="'NFT Collection Listings'" class="ml-2 mt-1">Collection Listings</b-form-checkbox>
 
         <!-- <b-form-checkbox size="sm" switch :disabled="settings.devThing || chainId != 11155111" v-model="settings.stealthTransfers" @input="saveSettings" v-b-popover.hover="'ERC-5564: Stealth Addresses announcements'" class="ml-2 mt-1">Stealth Transfers</b-form-checkbox>
         <b-form-checkbox size="sm" switch :disabled="settings.devThing || chainId != 11155111" v-model="settings.stealthMetaAddressRegistry" @input="saveSettings" v-b-popover.hover="'ERC-6538: Stealth Meta-Address Registry entries'" class="ml-2 mt-1">Stealth Meta-Address Registry</b-form-checkbox>
@@ -31,6 +32,7 @@ const SyncOptions = {
       settings: {
         collection: true,
         collectionSales: true,
+        collectionListings: true,
 
         stealthTransfers: true,
         stealthMetaAddressRegistry: true,
@@ -75,8 +77,8 @@ const SyncOptions = {
     syncNow() {
       store.dispatch('data/syncIt', {
         collection: this.settings.collection,
-        sales: this.settings.sales,
         collectionSales: this.settings.collectionSales,
+        collectionListings: this.settings.collectionListings,
         // stealthTransfers: this.settings.stealthTransfers,
         // stealthMetaAddressRegistry: this.settings.stealthMetaAddressRegistry,
         // tokens: this.settings.tokens,

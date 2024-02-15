@@ -407,7 +407,7 @@ const Collection = {
     },
     filteredItems() {
       const results = (store.getters['data/forceRefresh'] % 2) == 0 ? [] : [];
-      console.log("filteredItems - tokens: " + JSON.stringify(this.tokens, null, 2));
+      // console.log("filteredItems - tokens: " + JSON.stringify(this.tokens, null, 2));
       let regex = null;
       if (this.settings.filter != null && this.settings.filter.length > 0) {
         try {
@@ -419,7 +419,7 @@ const Collection = {
       }
 
       for (const [tokenId, token] of Object.entries(this.tokens)) {
-        console.log(tokenId + " => " + JSON.stringify(token));
+        // console.log(tokenId + " => " + JSON.stringify(token));
 
         results.push({
           chainId: token.chainId,
@@ -511,7 +511,7 @@ const Collection = {
       return results;
     },
     pagedFilteredSortedItems() {
-      logInfo("Collection", "pagedFilteredSortedItems - results[0..1]: " + JSON.stringify(this.filteredSortedItems.slice(0, 2), null, 2));
+      // logInfo("Collection", "pagedFilteredSortedItems - results[0..1]: " + JSON.stringify(this.filteredSortedItems.slice(0, 2), null, 2));
       return this.filteredSortedItems.slice((this.settings.currentPage - 1) * this.settings.pageSize, this.settings.currentPage * this.settings.pageSize);
     },
 
