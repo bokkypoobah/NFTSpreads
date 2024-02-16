@@ -814,6 +814,9 @@ const dataModule = {
       db.version(context.state.db.version).stores(context.state.db.schemaDefinition);
       const provider = new ethers.providers.Web3Provider(window.ethereum);
 
+      const deleteCount = await db.listings.where('[chainId+contract+id]').between([parameter.chainId, context.state.selectedCollection, Dexie.minKey],[parameter.chainId, context.state.selectedCollection, Dexie.maxKey]).delete();
+      logInfo("dataModule", "actions.syncCollectionListings - deleteCount: " + deleteCount);
+
       context.commit('setSyncSection', { section: "Listings", total: null });
 
       let total = 0;
@@ -900,7 +903,10 @@ const dataModule = {
       db.version(context.state.db.version).stores(context.state.db.schemaDefinition);
       const provider = new ethers.providers.Web3Provider(window.ethereum);
 
-      context.commit('setSyncSection', { section: "Listings", total: null });
+      const deleteCount = await db.offers.where('[chainId+contract+id]').between([parameter.chainId, context.state.selectedCollection, Dexie.minKey],[parameter.chainId, context.state.selectedCollection, Dexie.maxKey]).delete();
+      logInfo("dataModule", "actions.syncCollectionOffers - deleteCount: " + deleteCount);
+
+      context.commit('setSyncSection', { section: "Offers", total: null });
 
       let total = 0;
       let continuation = null;
