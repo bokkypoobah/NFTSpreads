@@ -319,6 +319,9 @@ const Owners = {
     collections() {
       return store.getters['data/collections'];
     },
+    tokens() {
+      return store.getters['data/tokens'];
+    },
     owners() {
       return store.getters['data/owners'];
     },
