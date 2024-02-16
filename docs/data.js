@@ -166,6 +166,7 @@ const dataModule = {
     sales: [], //
     listings: [], //
     offers: [], //
+    ens: {},
 
     addresses: {}, // Address => Info
     registry: {}, // Address => StealthMetaAddress
@@ -205,6 +206,7 @@ const dataModule = {
     sales: state => state.sales,
     listings: state => state.listings,
     offers: state => state.offers,
+    ens: state => state.ens,
 
     addresses: state => state.addresses,
     registry: state => state.registry,
@@ -245,6 +247,10 @@ const dataModule = {
     setOffers(state, offers) {
       Vue.set(state, 'offers', offers);
       // logInfo("dataModule", "mutations.setOffers offers: " + JSON.stringify(offers, null, 2));
+    },
+    setENS(state, info) {
+      Vue.set(state.ens, info.address, info.name);
+      // logInfo("dataModule", "mutations.setENS info: " + JSON.stringify(info, null, 2));
     },
 
     toggleAddressField(state, info) {
@@ -465,7 +471,7 @@ const dataModule = {
       if (Object.keys(context.state.stealthTransfers).length == 0) {
         const db0 = new Dexie(context.state.db.name);
         db0.version(context.state.db.version).stores(context.state.db.schemaDefinition);
-        for (let type of ['collections', 'selectedCollection', 'collection', 'tokens', 'sales', 'listings', 'offers']) {
+        for (let type of ['collections', 'selectedCollection', 'collection', 'tokens', 'sales', 'listings', 'offers', 'ens']) {
           const data = await db0.cache.where("objectName").equals(type).toArray();
           if (data.length == 1) {
             // logInfo("dataModule", "actions.restoreState " + type + " => " + JSON.stringify(data[0].object));
@@ -1152,20 +1158,23 @@ const dataModule = {
         try {
           const allnames = await ensReverseRecordsContract.getNames(batch);
           for (let j = 0; j < batch.length; j++) {
-            const account = batch[j];
+            const address = batch[j];
             const name = allnames[j];
-            // const normalized = normalize(account);
+            // const normalized = normalize(address);
             if (name) {
-              console.log(account + " => " + name);
+              console.log(address + " => " + name);
+              context.commit('setENS', { address, name });
             }
-            // context.commit('addENSName', { account, name });
           }
         } catch (e) {
           for (let j = 0; j < batch.length; j++) {
             try {
-              const allnames = await ensReverseRecordsContract.getNames([batch[j]]);
-              if (allnames && allnames[0]) {
-                console.log(batch[j] + " => " + allnames[0]);
+              const address = batch[j];
+              const allnames = await ensReverseRecordsContract.getNames([address]);
+              const name = allnames[0];
+              if (name) {
+                console.log(address + " => " + name);
+                context.commit('setENS', { address, name });
               }
             } catch (e1) {
               console.log("Error - address: " + batch[j] + ", message: " + e1.message);
@@ -1173,7 +1182,8 @@ const dataModule = {
           }
         }
       }
-      // context.dispatch('saveData', ['ensMap']);
+      console.log("context.state.ens: " + JSON.stringify(context.state.ens, null, 2));
+      context.dispatch('saveData', ['ens']);
     },
     // Called by Connection.execWeb3()
     async execWeb3({ state, commit, rootState }, { count, listenersInstalled }) {
