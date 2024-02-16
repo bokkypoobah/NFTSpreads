@@ -1144,21 +1144,35 @@ const dataModule = {
       } while (!done);
       console.log("owners: " + JSON.stringify(owners, null, 2));
 
-      // const provider = new ethers.providers.Web3Provider(window.ethereum);
-      // const ensReverseRecordsContract = new ethers.Contract(ENSREVERSERECORDSADDRESS, ENSREVERSERECORDSABI, provider);
-      // const addresses = Object.keys(context.state.accounts);
-      // const ENSOWNERBATCHSIZE = 200; // Can do 200, but incorrectly misconfigured reverse ENS causes the whole call to fail
-      // for (let i = 0; i < addresses.length; i += ENSOWNERBATCHSIZE) {
-      //   const batch = addresses.slice(i, parseInt(i) + ENSOWNERBATCHSIZE);
-      //   const allnames = await ensReverseRecordsContract.getNames(batch);
-      //   for (let j = 0; j < batch.length; j++) {
-      //     const account = batch[j];
-      //     const name = allnames[j];
-      //     // const normalized = normalize(account);
-      //     // console.log(account + " => " + name);
-      //     context.commit('addENSName', { account, name });
-      //   }
-      // }
+      const ensReverseRecordsContract = new ethers.Contract(ENSREVERSERECORDSADDRESS, ENSREVERSERECORDSABI, provider);
+      const addresses = Object.keys(owners);
+      const ENSOWNERBATCHSIZE = 25; // Can do 200, but incorrectly misconfigured reverse ENS causes the whole call to fail
+      for (let i = 0; i < addresses.length; i += ENSOWNERBATCHSIZE) {
+        const batch = addresses.slice(i, parseInt(i) + ENSOWNERBATCHSIZE);
+        try {
+          const allnames = await ensReverseRecordsContract.getNames(batch);
+          for (let j = 0; j < batch.length; j++) {
+            const account = batch[j];
+            const name = allnames[j];
+            // const normalized = normalize(account);
+            if (name) {
+              console.log(account + " => " + name);
+            }
+            // context.commit('addENSName', { account, name });
+          }
+        } catch (e) {
+          for (let j = 0; j < batch.length; j++) {
+            try {
+              const allnames = await ensReverseRecordsContract.getNames([batch[j]]);
+              if (allnames && allnames[0]) {
+                console.log(batch[j] + " => " + allnames[0]);
+              }
+            } catch (e1) {
+              console.log("Error - address: " + batch[j] + ", message: " + e1.message);
+            }
+          }
+        }
+      }
       // context.dispatch('saveData', ['ensMap']);
     },
     // Called by Connection.execWeb3()
