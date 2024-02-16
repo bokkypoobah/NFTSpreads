@@ -140,6 +140,17 @@ const Sales = {
             </font>
           </template>
 
+          <template #cell(from)="data">
+            <b-link :href="'https://etherscan.io/address/' + data.item.from" target="_blank">
+              <font size="-1">{{ data.item.from.substring(0, 10) + '...' + data.item.from.slice(-8) }}</font>
+            </b-link>
+          </template>
+
+          <template #cell(to)="data">
+            <b-link :href="'https://etherscan.io/address/' + data.item.to" target="_blank">
+              <font size="-1">{{ data.item.to.substring(0, 10) + '...' + data.item.to.slice(-8) }}</font>
+            </b-link>
+          </template>
 
           <template #cell(image)="data">
             <b-img v-if="data.item.image" button rounded fluid :src="data.item.image">
