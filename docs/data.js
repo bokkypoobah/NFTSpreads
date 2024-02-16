@@ -1117,12 +1117,32 @@ const dataModule = {
       context.commit('setExchangeRates', results);
       context.dispatch('saveData', ['exchangeRates']);
     },
+
     async syncENS(context, parameter) {
       logInfo("dataModule", "actions.syncENS BEGIN: " + JSON.stringify(parameter));
       const db = new Dexie(context.state.db.name);
       db.version(context.state.db.version).stores(context.state.db.schemaDefinition);
       const provider = new ethers.providers.Web3Provider(window.ethereum);
 
+      let rows = 0;
+      let done = false;
+
+      let collection = null;
+      const tokens = {};
+      const owners = {};
+      do {
+        let data = await db.tokens.where('[chainId+contract+tokenId]').between([parameter.chainId, context.state.selectedCollection, Dexie.minKey],[parameter.chainId, context.state.selectedCollection, Dexie.maxKey]).offset(rows).limit(context.state.DB_PROCESSING_BATCH_SIZE).toArray();
+        logInfo("dataModule", "actions.syncENS - tokens - data.length: " + data.length + ", first[0..1]: " + JSON.stringify(data.slice(0, 2).map(e => e.contract + '/' + e.tokenId )));
+        for (const item of data) {
+          if (!(item.owner in owners)) {
+            owners[item.owner] = [];
+          }
+          owners[item.owner].push(item.tokenId);
+        }
+        rows = parseInt(rows) + data.length;
+        done = data.length < context.state.DB_PROCESSING_BATCH_SIZE;
+      } while (!done);
+      console.log("owners: " + JSON.stringify(owners, null, 2));
 
       // const provider = new ethers.providers.Web3Provider(window.ethereum);
       // const ensReverseRecordsContract = new ethers.Contract(ENSREVERSERECORDSADDRESS, ENSREVERSERECORDSABI, provider);
