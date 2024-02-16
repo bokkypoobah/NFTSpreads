@@ -654,7 +654,7 @@ const dataModule = {
       let total = 0;
       let continuation = null;
       do {
-        let url = "https://api.reservoir.tools/tokens/v7?contract=" + context.state.selectedCollection + "&sortBy=updatedAt&limit=1000&includeAttributes=true" +
+        let url = "https://api.reservoir.tools/tokens/v7?contract=" + context.state.selectedCollection + "&sortBy=updatedAt&limit=1000&includeAttributes=true&includeLastSale=true" +
           (continuation != null ? "&continuation=" + continuation : '');
         console.log("url: " + url);
         const data = await fetch(url)
@@ -672,7 +672,9 @@ const dataModule = {
           const records = [];
           for (const tokenData of data.tokens) {
             const token = tokenData.token;
-            console.log("token: " + JSON.stringify(token, null, 2));
+            if (token.tokenId == 1704) {
+              console.log("token: " + JSON.stringify(token, null, 2));
+            }
             const owner = token.owner;
             const attributes = token.attributes.map(e => ({ trait_type: e.key, value: e.value }));
             attributes.sort((a, b) => {

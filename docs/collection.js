@@ -122,15 +122,6 @@ const Collection = {
             {{ parseInt(data.index) + ((settings.currentPage - 1) * settings.pageSize) + 1 }}
           </template>
 
-<!--
-          { key: 'number', label: '#', sortable: false, thStyle: 'width: 5%;', tdClass: 'text-truncate text-muted small' },
-          { key: 'tokenId', label: 'TokenId', sortable: false, thStyle: 'width: 16%;', thClass: 'text-left', tdClass: 'text-truncate' },
-          { key: 'image', label: 'Image', sortable: false, thStyle: 'width: 16%;', thClass: 'text-left', tdClass: 'text-truncate' },
-          { key: 'name', label: 'Name/Description', sortable: false, thStyle: 'width: 16%;', thClass: 'text-left', tdClass: 'text-truncate' },
-          { key: 'owner', label: 'Owner', sortable: false, thStyle: 'width: 16%;', thClass: 'text-left', tdClass: 'text-truncate' },
-          { key: 'attributes', label: 'Attributes', sortable: false, thStyle: 'width: 16%;', thClass: 'text-left', tdClass: 'text-truncate' },
- -->
-
           <template #cell(image)="data">
             <b-img v-if="data.item.image" button rounded fluid :src="data.item.image">
             </b-img>
@@ -144,6 +135,7 @@ const Collection = {
             <font size="-2">
               {{ data.item.description }}
             </font>
+            <b-button size="sm" @click="requestReservoirAPITokenMetadataRefresh(data.item)" variant="link" v-b-popover.hover.top="'Request Reservoir API Metadata Refresh'"><b-icon-arrow-clockwise shift-v="+1" font-scale="1.2"></b-icon-arrow-clockwise></b-button>
           </template>
 
           <template #cell(owner)="data">
@@ -555,6 +547,37 @@ const Collection = {
       logInfo("Collection", ".methods.toggleTokenContractFavourite - item: " + JSON.stringify(item, null, 2));
       store.dispatch('data/toggleTokenContractFavourite', item);
     },
+
+    async requestReservoirAPITokenMetadataRefresh(token) {
+      logInfo("Collection", ".methods.requestReservoirAPITokenMetadataRefresh - token: " + JSON.stringify(token, null, 2));
+      const options = {
+        method: 'POST',
+        // mode: 'no-cors', // cors, no-cors, *cors, same-origin
+        headers: {accept: '*/*', 'content-type': 'application/json', 'x-api-key': 'demo-api-key'},
+        body: JSON.stringify({
+          overrideCoolDown: false,
+          token: token.contract + ':' + token.tokenId,
+        })
+      };
+      console.log("options: " + JSON.stringify(options, null, 2));
+      const results = await fetch('https://api.reservoir.tools/tokens/refresh/v1', options)
+        .then(response => response.json())
+        .then(response => console.log(response))
+        .catch(err => console.error(err));
+      console.log("results: " + JSON.stringify(results));
+
+      this.$bvToast.toast("Please retry after 5 minutes if required", {
+        title: 'Metadata Refresh Requested. Please refresh the collection metadata in a few minutes',
+        autoHideDelay: 5000,
+        appendToast: true,
+      });
+      // setTimeout(function() {
+      //   store.dispatch('data/refreshTokenMetadata', token);
+      // }, 5000);
+      // alert("Request sent and will data will be auto-refreshed in 5 seconds. Manually refresh the locally cached token metadata if required")
+    },
+
+
     copyToClipboard(str) {
       navigator.clipboard.writeText(str);
     },
