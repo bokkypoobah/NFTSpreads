@@ -122,22 +122,8 @@ const Offers = {
             {{ parseInt(data.index) + ((settings.currentPage - 1) * settings.pageSize) + 1 }}
           </template>
 
-          <!--
-          { key: 'number', label: '#', sortable: false, thStyle: 'width: 5%;', tdClass: 'text-truncate text-muted small' },
-          { key: 'when', label: 'When', sortable: false, thStyle: 'width: 16%;', thClass: 'text-left', tdClass: 'text-truncate' },
-          { key: 'from', label: 'From', sortable: false, thStyle: 'width: 16%;', thClass: 'text-left', tdClass: 'text-truncate' },
-          { key: 'to', label: 'To', sortable: false, thStyle: 'width: 16%;', thClass: 'text-left', tdClass: 'text-truncate' },
-          { key: 'what', label: 'What', sortable: false, thStyle: 'width: 16%;', thClass: 'text-left', tdClass: 'text-truncate' },
-           -->
-
-          <template #cell(xwhen)="data">
-            <b-link :href="'https://etherscan.io/tx/' + data.item.txHash" target="_blank">
-              {{ formatTimestamp(data.item.timestamp) }}
-            </b-link>
-            <br />
-            <font size="-2">
-              {{ data.item.txHash.substring(0, 10) + '...' + data.item.txHash.slice(-8) }}
-            </font>
+          <template #cell(updatedAt)="data">
+            <font size="-1">{{ formatTimestamp(data.item.updatedAt) }}</font>
           </template>
 
           <template #cell(maker)="data">
@@ -320,7 +306,7 @@ const Offers = {
         favouritesOnly: false,
         currentPage: 1,
         pageSize: 100,
-        sortOption: 'tokenidasc',
+        sortOption: 'updatedatdsc',
         version: 0,
       },
       transfer: {
@@ -331,12 +317,12 @@ const Offers = {
         selectedFaucet: null,
       },
       sortOptions: [
-        { value: 'txorderasc', text: '▲ TxOrder' },
-        { value: 'txorderdsc', text: '▼ TxOrder' },
+        { value: 'updatedatasc', text: '▲ UpdatedAt' },
+        { value: 'updatedatdsc', text: '▼ UpdatedAt' },
       ],
       fields: [
         { key: 'number', label: '#', sortable: false, thStyle: 'width: 5%;', tdClass: 'text-truncate text-muted small' },
-        { key: 'when', label: 'When', sortable: false, thStyle: 'width: 15%;', thClass: 'text-left', tdClass: 'text-truncate' },
+        { key: 'updatedAt', label: 'Updated At', sortable: false, thStyle: 'width: 15%;', thClass: 'text-left', tdClass: 'text-truncate' },
         { key: 'maker', label: 'Maker', sortable: false, thStyle: 'width: 20%;', thClass: 'text-left', tdClass: 'text-truncate' },
         { key: 'taker', label: 'Taker', sortable: false, thStyle: 'width: 20%;', thClass: 'text-left', tdClass: 'text-truncate' },
         { key: 'what', label: 'What', sortable: false, thStyle: 'width: 40%;', thClass: 'text-left', tdClass: 'text-truncate' },
@@ -532,23 +518,15 @@ const Offers = {
     },
     filteredSortedItems() {
       const results = this.filteredItems;
-      // if (this.settings.sortOption == 'txorderasc') {
-      //   results.sort((a, b) => {
-      //     if (a.blockNumber == b.blockNumber) {
-      //       return a.logIndex - b.logIndex;
-      //     } else {
-      //       return a.blockNumber - b.blockNumber;
-      //     }
-      //   });
-      // } else if (this.settings.sortOption == 'txorderdsc') {
-      //   results.sort((a, b) => {
-      //     if (a.blockNumber == b.blockNumber) {
-      //       return b.logIndex - a.logIndex;
-      //     } else {
-      //       return b.blockNumber - a.blockNumber;
-      //     }
-      //   });
-      // }
+      if (this.settings.sortOption == 'updatedatasc') {
+        results.sort((a, b) => {
+          return a.updatedAt - b.updatedAt;
+        });
+      } else if (this.settings.sortOption == 'updatedatdsc') {
+        results.sort((a, b) => {
+          return b.updatedAt - a.updatedAt;
+        });
+      }
       return results;
     },
     pagedFilteredSortedItems() {
