@@ -149,7 +149,10 @@ const Owners = {
           </template>
 
           <template #cell(tokens)="data">
-            {{ data.item.tokenIds.join(", ") }}
+            <!-- {{ data.item.tokenIds.join(", ") }} -->
+            <div v-for="(tokenId, index) in data.item.tokenIds" :key="index">
+              {{ tokens[tokenId].tokenId + ' ' + tokens[tokenId].image }}
+            </div>
           </template>
 
           <template #cell(attributes)="data">
