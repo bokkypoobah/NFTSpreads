@@ -163,6 +163,7 @@ const dataModule = {
     selectedCollection: null,
     collection: {}, // contract, id, symbol, name, image, slug, creator, tokenCount
     tokens: {}, // TokenId => { chainId, contract, tokenId, name, description, image, kind, isFlagged, isSpam, isNsfw, metadataDisabled, rarity, rarityRank, attributes
+    owners: {},
     sales: [], //
     listings: [], //
     offers: [], //
@@ -203,6 +204,7 @@ const dataModule = {
     selectedCollection: state => state.selectedCollection,
     collection: state => state.collection,
     tokens: state => state.tokens,
+    owners: state => state.owners,
     sales: state => state.sales,
     listings: state => state.listings,
     offers: state => state.offers,
@@ -235,6 +237,10 @@ const dataModule = {
     setTokens(state, tokens) {
       Vue.set(state, 'tokens', tokens);
       // logInfo("dataModule", "mutations.setTokens tokens: " + JSON.stringify(tokens, null, 2));
+    },
+    setOwners(state, owners) {
+      Vue.set(state, 'owners', owners);
+      // logInfo("dataModule", "mutations.setOwners owners: " + JSON.stringify(owners, null, 2));
     },
     setSales(state, sales) {
       Vue.set(state, 'sales', sales);
@@ -471,7 +477,7 @@ const dataModule = {
       if (Object.keys(context.state.stealthTransfers).length == 0) {
         const db0 = new Dexie(context.state.db.name);
         db0.version(context.state.db.version).stores(context.state.db.schemaDefinition);
-        for (let type of ['collections', 'selectedCollection', 'collection', 'tokens', 'sales', 'listings', 'offers', 'ens']) {
+        for (let type of ['collections', 'selectedCollection', 'collection', 'tokens', 'owners', 'sales', 'listings', 'offers', 'ens']) {
           const data = await db0.cache.where("objectName").equals(type).toArray();
           if (data.length == 1) {
             // logInfo("dataModule", "actions.restoreState " + type + " => " + JSON.stringify(data[0].object));
@@ -851,7 +857,7 @@ const dataModule = {
         if (data && data.orders) {
           const records = [];
           for (const order of data.orders) {
-            console.log("order: " + JSON.stringify(order, null, 2));
+            // console.log("order: " + JSON.stringify(order, null, 2));
             const feeBreakdown = [];
             for (const d of (order.feeBreakdown || [])) {
               feeBreakdown.push({
@@ -941,7 +947,7 @@ const dataModule = {
         if (data && data.orders) {
           const records = [];
           for (const order of data.orders) {
-            console.log("order: " + JSON.stringify(order, null, 2));
+            // console.log("order: " + JSON.stringify(order, null, 2));
             const feeBreakdown = [];
             for (const d of (order.feeBreakdown || [])) {
               feeBreakdown.push({
@@ -1007,6 +1013,7 @@ const dataModule = {
 
       let collection = null;
       const tokens = {};
+      const owners = {};
       do {
         let data = await db.tokens.where('[chainId+contract+tokenId]').between([parameter.chainId, context.state.selectedCollection, Dexie.minKey],[parameter.chainId, context.state.selectedCollection, Dexie.maxKey]).offset(rows).limit(context.state.DB_PROCESSING_BATCH_SIZE).toArray();
         logInfo("dataModule", "actions.collateIt - tokens - data.length: " + data.length + ", first[0..1]: " + JSON.stringify(data.slice(0, 2).map(e => e.contract + '/' + e.tokenId )));
@@ -1039,12 +1046,17 @@ const dataModule = {
             attributes: item.attributes,
             owner: item.owner,
           };
+          if (!(item.owner in owners)) {
+            owners[item.owner] = [];
+          }
+          owners[item.owner].push(item.tokenId);
         }
         rows = parseInt(rows) + data.length;
         done = data.length < context.state.DB_PROCESSING_BATCH_SIZE;
       } while (!done);
       context.commit('setCollection', collection);
       context.commit('setTokens', tokens);
+      context.commit('setOwners', owners);
 
       rows = 0;
       done = false;
@@ -1088,7 +1100,7 @@ const dataModule = {
       } while (!done);
       context.commit('setOffers', offers);
 
-      await context.dispatch('saveData', ['collection', 'tokens', 'sales', 'listings', 'offers']);
+      await context.dispatch('saveData', ['collection', 'tokens', 'owners', 'sales', 'listings', 'offers']);
       logInfo("dataModule", "actions.collateIt END");
     },
 
