@@ -128,13 +128,13 @@ const Offers = {
 
           <template #cell(maker)="data">
             <b-link :href="'https://etherscan.io/address/' + data.item.maker" target="_blank">
-              <font size="-1">{{ data.item.maker.substring(0, 10) + '...' + data.item.maker.slice(-8) }}</font>
+              <font size="-1">{{ nameOrAddress(data.item.maker) }}</font>
             </b-link>
           </template>
 
           <template #cell(taker)="data">
             <b-link :href="'https://etherscan.io/address/' + data.item.taker" target="_blank">
-              <font size="-1">{{ data.item.taker.substring(0, 10) + '...' + data.item.taker.slice(-8) }}</font>
+              <font size="-1">{{ nameOrAddress(data.item.taker) }}</font>
             </b-link>
           </template>
 
@@ -370,6 +370,9 @@ const Offers = {
     offers() {
       return store.getters['data/offers'];
     },
+    ens() {
+      return store.getters['data/ens'];
+    },
 
     addresses() {
       return store.getters['data/addresses'];
@@ -575,6 +578,30 @@ const Offers = {
       logInfo("Offers", ".methods.toggleTokenContractFavourite - item: " + JSON.stringify(item, null, 2));
       store.dispatch('data/toggleTokenContractFavourite', item);
     },
+
+    nameOrAddress(address, length = 18) {
+      if (address) {
+        if (this.ens[address]) {
+          if (length == 0) {
+            return this.ens[address];
+          } else {
+            if (this.ens[address].length <= length) {
+              return this.ens[address];
+            } else {
+              return this.ens[address].substring(0, length - 10) + "..." + this.ens[address].slice(-7);
+            }
+          }
+        } else {
+          if (length == 0) {
+            return address;
+          } else {
+            return address.substring(0, ((length - 2) / 2) + 2) + "..." + address.slice(-(length - 2)/2);
+          }
+        }
+      }
+      return null;
+    },
+
     copyToClipboard(str) {
       navigator.clipboard.writeText(str);
     },
