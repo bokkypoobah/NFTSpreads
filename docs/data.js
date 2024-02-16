@@ -632,7 +632,13 @@ const dataModule = {
         await context.dispatch('syncCollectionOffers', parameter);
       }
 
-      await context.dispatch('collateTokens', parameter);
+      if (options.collection || options.collectionSales || options.collectionListings || options.collectionOffers) {
+        await context.dispatch('collateIt', parameter);
+      }
+
+      if (options.ens) {
+        await context.dispatch('syncENS', parameter);
+      }
 
       // if (options.devThing) {
       //   console.log("Dev Thing");
@@ -984,8 +990,8 @@ const dataModule = {
       } while (continuation != null /*&& !state.halt && !state.sync.error */);
     },
 
-    async collateTokens(context, parameter) {
-      logInfo("dataModule", "actions.collateTokens: " + JSON.stringify(parameter));
+    async collateIt(context, parameter) {
+      logInfo("dataModule", "actions.collateIt: " + JSON.stringify(parameter));
       const db = new Dexie(context.state.db.name);
       db.version(context.state.db.version).stores(context.state.db.schemaDefinition);
       const provider = new ethers.providers.Web3Provider(window.ethereum);
@@ -997,7 +1003,7 @@ const dataModule = {
       const tokens = {};
       do {
         let data = await db.tokens.where('[chainId+contract+tokenId]').between([parameter.chainId, context.state.selectedCollection, Dexie.minKey],[parameter.chainId, context.state.selectedCollection, Dexie.maxKey]).offset(rows).limit(context.state.DB_PROCESSING_BATCH_SIZE).toArray();
-        logInfo("dataModule", "actions.collateTokens - tokens - data.length: " + data.length + ", first[0..1]: " + JSON.stringify(data.slice(0, 2).map(e => e.contract + '/' + e.tokenId )));
+        logInfo("dataModule", "actions.collateIt - tokens - data.length: " + data.length + ", first[0..1]: " + JSON.stringify(data.slice(0, 2).map(e => e.contract + '/' + e.tokenId )));
         for (const item of data) {
           if (collection == null) {
             collection = {
@@ -1039,7 +1045,7 @@ const dataModule = {
       const sales = [];
       do {
         let data = await db.sales.where('[chainId+blockNumber+logIndex]').between([parameter.chainId, Dexie.minKey, Dexie.minKey],[parameter.chainId, Dexie.maxKey, Dexie.maxKey]).offset(rows).limit(context.state.DB_PROCESSING_BATCH_SIZE).toArray();
-        logInfo("dataModule", "actions.collateTokens - sales - data.length: " + data.length + ", first[0..1]: " + JSON.stringify(data.slice(0, 2).map(e => e.blockNumber + '.' + e.logIndex )));
+        logInfo("dataModule", "actions.collateIt - sales - data.length: " + data.length + ", first[0..1]: " + JSON.stringify(data.slice(0, 2).map(e => e.blockNumber + '.' + e.logIndex )));
         for (const item of data) {
           sales.push(item);
         }
@@ -1053,7 +1059,7 @@ const dataModule = {
       const listings = [];
       do {
         let data = await db.listings.where('[chainId+contract+id]').between([parameter.chainId, context.state.selectedCollection, Dexie.minKey],[parameter.chainId, context.state.selectedCollection, Dexie.maxKey]).offset(rows).limit(context.state.DB_PROCESSING_BATCH_SIZE).toArray();
-        logInfo("dataModule", "actions.collateTokens - listings - data.length: " + data.length + ", first[0..1]: " + JSON.stringify(data.slice(0, 2).map(e => e.contract + '.' + e.id )));
+        logInfo("dataModule", "actions.collateIt - listings - data.length: " + data.length + ", first[0..1]: " + JSON.stringify(data.slice(0, 2).map(e => e.contract + '.' + e.id )));
         for (const item of data) {
           listings.push(item);
         }
@@ -1067,7 +1073,7 @@ const dataModule = {
       const offers = [];
       do {
         let data = await db.offers.where('[chainId+contract+id]').between([parameter.chainId, context.state.selectedCollection, Dexie.minKey],[parameter.chainId, context.state.selectedCollection, Dexie.maxKey]).offset(rows).limit(context.state.DB_PROCESSING_BATCH_SIZE).toArray();
-        logInfo("dataModule", "actions.collateTokens - offers - data.length: " + data.length + ", first[0..1]: " + JSON.stringify(data.slice(0, 2).map(e => e.contract + '.' + e.id )));
+        logInfo("dataModule", "actions.collateIt - offers - data.length: " + data.length + ", first[0..1]: " + JSON.stringify(data.slice(0, 2).map(e => e.contract + '.' + e.id )));
         for (const item of data) {
           offers.push(item);
         }
@@ -1077,7 +1083,7 @@ const dataModule = {
       context.commit('setOffers', offers);
 
       await context.dispatch('saveData', ['collection', 'tokens', 'sales', 'listings', 'offers']);
-      logInfo("dataModule", "actions.collateTokens END");
+      logInfo("dataModule", "actions.collateIt END");
     },
 
 
@@ -1111,23 +1117,29 @@ const dataModule = {
       context.commit('setExchangeRates', results);
       context.dispatch('saveData', ['exchangeRates']);
     },
-    async syncRefreshENS(context, parameter) {
+    async syncENS(context, parameter) {
+      logInfo("dataModule", "actions.syncENS BEGIN: " + JSON.stringify(parameter));
+      const db = new Dexie(context.state.db.name);
+      db.version(context.state.db.version).stores(context.state.db.schemaDefinition);
       const provider = new ethers.providers.Web3Provider(window.ethereum);
-      const ensReverseRecordsContract = new ethers.Contract(ENSREVERSERECORDSADDRESS, ENSREVERSERECORDSABI, provider);
-      const addresses = Object.keys(context.state.accounts);
-      const ENSOWNERBATCHSIZE = 200; // Can do 200, but incorrectly misconfigured reverse ENS causes the whole call to fail
-      for (let i = 0; i < addresses.length; i += ENSOWNERBATCHSIZE) {
-        const batch = addresses.slice(i, parseInt(i) + ENSOWNERBATCHSIZE);
-        const allnames = await ensReverseRecordsContract.getNames(batch);
-        for (let j = 0; j < batch.length; j++) {
-          const account = batch[j];
-          const name = allnames[j];
-          // const normalized = normalize(account);
-          // console.log(account + " => " + name);
-          context.commit('addENSName', { account, name });
-        }
-      }
-      context.dispatch('saveData', ['ensMap']);
+
+
+      // const provider = new ethers.providers.Web3Provider(window.ethereum);
+      // const ensReverseRecordsContract = new ethers.Contract(ENSREVERSERECORDSADDRESS, ENSREVERSERECORDSABI, provider);
+      // const addresses = Object.keys(context.state.accounts);
+      // const ENSOWNERBATCHSIZE = 200; // Can do 200, but incorrectly misconfigured reverse ENS causes the whole call to fail
+      // for (let i = 0; i < addresses.length; i += ENSOWNERBATCHSIZE) {
+      //   const batch = addresses.slice(i, parseInt(i) + ENSOWNERBATCHSIZE);
+      //   const allnames = await ensReverseRecordsContract.getNames(batch);
+      //   for (let j = 0; j < batch.length; j++) {
+      //     const account = batch[j];
+      //     const name = allnames[j];
+      //     // const normalized = normalize(account);
+      //     // console.log(account + " => " + name);
+      //     context.commit('addENSName', { account, name });
+      //   }
+      // }
+      // context.dispatch('saveData', ['ensMap']);
     },
     // Called by Connection.execWeb3()
     async execWeb3({ state, commit, rootState }, { count, listenersInstalled }) {

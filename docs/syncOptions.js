@@ -8,6 +8,7 @@ const SyncOptions = {
         <b-form-checkbox size="sm" switch :disabled="chainId != 1" v-model="settings.collectionSales" @input="saveSettings" v-b-popover.hover="'NFT Collection Sales'" class="ml-2 mt-1">Collection Sales</b-form-checkbox>
         <b-form-checkbox size="sm" switch :disabled="chainId != 1" v-model="settings.collectionListings" @input="saveSettings" v-b-popover.hover="'NFT Collection Listings'" class="ml-2 mt-1">Collection Listings</b-form-checkbox>
         <b-form-checkbox size="sm" switch :disabled="chainId != 1" v-model="settings.collectionOffers" @input="saveSettings" v-b-popover.hover="'NFT Collection Offers'" class="ml-2 mt-1">Collection Offers</b-form-checkbox>
+        <b-form-checkbox size="sm" switch :disabled="chainId != 1" v-model="settings.ens" @input="saveSettings" v-b-popover.hover="'Ethereum Name Service'" class="ml-2 mt-1">ENS</b-form-checkbox>
 
         <!-- <b-form-checkbox size="sm" switch :disabled="settings.devThing || chainId != 11155111" v-model="settings.stealthTransfers" @input="saveSettings" v-b-popover.hover="'ERC-5564: Stealth Addresses announcements'" class="ml-2 mt-1">Stealth Transfers</b-form-checkbox>
         <b-form-checkbox size="sm" switch :disabled="settings.devThing || chainId != 11155111" v-model="settings.stealthMetaAddressRegistry" @input="saveSettings" v-b-popover.hover="'ERC-6538: Stealth Meta-Address Registry entries'" class="ml-2 mt-1">Stealth Meta-Address Registry</b-form-checkbox>
@@ -35,6 +36,7 @@ const SyncOptions = {
         collectionSales: true,
         collectionListings: true,
         collectionOffers: true,
+        ens: true,
 
         stealthTransfers: true,
         stealthMetaAddressRegistry: true,
@@ -82,6 +84,7 @@ const SyncOptions = {
         collectionSales: this.settings.collectionSales,
         collectionListings: this.settings.collectionListings,
         collectionOffers: this.settings.collectionOffers,
+        ens: this.settings.ens,
         // stealthTransfers: this.settings.stealthTransfers,
         // stealthMetaAddressRegistry: this.settings.stealthMetaAddressRegistry,
         // tokens: this.settings.tokens,
