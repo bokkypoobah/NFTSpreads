@@ -1056,6 +1056,16 @@ const dataModule = {
       } while (!done);
       context.commit('setCollection', collection);
       context.commit('setTokens', tokens);
+
+      // TODO: Only sort numerically if all tokenIds <= 5 characters
+      const ownerList = Object.keys(owners);
+      for (const owner of ownerList) {
+        const tokenIds = owners[owner];
+        tokenIds.sort((a, b) => {
+          return parseInt(a) - parseInt(b);
+        });
+        owners[owner] = tokenIds;
+      }
       context.commit('setOwners', owners);
 
       rows = 0;
