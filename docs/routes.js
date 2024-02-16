@@ -11,6 +11,10 @@ const routes = [{
   //   component: Account,
   //   name: 'Account',
   }, {
+    path: '/owners',
+    component: Owners,
+    name: 'Owners',
+  }, {
     path: '/offers',
     component: Offers,
     name: 'Offers',
