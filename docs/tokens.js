@@ -1,4 +1,4 @@
-const Collection = {
+const Tokens = {
   template: `
     <div class="m-0 p-0">
       <b-card no-body no-header class="border-0">
@@ -505,7 +505,7 @@ const Collection = {
       return results;
     },
     pagedFilteredSortedItems() {
-      // logInfo("Collection", "pagedFilteredSortedItems - results[0..1]: " + JSON.stringify(this.filteredSortedItems.slice(0, 2), null, 2));
+      // logInfo("Tokens", "pagedFilteredSortedItems - results[0..1]: " + JSON.stringify(this.filteredSortedItems.slice(0, 2), null, 2));
       return this.filteredSortedItems.slice((this.settings.currentPage - 1) * this.settings.pageSize, this.settings.currentPage * this.settings.pageSize);
     },
 
@@ -543,16 +543,16 @@ const Collection = {
     },
 
     toggleTokenContractJunk(item) {
-      logInfo("Collection", ".methods.toggleTokenContractJunk - item: " + JSON.stringify(item, null, 2));
+      logInfo("Tokens", ".methods.toggleTokenContractJunk - item: " + JSON.stringify(item, null, 2));
       store.dispatch('data/toggleTokenContractJunk', item);
     },
     toggleTokenContractFavourite(item) {
-      logInfo("Collection", ".methods.toggleTokenContractFavourite - item: " + JSON.stringify(item, null, 2));
+      logInfo("Tokens", ".methods.toggleTokenContractFavourite - item: " + JSON.stringify(item, null, 2));
       store.dispatch('data/toggleTokenContractFavourite', item);
     },
 
     async requestReservoirAPITokenMetadataRefresh(token) {
-      logInfo("Collection", ".methods.requestReservoirAPITokenMetadataRefresh - token: " + JSON.stringify(token, null, 2));
+      logInfo("Tokens", ".methods.requestReservoirAPITokenMetadataRefresh - token: " + JSON.stringify(token, null, 2));
       const options = {
         method: 'POST',
         // mode: 'no-cors', // cors, no-cors, *cors, same-origin
@@ -621,7 +621,7 @@ const Collection = {
       return e ? ethers.utils.formatUnits(e, decimals).replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",") : null;
     },
     saveSettings() {
-      logInfo("Collection", "methods.saveSettings - nftSpreadsCollectionSettings: " + JSON.stringify(this.settings, null, 2));
+      logInfo("Tokens", "methods.saveSettings - nftSpreadsCollectionSettings: " + JSON.stringify(this.settings, null, 2));
       localStorage.nftSpreadsCollectionSettings = JSON.stringify(this.settings);
     },
     async viewSyncOptions(blah) {
@@ -661,7 +661,7 @@ const Collection = {
       return null;
     },
     rowSelected(item) {
-      logInfo("Collection", "methods.rowSelected BEGIN: " + JSON.stringify(item, null, 2));
+      logInfo("Tokens", "methods.rowSelected BEGIN: " + JSON.stringify(item, null, 2));
       // if (item && item.length > 0) {
       //   store.dispatch('viewToken/viewToken', { address: item[0].address, tokenId: item[0].tokenId });
       //   this.$refs.tokenContractsTable.clearSelected();
@@ -714,7 +714,7 @@ const Collection = {
     },
 
     async timeoutCallback() {
-      logDebug("Collection", "timeoutCallback() count: " + this.count);
+      logDebug("Tokens", "timeoutCallback() count: " + this.count);
 
       this.count++;
       var t = this;
@@ -726,10 +726,10 @@ const Collection = {
     },
   },
   beforeDestroy() {
-    logDebug("Collection", "beforeDestroy()");
+    logDebug("Tokens", "beforeDestroy()");
   },
   mounted() {
-    logDebug("Collection", "mounted() $route: " + JSON.stringify(this.$route.params));
+    logDebug("Tokens", "mounted() $route: " + JSON.stringify(this.$route.params));
     store.dispatch('data/restoreState');
     if ('nftSpreadsCollectionSettings' in localStorage) {
       const tempSettings = JSON.parse(localStorage.nftSpreadsCollectionSettings);
@@ -739,7 +739,7 @@ const Collection = {
       }
     }
     this.reschedule = true;
-    logDebug("Collection", "Calling timeoutCallback()");
+    logDebug("Tokens", "Calling timeoutCallback()");
     this.timeoutCallback();
   },
   destroyed() {
@@ -747,7 +747,7 @@ const Collection = {
   },
 };
 
-const collectionModule = {
+const tokensModule = {
   namespaced: true,
   state: {
     params: null,
@@ -760,16 +760,16 @@ const collectionModule = {
   },
   mutations: {
     deQueue(state) {
-      logDebug("collectionModule", "deQueue(" + JSON.stringify(state.executionQueue) + ")");
+      logDebug("tokensModule", "deQueue(" + JSON.stringify(state.executionQueue) + ")");
       state.executionQueue.shift();
     },
     updateParams(state, params) {
       state.params = params;
-      logDebug("collectionModule", "updateParams('" + params + "')")
+      logDebug("tokensModule", "updateParams('" + params + "')")
     },
     updateExecuting(state, executing) {
       state.executing = executing;
-      logDebug("collectionModule", "updateExecuting(" + executing + ")")
+      logDebug("tokensModule", "updateExecuting(" + executing + ")")
     },
   },
   actions: {

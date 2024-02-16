@@ -27,9 +27,9 @@ const routes = [{
     component: Sales,
     name: 'Sales',
   }, {
-    path: '/collection',
-    component: Collection,
-    name: 'Collection',
+    path: '/tokens',
+    component: Tokens,
+    name: 'Tokens',
   }, {
     path: '/collections',
     component: Collections,
