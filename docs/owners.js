@@ -3,8 +3,6 @@ const Owners = {
     <div class="m-0 p-0">
       <b-card no-body no-header class="border-0">
 
-        OWNERS
-
         <!-- :MODALFAUCETS -->
         <b-modal ref="modalfaucet" id="modal-faucets" hide-footer body-bg-variant="light" size="md">
           <template #modal-title>ERC-721 Faucets</template>
@@ -146,6 +144,14 @@ const Owners = {
             </b-link>
           </template>
 
+          <template #cell(count)="data">
+            {{ data.item.tokenIds.length }}
+          </template>
+
+          <template #cell(tokens)="data">
+            {{ data.item.tokenIds.join(", ") }}
+          </template>
+
           <template #cell(attributes)="data">
             <!-- {{ data.item.attributes }} -->
             <b-row v-for="(attribute, i) in data.item.attributes"  v-bind:key="i" class="m-0 p-0">
@@ -250,27 +256,6 @@ const Owners = {
               </b-link>
             </div>
           </template>
-          <template #cell(tokens)="data">
-            <b-row v-for="(item, index) of data.item.transfers" v-bind:key="item.token">
-              <b-col>
-                <span v-if="getTokenType(item.token) == 'eth'">
-                  <font size="-1">{{ formatETH(item.value) + ' ETH'}}</font>
-                </span>
-                <span v-else-if="getTokenType(item.token) == 'erc20'">
-                  <font size="-1">
-                    {{ formatETH(item.value) }}
-                    <b-link :href="chainInfo.explorerTokenPrefix + item.token" v-b-popover.hover.bottom="item.tokenId" target="_blank">{{ getTokenSymbol(item.token) }}</b-link>
-                  </font>
-                </span>
-                <span v-else>
-                  <font size="-1">
-                    <b-link :href="'https://testnets.opensea.io/assets/sepolia/' + item.token + '/' + item.value" v-b-popover.hover.bottom="item.value" target="_blank">{{ item.value.toString().length > 20 ? (item.value.toString().substring(0, 8) + '...' + item.value.toString().slice(-8)) : item.value.toString() }}</b-link>
-                    <b-link :href="'https://sepolia.etherscan.io/token/' + item.token" v-b-popover.hover.bottom="item.tokenId" target="_blank">{{ item.token.substring(0, 10) + '...' + item.token.slice(-8) /*getTokenSymbol(item.token)*/ }}</b-link>
-                  </font>
-                </span>
-              </b-col>
-            </b-row>
-          </template>
 
         </b-table>
       </b-card>
@@ -286,7 +271,7 @@ const Owners = {
         favouritesOnly: false,
         currentPage: 1,
         pageSize: 100,
-        sortOption: 'tokenidasc',
+        sortOption: 'countasc',
         version: 0,
       },
       transfer: {
@@ -297,16 +282,18 @@ const Owners = {
         selectedFaucet: null,
       },
       sortOptions: [
-        { value: 'tokenidasc', text: '▲ TokenId' },
-        { value: 'tokeniddsc', text: '▼ TokenId' },
+        { value: 'countasc', text: '▲ Count' },
+        { value: 'countdsc', text: '▼ Count' },
       ],
       fields: [
         { key: 'number', label: '#', sortable: false, thStyle: 'width: 5%;', tdClass: 'text-truncate text-muted small' },
         // { key: 'tokenId', label: 'TokenId', sortable: false, thStyle: 'width: 16%;', thClass: 'text-left', tdClass: 'text-truncate' },
-        { key: 'image', label: 'Image', sortable: false, thStyle: 'width: 10%;', thClass: 'text-left', tdClass: 'text-truncate' },
-        { key: 'name', label: 'Name/Description', sortable: false, thStyle: 'width: 16%;', thClass: 'text-left', tdClass: 'text-left' },
-        { key: 'owner', label: 'Owner', sortable: false, thStyle: 'width: 16%;', thClass: 'text-left', tdClass: 'text-left' },
-        { key: 'attributes', label: 'Attributes', sortable: false, thStyle: 'width: 16%;', thClass: 'text-left', tdClass: 'text-left' },
+        // { key: 'image', label: 'Image', sortable: false, thStyle: 'width: 10%;', thClass: 'text-left', tdClass: 'text-truncate' },
+        // { key: 'name', label: 'Name/Description', sortable: false, thStyle: 'width: 16%;', thClass: 'text-left', tdClass: 'text-left' },
+        { key: 'owner', label: 'Owner', sortable: false, thStyle: 'width: 15%;', thClass: 'text-left', tdClass: 'text-left' },
+        { key: 'count', label: 'Count', sortable: false, thStyle: 'width: 10%;', thClass: 'text-right', tdClass: 'text-right' },
+        { key: 'tokens', label: 'Tokens', sortable: false, thStyle: 'width: 70%;', thClass: 'text-left', tdClass: 'text-left' },
+        // { key: 'attributes', label: 'Attributes', sortable: false, thStyle: 'width: 16%;', thClass: 'text-left', tdClass: 'text-left' },
       ],
     }
   },
@@ -331,6 +318,9 @@ const Owners = {
     },
     collections() {
       return store.getters['data/collections'];
+    },
+    owners() {
+      return store.getters['data/owners'];
     },
     ens() {
       return store.getters['data/ens'];
@@ -396,7 +386,7 @@ const Owners = {
 
     totalCollections() {
       let result = (store.getters['data/forceRefresh'] % 2) == 0 ? 0 : 0;
-      for (const [tokenId, token] of Object.entries(this.tokens)) {
+      for (const [owner, tokenIds] of Object.entries(this.owners)) {
         result++;
       }
       return result;
@@ -414,27 +404,34 @@ const Owners = {
         }
       }
 
-      for (const [tokenId, token] of Object.entries(this.tokens)) {
-        // console.log(tokenId + " => " + JSON.stringify(token));
-
+      for (const [owner, tokenIds] of Object.entries(this.owners)) {
         results.push({
-          chainId: token.chainId,
-          contract: token.contract,
-          tokenId: token.tokenId,
-          name: token.name || ('#' + token.tokenId),
-          description: token.description,
-          image: token.image,
-          kind: token.kind,
-          isFlagged: token.isFlagged,
-          isSpam: token.isSpam,
-          isNsfw: token.isNsfw,
-          metadataDisabled: token.metadataDisabled,
-          rarity: token.rarity,
-          rarityRank: token.rarityRank,
-          attributes: token.attributes,
-          owner: token.owner,
+          owner,
+          tokenIds,
         });
       }
+
+      // for (const [tokenId, token] of Object.entries(this.tokens)) {
+      //   // console.log(tokenId + " => " + JSON.stringify(token));
+      //
+      //   results.push({
+      //     chainId: token.chainId,
+      //     contract: token.contract,
+      //     tokenId: token.tokenId,
+      //     name: token.name || ('#' + token.tokenId),
+      //     description: token.description,
+      //     image: token.image,
+      //     kind: token.kind,
+      //     isFlagged: token.isFlagged,
+      //     isSpam: token.isSpam,
+      //     isNsfw: token.isNsfw,
+      //     metadataDisabled: token.metadataDisabled,
+      //     rarity: token.rarity,
+      //     rarityRank: token.rarityRank,
+      //     attributes: token.attributes,
+      //     owner: token.owner,
+      //   });
+      // }
 
       // for (const [address, data] of Object.entries(this.collections[this.chainId] || {})) {
       //   if (data.type == "erc721") {
@@ -495,19 +492,19 @@ const Owners = {
     },
     filteredSortedItems() {
       const results = this.filteredItems;
-      if (this.settings.sortOption == 'tokenidasc') {
+      if (this.settings.sortOption == 'countasc') {
         results.sort((a, b) => {
-          return a.tokenId - b.tokenId;
+          return a.tokenIds.length - b.tokenIds.length;
         });
-      } else if (this.settings.sortOption == 'tokeniddsc') {
+      } else if (this.settings.sortOption == 'countdsc') {
         results.sort((a, b) => {
-          return b.tokenId - a.tokenId;
+          return b.tokenIds.length - a.tokenIds.length;
         });
       }
       return results;
     },
     pagedFilteredSortedItems() {
-      // logInfo("Owners", "pagedFilteredSortedItems - results[0..1]: " + JSON.stringify(this.filteredSortedItems.slice(0, 2), null, 2));
+      logInfo("Owners", "pagedFilteredSortedItems - results[0..1]: " + JSON.stringify(this.filteredSortedItems.slice(0, 2), null, 2));
       return this.filteredSortedItems.slice((this.settings.currentPage - 1) * this.settings.pageSize, this.settings.currentPage * this.settings.pageSize);
     },
 
