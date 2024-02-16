@@ -321,7 +321,7 @@ const Sales = {
         favouritesOnly: false,
         currentPage: 1,
         pageSize: 100,
-        sortOption: 'tokenidasc',
+        sortOption: 'txorderdsc',
         version: 0,
       },
       transfer: {
