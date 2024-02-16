@@ -170,6 +170,14 @@ const Sales = {
             </b-row>
           </template>
 
+          <template #cell(what)="data">
+            <font size="-2">
+              <pre>
+{{ data.item }}
+              </pre>
+            </font>
+          </template>
+
 
           <!-- <template #cell(info)="data">
             <b-link v-if="chainInfo[chainId]" :href="chainInfo[chainId].nftTokenPrefix + data.item.address + '/' + data.item.tokenId" target="_blank">
@@ -318,10 +326,10 @@ const Sales = {
       ],
       fields: [
         { key: 'number', label: '#', sortable: false, thStyle: 'width: 5%;', tdClass: 'text-truncate text-muted small' },
-        { key: 'when', label: 'When', sortable: false, thStyle: 'width: 16%;', thClass: 'text-left', tdClass: 'text-truncate' },
-        { key: 'from', label: 'From', sortable: false, thStyle: 'width: 16%;', thClass: 'text-left', tdClass: 'text-truncate' },
-        { key: 'to', label: 'To', sortable: false, thStyle: 'width: 16%;', thClass: 'text-left', tdClass: 'text-truncate' },
-        { key: 'what', label: 'What', sortable: false, thStyle: 'width: 16%;', thClass: 'text-left', tdClass: 'text-truncate' },
+        { key: 'when', label: 'When', sortable: false, thStyle: 'width: 15%;', thClass: 'text-left', tdClass: 'text-truncate' },
+        { key: 'from', label: 'From', sortable: false, thStyle: 'width: 20%;', thClass: 'text-left', tdClass: 'text-truncate' },
+        { key: 'to', label: 'To', sortable: false, thStyle: 'width: 20%;', thClass: 'text-left', tdClass: 'text-truncate' },
+        { key: 'what', label: 'What', sortable: false, thStyle: 'width: 40%;', thClass: 'text-left', tdClass: 'text-truncate' },
       ],
     }
   },

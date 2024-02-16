@@ -104,8 +104,7 @@ const Offers = {
           </div>
         </div>
 
-        <!-- <b-table ref="tokenContractsTable" small fixed striped responsive hover selectable select-mode="single" @row-selected='rowSelected' :fields="fields" :items="pagedFilteredSortedItems" show-empty head-variant="light" class="m-0 mt-1"> -->
-        <b-table ref="tokenContractsTable" small fixed striped responsive hover selectable select-mode="single" @row-selected='rowSelected' :items="pagedFilteredSortedItems" show-empty head-variant="light" class="m-0 mt-1">
+        <b-table ref="tokenContractsTable" small fixed striped responsive hover selectable select-mode="single" @row-selected='rowSelected' :fields="fields" :items="pagedFilteredSortedItems" show-empty head-variant="light" class="m-0 mt-1">
           <template #empty="scope">
             <h6>{{ scope.emptyText }}</h6>
             <div>
@@ -131,7 +130,7 @@ const Offers = {
           { key: 'what', label: 'What', sortable: false, thStyle: 'width: 16%;', thClass: 'text-left', tdClass: 'text-truncate' },
            -->
 
-          <template #cell(when)="data">
+          <template #cell(xwhen)="data">
             <b-link :href="'https://etherscan.io/tx/' + data.item.txHash" target="_blank">
               {{ formatTimestamp(data.item.timestamp) }}
             </b-link>
@@ -141,13 +140,24 @@ const Offers = {
             </font>
           </template>
 
+          <template #cell(maker)="data">
+            <b-link :href="'https://etherscan.io/address/' + data.item.maker" target="_blank">
+              <font size="-1">{{ data.item.maker.substring(0, 10) + '...' + data.item.maker.slice(-8) }}</font>
+            </b-link>
+          </template>
 
-          <template #cell(image)="data">
+          <template #cell(taker)="data">
+            <b-link :href="'https://etherscan.io/address/' + data.item.taker" target="_blank">
+              <font size="-1">{{ data.item.taker.substring(0, 10) + '...' + data.item.taker.slice(-8) }}</font>
+            </b-link>
+          </template>
+
+          <template #cell(ximage)="data">
             <b-img v-if="data.item.image" button rounded fluid :src="data.item.image">
             </b-img>
           </template>
 
-          <template #cell(name)="data">
+          <template #cell(xname)="data">
             <b-link :href="'https://opensea.io/assets/ethereum/' + data.item.contract + '/' + data.item.tokenId" target="_blank">
               <b>{{ data.item.name }}</b>
             </b-link>
@@ -157,13 +167,13 @@ const Offers = {
             </font>
           </template>
 
-          <template #cell(owner)="data">
+          <template #cell(xowner)="data">
             <b-link :href="'https://etherscan.io/address/' + data.item.owner" target="_blank">
               <font size="-1">{{ data.item.owner.substring(0, 10) + '...' + data.item.owner.slice(-8) }}</font>
             </b-link>
           </template>
 
-          <template #cell(attributes)="data">
+          <template #cell(xattributes)="data">
             <!-- {{ data.item.attributes }} -->
             <b-row v-for="(attribute, i) in data.item.attributes"  v-bind:key="i" class="m-0 p-0">
               <b-col cols="3" class="m-0 px-2 text-right"><font size="-3">{{ attribute.trait_type }}</font></b-col>
@@ -171,6 +181,13 @@ const Offers = {
             </b-row>
           </template>
 
+          <template #cell(what)="data">
+            <font size="-2">
+              <pre>
+{{ data.item }}
+              </pre>
+            </font>
+          </template>
 
           <!-- <template #cell(info)="data">
             <b-link v-if="chainInfo[chainId]" :href="chainInfo[chainId].nftTokenPrefix + data.item.address + '/' + data.item.tokenId" target="_blank">
@@ -319,10 +336,10 @@ const Offers = {
       ],
       fields: [
         { key: 'number', label: '#', sortable: false, thStyle: 'width: 5%;', tdClass: 'text-truncate text-muted small' },
-        { key: 'when', label: 'When', sortable: false, thStyle: 'width: 16%;', thClass: 'text-left', tdClass: 'text-truncate' },
-        { key: 'from', label: 'From', sortable: false, thStyle: 'width: 16%;', thClass: 'text-left', tdClass: 'text-truncate' },
-        { key: 'to', label: 'To', sortable: false, thStyle: 'width: 16%;', thClass: 'text-left', tdClass: 'text-truncate' },
-        { key: 'what', label: 'What', sortable: false, thStyle: 'width: 16%;', thClass: 'text-left', tdClass: 'text-truncate' },
+        { key: 'when', label: 'When', sortable: false, thStyle: 'width: 15%;', thClass: 'text-left', tdClass: 'text-truncate' },
+        { key: 'maker', label: 'Maker', sortable: false, thStyle: 'width: 20%;', thClass: 'text-left', tdClass: 'text-truncate' },
+        { key: 'taker', label: 'Taker', sortable: false, thStyle: 'width: 20%;', thClass: 'text-left', tdClass: 'text-truncate' },
+        { key: 'what', label: 'What', sortable: false, thStyle: 'width: 40%;', thClass: 'text-left', tdClass: 'text-truncate' },
       ],
     }
   },
@@ -418,7 +435,7 @@ const Offers = {
       // for (const sale of Object.entries(this.sales)) {
       //   result++;
       // }
-      return this.sales.length;
+      return this.offers.length;
     },
     filteredItems() {
       const results = (store.getters['data/forceRefresh'] % 2) == 0 ? [] : [];
