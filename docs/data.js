@@ -772,7 +772,7 @@ const dataModule = {
               txHash: sale.txHash,
               amount: sale.amount,
               batchIndex: sale.batchIndex,
-              createdAt: sale.createdAt,
+              createdAt: moment(sale.createdAt).unix(),
               feeBreakdown,
               fillSource: sale.fillSource,
               from: ethers.utils.getAddress(sale.from),
@@ -788,7 +788,7 @@ const dataModule = {
               paidFullRoyalty: sale.paidFullRoyalty,
               price,
               saleId: sale.saleId,
-              updatedAt: sale.updatedAt,
+              updatedAt: moment(sale.updatedAt).unix(),
               washTradingScore: sale.washTradingScore,
             });
           }
@@ -873,9 +873,9 @@ const dataModule = {
               expiration: order.expiration,
               isReservoir: order.isReservoir,
               isDynamic: order.isDynamic,
-              createdAt: order.createdAt,
-              updatedAt: order.updatedAt,
-              originatedAt: order.originatedAt,
+              createdAt: moment(order.createdAt).unix(),
+              updatedAt: moment(order.updatedAt).unix(),
+              originatedAt: moment(order.originatedAt).unix(),
             });
           }
           if (records.length) {
@@ -957,9 +957,9 @@ const dataModule = {
               feeBreakdown,
               expiration: order.expiration,
               isReservoir: order.isReservoir,
-              createdAt: order.createdAt,
-              updatedAt: order.updatedAt,
-              originatedAt: order.originatedAt,
+              createdAt: moment(order.createdAt).unix(),
+              updatedAt: moment(order.updatedAt).unix(),
+              originatedAt: moment(order.originatedAt).unix(),
             });
           }
           if (records.length) {
