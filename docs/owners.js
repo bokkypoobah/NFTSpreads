@@ -12,6 +12,9 @@ const Owners = {
 
         <div class="d-flex flex-wrap m-0 p-0">
           <div class="mt-0 pr-1">
+            <b-button size="sm" :pressed.sync="showSideFilter" variant="link" v-b-popover.hover.top="'Toggle filter'" class="m-0 p-1"><b-icon :icon="showSideFilter ? 'layout-sidebar-inset' : 'layout-sidebar'" shift-v="+1" font-scale="1.00"></b-icon></b-button>
+          </div>
+          <div class="mt-0 pr-1">
             <b-form-select size="sm" v-model="selectedCollection" @change="saveSettings" :options="collectionsOptions" v-b-popover.hover.top="'Select a collection, then click the Sync button'"></b-form-select>
           </div>
           <div v-if="false" class="mt-0 pr-1" style="width: 200px;">
@@ -104,170 +107,179 @@ const Owners = {
           </div>
         </div>
 
-        <b-table ref="tokenContractsTable" small fixed striped responsive hover selectable select-mode="single" @row-selected='rowSelected' :fields="fields" :items="pagedFilteredSortedItems" show-empty head-variant="light" class="m-0 mt-1">
-          <template #empty="scope">
-            <h6>{{ scope.emptyText }}</h6>
-            <div>
-              <ul>
-                <li>
-                  Check you are correctly connected to the Sepolia testnet
-                </li>
-                <li>
-                  Click <b-button size="sm" variant="link" class="m-0 p-0"><b-icon-cloud-download shift-v="+1" font-scale="1.2"></b-icon-cloud-download></b-button> above to sync this app to the blockchain
-                </li>
-              </ul>
-            </div>
-          </template>
-          <template #cell(number)="data">
-            {{ parseInt(data.index) + ((settings.currentPage - 1) * settings.pageSize) + 1 }}
-          </template>
+        <b-row class="m-0 p-0">
+          <b-col v-if="showSideFilter" cols="2" class="m-0 p-0 border-0">
+            <side-filter />
+          </b-col>
 
-          <template #cell(image)="data">
-            <b-img v-if="data.item.image" button rounded fluid :src="data.item.image">
-            </b-img>
-          </template>
+          <b-col class="m-0 p-0">
 
-          <template #cell(name)="data">
-            <b-link :href="'https://opensea.io/assets/ethereum/' + data.item.contract + '/' + data.item.tokenId" target="_blank">
-              <b>{{ data.item.name }}</b>
-            </b-link>
-            <br />
-            <font size="-2">
-              {{ data.item.description }}
-            </font>
-            <b-button size="sm" @click="requestReservoirAPITokenMetadataRefresh(data.item)" variant="link" v-b-popover.hover.top="'Request Reservoir API Metadata Refresh'"><b-icon-arrow-clockwise shift-v="+1" font-scale="1.2"></b-icon-arrow-clockwise></b-button>
-          </template>
+            <b-table ref="tokenContractsTable" small fixed striped responsive hover selectable select-mode="single" @row-selected='rowSelected' :fields="fields" :items="pagedFilteredSortedItems" show-empty head-variant="light" class="m-0 mt-1">
+              <template #empty="scope">
+                <h6>{{ scope.emptyText }}</h6>
+                <div>
+                  <ul>
+                    <li>
+                      Check you are correctly connected to the Sepolia testnet
+                    </li>
+                    <li>
+                      Click <b-button size="sm" variant="link" class="m-0 p-0"><b-icon-cloud-download shift-v="+1" font-scale="1.2"></b-icon-cloud-download></b-button> above to sync this app to the blockchain
+                    </li>
+                  </ul>
+                </div>
+              </template>
+              <template #cell(number)="data">
+                {{ parseInt(data.index) + ((settings.currentPage - 1) * settings.pageSize) + 1 }}
+              </template>
 
-          <template #cell(owner)="data">
-            <b-link :href="'https://etherscan.io/address/' + data.item.owner" target="_blank">
-              {{ nameOrAddress(data.item.owner) }}
-            </b-link>
-          </template>
+              <template #cell(image)="data">
+                <b-img v-if="data.item.image" button rounded fluid :src="data.item.image">
+                </b-img>
+              </template>
 
-          <template #cell(count)="data">
-            {{ data.item.tokenIds.length }}
-          </template>
+              <template #cell(name)="data">
+                <b-link :href="'https://opensea.io/assets/ethereum/' + data.item.contract + '/' + data.item.tokenId" target="_blank">
+                  <b>{{ data.item.name }}</b>
+                </b-link>
+                <br />
+                <font size="-2">
+                  {{ data.item.description }}
+                </font>
+                <b-button size="sm" @click="requestReservoirAPITokenMetadataRefresh(data.item)" variant="link" v-b-popover.hover.top="'Request Reservoir API Metadata Refresh'"><b-icon-arrow-clockwise shift-v="+1" font-scale="1.2"></b-icon-arrow-clockwise></b-button>
+              </template>
 
-          <template #cell(tokens)="data">
-            <b-card-group deck>
-              <div v-for="(tokenId, index) in data.item.tokenIds" :key="index">
-                <b-card body-class="p-1" header-class="p-1" footer-class="p-1" img-top class="m-1 p-0 border-0">
-                  <b-img-lazy :width="'100%'" :src="tokens[tokenId].image" />
-                  <b-card-text>
-                    <b-link :href="'https://opensea.io/assets/ethereum/' + tokens[tokenId].contract + '/' + tokens[tokenId].tokenId" target="_blank">
-                      <font size="-1">{{ tokens[tokenId].tokenId }}</font>
-                    </b-link>
-                  </b-card-text>
-                </b-card>
-              </div>
-            </b-card-group>
-          </template>
+              <template #cell(owner)="data">
+                <b-link :href="'https://etherscan.io/address/' + data.item.owner" target="_blank">
+                  {{ nameOrAddress(data.item.owner) }}
+                </b-link>
+              </template>
 
-          <template #cell(attributes)="data">
-            <b-row v-for="(attribute, i) in data.item.attributes"  v-bind:key="i" class="m-0 p-0">
-              <b-col cols="3" class="m-0 px-2 text-right"><font size="-3">{{ attribute.trait_type }}</font></b-col>
-              <b-col cols="9" class="m-0 px-2"><b><font size="-2">{{ ["Created Date", "Registration Date", "Expiration Date"].includes(attribute.trait_type) ? formatTimestamp(attribute.value) : attribute.value }}</font></b></b-col>
-            </b-row>
-          </template>
+              <template #cell(count)="data">
+                {{ data.item.tokenIds.length }}
+              </template>
+
+              <template #cell(tokens)="data">
+                <b-card-group deck>
+                  <div v-for="(tokenId, index) in data.item.tokenIds" :key="index">
+                    <b-card body-class="p-1" header-class="p-1" footer-class="p-1" img-top class="m-1 p-0 border-0">
+                      <b-img-lazy :width="'100%'" :src="tokens[tokenId].image" />
+                      <b-card-text>
+                        <b-link :href="'https://opensea.io/assets/ethereum/' + tokens[tokenId].contract + '/' + tokens[tokenId].tokenId" target="_blank">
+                          <font size="-1">{{ tokens[tokenId].tokenId }}</font>
+                        </b-link>
+                      </b-card-text>
+                    </b-card>
+                  </div>
+                </b-card-group>
+              </template>
+
+              <template #cell(attributes)="data">
+                <b-row v-for="(attribute, i) in data.item.attributes"  v-bind:key="i" class="m-0 p-0">
+                  <b-col cols="3" class="m-0 px-2 text-right"><font size="-3">{{ attribute.trait_type }}</font></b-col>
+                  <b-col cols="9" class="m-0 px-2"><b><font size="-2">{{ ["Created Date", "Registration Date", "Expiration Date"].includes(attribute.trait_type) ? formatTimestamp(attribute.value) : attribute.value }}</font></b></b-col>
+                </b-row>
+              </template>
 
 
-          <!-- <template #cell(info)="data">
-            <b-link v-if="chainInfo[chainId]" :href="chainInfo[chainId].nftTokenPrefix + data.item.address + '/' + data.item.tokenId" target="_blank">
-              <span v-if="data.item.name">
-                <font size="-1">{{ data.item.name }}</font>
-              </span>
-              <span v-else>
-                <font size="-1">{{ '#' + (data.item.tokenId.length > 20 ? (data.item.tokenId.substring(0, 10) + '...' + data.item.tokenId.slice(-8)) : data.item.tokenId) }}</font>
-              </span>
-            </b-link>
-            <br />
+              <!-- <template #cell(info)="data">
+                <b-link v-if="chainInfo[chainId]" :href="chainInfo[chainId].nftTokenPrefix + data.item.address + '/' + data.item.tokenId" target="_blank">
+                  <span v-if="data.item.name">
+                    <font size="-1">{{ data.item.name }}</font>
+                  </span>
+                  <span v-else>
+                    <font size="-1">{{ '#' + (data.item.tokenId.length > 20 ? (data.item.tokenId.substring(0, 10) + '...' + data.item.tokenId.slice(-8)) : data.item.tokenId) }}</font>
+                  </span>
+                </b-link>
+                <br />
 
-            <b-link v-if="chainInfo[chainId]" :href="chainInfo[chainId].explorerTokenPrefix + data.item.address + '#code'" target="_blank">
-              <font size="-1">{{ data.item.collectionName }}</font>
-            </b-link>
-            <b-button size="sm" @click="toggleTokenContractJunk(data.item);" variant="transparent"><b-icon :icon="data.item.junk ? 'trash-fill' : 'trash'" font-scale="0.9" :variant="data.item.junk ? 'info' : 'secondary'"></b-icon></b-button>
-            <b-button size="sm" :disabled="data.item.junk" @click="toggleTokenContractFavourite(data.item);" variant="transparent"><b-icon :icon="data.item.favourite & !data.item.junk ? 'heart-fill' : 'heart'" font-scale="0.9" :variant="data.item.junk ? 'dark' : 'danger'"></b-icon></b-button>
-          </template> -->
+                <b-link v-if="chainInfo[chainId]" :href="chainInfo[chainId].explorerTokenPrefix + data.item.address + '#code'" target="_blank">
+                  <font size="-1">{{ data.item.collectionName }}</font>
+                </b-link>
+                <b-button size="sm" @click="toggleTokenContractJunk(data.item);" variant="transparent"><b-icon :icon="data.item.junk ? 'trash-fill' : 'trash'" font-scale="0.9" :variant="data.item.junk ? 'info' : 'secondary'"></b-icon></b-button>
+                <b-button size="sm" :disabled="data.item.junk" @click="toggleTokenContractFavourite(data.item);" variant="transparent"><b-icon :icon="data.item.favourite & !data.item.junk ? 'heart-fill' : 'heart'" font-scale="0.9" :variant="data.item.junk ? 'dark' : 'danger'"></b-icon></b-button>
+              </template> -->
 
-          <!-- <template #cell(expiry)="data">
-            {{ formatTimestamp(data.item.expiry) }}
-          </template> -->
+              <!-- <template #cell(expiry)="data">
+                {{ formatTimestamp(data.item.expiry) }}
+              </template> -->
 
-          <!-- <template #cell(attributes)="data">
-            <b-row v-for="(attribute, i) in data.item.attributes"  v-bind:key="i" class="m-0 p-0">
-              <b-col cols="3" class="m-0 px-2 text-right"><font size="-3">{{ attribute.trait_type }}</font></b-col>
-              <b-col cols="9" class="m-0 px-2"><b><font size="-2">{{ ["Created Date", "Registration Date", "Expiration Date"].includes(attribute.trait_type) ? formatTimestamp(attribute.value) : attribute.value }}</font></b></b-col>
-            </b-row>
-          </template> -->
+              <!-- <template #cell(attributes)="data">
+                <b-row v-for="(attribute, i) in data.item.attributes"  v-bind:key="i" class="m-0 p-0">
+                  <b-col cols="3" class="m-0 px-2 text-right"><font size="-3">{{ attribute.trait_type }}</font></b-col>
+                  <b-col cols="9" class="m-0 px-2"><b><font size="-2">{{ ["Created Date", "Registration Date", "Expiration Date"].includes(attribute.trait_type) ? formatTimestamp(attribute.value) : attribute.value }}</font></b></b-col>
+                </b-row>
+              </template> -->
 
-          <!-- <template #cell(favourite)="data">
-            <b-button size="sm" @click="toggleTokenContractFavourite(data.item);" variant="transparent"><b-icon :icon="data.item.favourite ? 'heart-fill' : 'heart'" font-scale="0.9" variant="danger"></b-icon></b-button>
-          </template> -->
+              <!-- <template #cell(favourite)="data">
+                <b-button size="sm" @click="toggleTokenContractFavourite(data.item);" variant="transparent"><b-icon :icon="data.item.favourite ? 'heart-fill' : 'heart'" font-scale="0.9" variant="danger"></b-icon></b-button>
+              </template> -->
 
-          <!-- <template #cell(contract)="data">
-            <b-link v-if="chainInfo[chainId]" :href="chainInfo[chainId].explorerTokenPrefix + data.item.address + '#code'" target="_blank">
-              <font size="-1">{{ data.item.address.substring(0, 10) + '...' + data.item.address.slice(-8) }}</font>
-            </b-link>
-          </template> -->
-          <!-- <template #cell(type)="data"> -->
-            <!-- <font size="-1">{{ data.item.type == "erc20" ? "ERC-20" : "ERC-721" }}</font> -->
-          <!-- </template> -->
-          <template #cell(symbol)="data">
-            {{ data.item.symbol }}
-          </template>
-          <!-- <template #cell(firstEventBlockNumber)="data"> -->
-            <!-- <font size="-1">{{ commify0(data.item.firstEventBlockNumber) }}</font> -->
-          <!-- </template> -->
-          <!-- <template #cell(lastEventBlockNumber)="data"> -->
-            <!-- <font size="-1">{{ commify0(data.item.lastEventBlockNumber) }}</font> -->
-          <!-- </template> -->
-          <!-- <template #cell(decimals)="data"> -->
-            <!-- <font size="-1">{{ data.item.type == "erc20" ? parseInt(data.item.decimals) : "" }}</font> -->
-          <!-- </template> -->
-          <!-- <template #cell(balance)="data"> -->
-            <!-- <span v-if="data.item.balances[coinbase] && data.item.type == 'erc20'">
-              <b-button size="sm" :href="'https://sepolia.etherscan.io/token/' + data.item.address + '?a=' + coinbase" variant="link" class="m-0 ml-2 p-0" target="_blank">{{ formatDecimals(data.item.balances[coinbase], data.item.decimals || 0) }}</b-button>
-            </span>
-            <span v-if="data.item.type == 'erc721'">
-              <font size="-1">
-                <span v-for="(tokenData, tokenId) of data.item.tokenIds">
-                  <b-button v-if="chainInfo[chainId]" size="sm" :href="chainInfo[chainId].nftTokenPrefix + data.item.address + '/' + tokenId" variant="link" v-b-popover.hover.bottom="tokenId" class="m-0 ml-2 p-0" target="_blank">{{ tokenId.toString().length > 20 ? (tokenId.toString().substring(0, 8) + '...' + tokenId.toString().slice(-8)) : tokenId.toString() }}</b-button>
+              <!-- <template #cell(contract)="data">
+                <b-link v-if="chainInfo[chainId]" :href="chainInfo[chainId].explorerTokenPrefix + data.item.address + '#code'" target="_blank">
+                  <font size="-1">{{ data.item.address.substring(0, 10) + '...' + data.item.address.slice(-8) }}</font>
+                </b-link>
+              </template> -->
+              <!-- <template #cell(type)="data"> -->
+                <!-- <font size="-1">{{ data.item.type == "erc20" ? "ERC-20" : "ERC-721" }}</font> -->
+              <!-- </template> -->
+              <template #cell(symbol)="data">
+                {{ data.item.symbol }}
+              </template>
+              <!-- <template #cell(firstEventBlockNumber)="data"> -->
+                <!-- <font size="-1">{{ commify0(data.item.firstEventBlockNumber) }}</font> -->
+              <!-- </template> -->
+              <!-- <template #cell(lastEventBlockNumber)="data"> -->
+                <!-- <font size="-1">{{ commify0(data.item.lastEventBlockNumber) }}</font> -->
+              <!-- </template> -->
+              <!-- <template #cell(decimals)="data"> -->
+                <!-- <font size="-1">{{ data.item.type == "erc20" ? parseInt(data.item.decimals) : "" }}</font> -->
+              <!-- </template> -->
+              <!-- <template #cell(balance)="data"> -->
+                <!-- <span v-if="data.item.balances[coinbase] && data.item.type == 'erc20'">
+                  <b-button size="sm" :href="'https://sepolia.etherscan.io/token/' + data.item.address + '?a=' + coinbase" variant="link" class="m-0 ml-2 p-0" target="_blank">{{ formatDecimals(data.item.balances[coinbase], data.item.decimals || 0) }}</b-button>
                 </span>
-              </font>
-            </span> -->
-          <!-- </template> -->
+                <span v-if="data.item.type == 'erc721'">
+                  <font size="-1">
+                    <span v-for="(tokenData, tokenId) of data.item.tokenIds">
+                      <b-button v-if="chainInfo[chainId]" size="sm" :href="chainInfo[chainId].nftTokenPrefix + data.item.address + '/' + tokenId" variant="link" v-b-popover.hover.bottom="tokenId" class="m-0 ml-2 p-0" target="_blank">{{ tokenId.toString().length > 20 ? (tokenId.toString().substring(0, 8) + '...' + tokenId.toString().slice(-8)) : tokenId.toString() }}</b-button>
+                    </span>
+                  </font>
+                </span> -->
+              <!-- </template> -->
 
-          <!-- <template #cell(totalSupply)="data">
-            <font size="-1">{{ data.item.type == "erc20" ? formatDecimals(data.item.totalSupply, data.item.decimals || 0) : data.item.totalSupply }}</font>
-          </template> -->
+              <!-- <template #cell(totalSupply)="data">
+                <font size="-1">{{ data.item.type == "erc20" ? formatDecimals(data.item.totalSupply, data.item.decimals || 0) : data.item.totalSupply }}</font>
+              </template> -->
 
 
-          <template #cell(timestamp)="data">
-            <b-link :href="'https://sepolia.etherscan.io/tx/' + data.item.txHash" v-b-popover.hover.bottom="'Block #' + commify0(data.item.blockNumber) + ', txIndex: ' + data.item.txIndex + ', logIndex: ' + data.item.logIndex" target="_blank">
-              <span v-if="data.item.timestamp">
-                {{ formatTimestamp(data.item.timestamp) }}
-              </span>
-              <span v-else>
-                {{ '#' + commify0(data.item.blockNumber) }}
-              </span>
-            </b-link>
-          </template>
-          <template #cell(sender)="data">
-            <div v-if="data.item.tx && data.item.tx.from">
-              <b-link :href="'https://sepolia.etherscan.io/address/' + data.item.tx.from" v-b-popover.hover.bottom="'View in etherscan.io'" target="_blank">
-                {{ data.item.tx.from }}
-              </b-link>
-            </div>
-          </template>
-          <template #cell(receiver)="data">
-            <div v-if="data.item.stealthAddress">
-              <b-link :href="'https://sepolia.etherscan.io/address/' + data.item.stealthAddress" v-b-popover.hover.bottom="'View in etherscan.io'" target="_blank">
-                {{ data.item.stealthAddress }}
-              </b-link>
-            </div>
-          </template>
+              <template #cell(timestamp)="data">
+                <b-link :href="'https://sepolia.etherscan.io/tx/' + data.item.txHash" v-b-popover.hover.bottom="'Block #' + commify0(data.item.blockNumber) + ', txIndex: ' + data.item.txIndex + ', logIndex: ' + data.item.logIndex" target="_blank">
+                  <span v-if="data.item.timestamp">
+                    {{ formatTimestamp(data.item.timestamp) }}
+                  </span>
+                  <span v-else>
+                    {{ '#' + commify0(data.item.blockNumber) }}
+                  </span>
+                </b-link>
+              </template>
+              <template #cell(sender)="data">
+                <div v-if="data.item.tx && data.item.tx.from">
+                  <b-link :href="'https://sepolia.etherscan.io/address/' + data.item.tx.from" v-b-popover.hover.bottom="'View in etherscan.io'" target="_blank">
+                    {{ data.item.tx.from }}
+                  </b-link>
+                </div>
+              </template>
+              <template #cell(receiver)="data">
+                <div v-if="data.item.stealthAddress">
+                  <b-link :href="'https://sepolia.etherscan.io/address/' + data.item.stealthAddress" v-b-popover.hover.bottom="'View in etherscan.io'" target="_blank">
+                    {{ data.item.stealthAddress }}
+                  </b-link>
+                </div>
+              </template>
 
-        </b-table>
+            </b-table>
+          </b-col>
+        </b-row>
       </b-card>
     </div>
   `,
@@ -337,6 +349,15 @@ const Owners = {
     },
     ens() {
       return store.getters['data/ens'];
+    },
+
+    showSideFilter: {
+      get: function () {
+        return store.getters['sideFilter/show'];
+      },
+      set: function (show) {
+        store.dispatch('sideFilter/setShow', show);
+      },
     },
 
     selectedCollection: {

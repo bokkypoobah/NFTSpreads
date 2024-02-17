@@ -12,6 +12,9 @@ const Offers = {
 
         <div class="d-flex flex-wrap m-0 p-0">
           <div class="mt-0 pr-1">
+            <b-button size="sm" :pressed.sync="showSideFilter" variant="link" v-b-popover.hover.top="'Toggle filter'" class="m-0 p-1"><b-icon :icon="showSideFilter ? 'layout-sidebar-inset' : 'layout-sidebar'" shift-v="+1" font-scale="1.00"></b-icon></b-button>
+          </div>
+          <div class="mt-0 pr-1">
             <b-form-select size="sm" v-model="selectedCollection" @change="saveSettings" :options="collectionsOptions" v-b-popover.hover.top="'Select a collection, then click the Sync button'"></b-form-select>
           </div>
           <div v-if="false" class="mt-0 pr-1" style="width: 200px;">
@@ -352,6 +355,14 @@ const Offers = {
       return store.getters['data/collections'];
     },
 
+    showSideFilter: {
+      get: function () {
+        return store.getters['sideFilter/show'];
+      },
+      set: function (show) {
+        store.dispatch('sideFilter/setShow', show);
+      },
+    },
     selectedCollection: {
       get: function () {
         return store.getters['data/selectedCollection'];

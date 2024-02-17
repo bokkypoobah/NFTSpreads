@@ -12,7 +12,7 @@ const Tokens = {
 
         <div class="d-flex flex-wrap m-0 p-0">
           <div class="mt-0 pr-1">
-            <b-button size="sm" :pressed.sync="showSideFilter" variant="transparent" class="m-0 p-1"><b-icon :icon="showSideFilter ? 'layout-sidebar-inset' : 'layout-sidebar'" shift-v="+1" font-scale="0.95"></b-icon></b-button>
+            <b-button size="sm" :pressed.sync="showSideFilter" variant="link" v-b-popover.hover.top="'Toggle filter'" class="m-0 p-1"><b-icon :icon="showSideFilter ? 'layout-sidebar-inset' : 'layout-sidebar'" shift-v="+1" font-scale="1.00"></b-icon></b-button>
           </div>
           <div class="mt-0 pr-1">
             <b-form-select size="sm" v-model="selectedCollection" @change="saveSettings" :options="collectionsOptions" v-b-popover.hover.top="'Select a collection, then click the Sync button'"></b-form-select>
@@ -114,55 +114,55 @@ const Tokens = {
 
           <b-col class="m-0 p-0">
 
-          <b-table ref="tokenContractsTable" small fixed striped responsive hover selectable select-mode="single" @row-selected='rowSelected' :fields="fields" :items="pagedFilteredSortedItems" show-empty head-variant="light" class="m-0 mt-1">
-            <template #empty="scope">
-              <h6>{{ scope.emptyText }}</h6>
-              <div>
-                <ul>
-                  <li>
-                    Check you are correctly connected to the Sepolia testnet
-                  </li>
-                  <li>
-                    Click <b-button size="sm" variant="link" class="m-0 p-0"><b-icon-cloud-download shift-v="+1" font-scale="1.2"></b-icon-cloud-download></b-button> above to sync this app to the blockchain
-                  </li>
-                </ul>
-              </div>
-            </template>
-            <template #cell(number)="data">
-              {{ parseInt(data.index) + ((settings.currentPage - 1) * settings.pageSize) + 1 }}
-            </template>
+            <b-table ref="tokenContractsTable" small fixed striped responsive hover selectable select-mode="single" @row-selected='rowSelected' :fields="fields" :items="pagedFilteredSortedItems" show-empty head-variant="light" class="m-0 mt-1">
+              <template #empty="scope">
+                <h6>{{ scope.emptyText }}</h6>
+                <div>
+                  <ul>
+                    <li>
+                      Check you are correctly connected to the Sepolia testnet
+                    </li>
+                    <li>
+                      Click <b-button size="sm" variant="link" class="m-0 p-0"><b-icon-cloud-download shift-v="+1" font-scale="1.2"></b-icon-cloud-download></b-button> above to sync this app to the blockchain
+                    </li>
+                  </ul>
+                </div>
+              </template>
+              <template #cell(number)="data">
+                {{ parseInt(data.index) + ((settings.currentPage - 1) * settings.pageSize) + 1 }}
+              </template>
 
-            <template #cell(image)="data">
-              <b-img v-if="data.item.image" button rounded fluid :src="data.item.image">
-              </b-img>
-            </template>
+              <template #cell(image)="data">
+                <b-img v-if="data.item.image" button rounded fluid :src="data.item.image">
+                </b-img>
+              </template>
 
-            <template #cell(name)="data">
-              <b-link :href="'https://opensea.io/assets/ethereum/' + data.item.contract + '/' + data.item.tokenId" target="_blank">
-                <b>{{ data.item.name }}</b>
-              </b-link>
-              <br />
-              <font size="-2">
-                {{ data.item.description }}
-              </font>
-              <b-button size="sm" @click="requestReservoirAPITokenMetadataRefresh(data.item)" variant="link" v-b-popover.hover.top="'Request Reservoir API Metadata Refresh'"><b-icon-arrow-clockwise shift-v="+1" font-scale="1.2"></b-icon-arrow-clockwise></b-button>
-            </template>
+              <template #cell(name)="data">
+                <b-link :href="'https://opensea.io/assets/ethereum/' + data.item.contract + '/' + data.item.tokenId" target="_blank">
+                  <b>{{ data.item.name }}</b>
+                </b-link>
+                <br />
+                <font size="-2">
+                  {{ data.item.description }}
+                </font>
+                <b-button size="sm" @click="requestReservoirAPITokenMetadataRefresh(data.item)" variant="link" v-b-popover.hover.top="'Request Reservoir API Metadata Refresh'"><b-icon-arrow-clockwise shift-v="+1" font-scale="1.2"></b-icon-arrow-clockwise></b-button>
+              </template>
 
-            <template #cell(owner)="data">
-              <b-link :href="'https://etherscan.io/address/' + data.item.owner" target="_blank">
-                <font size="-1">{{ nameOrAddress(data.item.owner) }}</font>
-              </b-link>
-            </template>
+              <template #cell(owner)="data">
+                <b-link :href="'https://etherscan.io/address/' + data.item.owner" target="_blank">
+                  <font size="-1">{{ nameOrAddress(data.item.owner) }}</font>
+                </b-link>
+              </template>
 
-            <template #cell(attributes)="data">
-              <!-- {{ data.item.attributes }} -->
-              <b-row v-for="(attribute, i) in data.item.attributes"  v-bind:key="i" class="m-0 p-0">
-                <b-col cols="3" class="m-0 px-2 text-right"><font size="-3">{{ attribute.trait_type }}</font></b-col>
-                <b-col cols="9" class="m-0 px-2"><b><font size="-2">{{ ["Created Date", "Registration Date", "Expiration Date"].includes(attribute.trait_type) ? formatTimestamp(attribute.value) : attribute.value }}</font></b></b-col>
-              </b-row>
-            </template>
+              <template #cell(attributes)="data">
+                <!-- {{ data.item.attributes }} -->
+                <b-row v-for="(attribute, i) in data.item.attributes"  v-bind:key="i" class="m-0 p-0">
+                  <b-col cols="3" class="m-0 px-2 text-right"><font size="-3">{{ attribute.trait_type }}</font></b-col>
+                  <b-col cols="9" class="m-0 px-2"><b><font size="-2">{{ ["Created Date", "Registration Date", "Expiration Date"].includes(attribute.trait_type) ? formatTimestamp(attribute.value) : attribute.value }}</font></b></b-col>
+                </b-row>
+              </template>
 
-          </b-table>
+            </b-table>
 
           </b-col>
         </b-row>
