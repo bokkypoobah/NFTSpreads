@@ -163,6 +163,7 @@ const dataModule = {
     selectedCollection: null,
     collection: {}, // contract, id, symbol, name, image, slug, creator, tokenCount
     tokens: {}, // TokenId => { chainId, contract, tokenId, name, description, image, kind, isFlagged, isSpam, isNsfw, metadataDisabled, rarity, rarityRank, attributes
+    attributes: {},
     owners: {},
     sales: [], //
     listings: [], //
@@ -204,6 +205,7 @@ const dataModule = {
     selectedCollection: state => state.selectedCollection,
     collection: state => state.collection,
     tokens: state => state.tokens,
+    attributes: state => state.attributes,
     owners: state => state.owners,
     sales: state => state.sales,
     listings: state => state.listings,
@@ -237,6 +239,10 @@ const dataModule = {
     setTokens(state, tokens) {
       Vue.set(state, 'tokens', tokens);
       // logInfo("dataModule", "mutations.setTokens tokens: " + JSON.stringify(tokens, null, 2));
+    },
+    setAttributes(state, attributes) {
+      Vue.set(state, 'attributes', attributes);
+      // logInfo("dataModule", "mutations.setAttributes attributes: " + JSON.stringify(attributes, null, 2));
     },
     setOwners(state, owners) {
       Vue.set(state, 'owners', owners);
@@ -477,7 +483,7 @@ const dataModule = {
       if (Object.keys(context.state.stealthTransfers).length == 0) {
         const db0 = new Dexie(context.state.db.name);
         db0.version(context.state.db.version).stores(context.state.db.schemaDefinition);
-        for (let type of ['collections', 'selectedCollection', 'collection', 'tokens', 'owners', 'sales', 'listings', 'offers', 'ens']) {
+        for (let type of ['collections', 'selectedCollection', 'collection', 'tokens', 'attributes', 'owners', 'sales', 'listings', 'offers', 'ens']) {
           const data = await db0.cache.where("objectName").equals(type).toArray();
           if (data.length == 1) {
             // logInfo("dataModule", "actions.restoreState " + type + " => " + JSON.stringify(data[0].object));
@@ -1014,48 +1020,62 @@ const dataModule = {
       let collection = null;
       const tokens = {};
       const owners = {};
+      const attributes = {};
       do {
         let data = await db.tokens.where('[chainId+contract+tokenId]').between([parameter.chainId, context.state.selectedCollection, Dexie.minKey],[parameter.chainId, context.state.selectedCollection, Dexie.maxKey]).offset(rows).limit(context.state.DB_PROCESSING_BATCH_SIZE).toArray();
         logInfo("dataModule", "actions.collateIt - tokens - data.length: " + data.length + ", first[0..1]: " + JSON.stringify(data.slice(0, 2).map(e => e.contract + '/' + e.tokenId )));
-        for (const item of data) {
+        for (const token of data) {
+          for (const attribute of token.attributes) {
+            const trait_type = attribute.trait_type;
+            const value = attribute.value;
+            if (!attributes[trait_type]) {
+              attributes[trait_type] = {};
+            }
+            if (!attributes[trait_type][value]) {
+              attributes[trait_type][value] = [token.tokenId];
+            } else {
+              attributes[trait_type][value].push(token.tokenId);
+            }
+          }
           if (collection == null) {
             collection = {
-              contract: item.contract,
-              id: item.collection.id,
-              name: item.collection.name,
-              image: item.collection.image,
-              slug: item.collection.slug,
-              creator: item.collection.creator,
-              tokenCount: item.collection.tokenCount,
+              contract: token.contract,
+              id: token.collection.id,
+              name: token.collection.name,
+              image: token.collection.image,
+              slug: token.collection.slug,
+              creator: token.collection.creator,
+              tokenCount: token.collection.tokenCount,
             };
           }
-          tokens[item.tokenId] = {
-            chainId: item.chainId,
-            contract: item.contract,
-            tokenId: item.tokenId,
-            name: item.name,
-            description: item.description,
-            image: item.image,
-            kind: item.kind,
-            isFlagged: item.isFlagged,
-            isSpam: item.isSpam,
-            isNsfw: item.isNsfw,
-            metadataDisabled: item.metadataDisabled,
-            rarity: item.rarity,
-            rarityRank: item.rarityRank,
-            attributes: item.attributes,
-            owner: item.owner,
+          tokens[token.tokenId] = {
+            chainId: token.chainId,
+            contract: token.contract,
+            tokenId: token.tokenId,
+            name: token.name,
+            description: token.description,
+            image: token.image,
+            kind: token.kind,
+            isFlagged: token.isFlagged,
+            isSpam: token.isSpam,
+            isNsfw: token.isNsfw,
+            metadataDisabled: token.metadataDisabled,
+            rarity: token.rarity,
+            rarityRank: token.rarityRank,
+            attributes: token.attributes,
+            owner: token.owner,
           };
-          if (!(item.owner in owners)) {
-            owners[item.owner] = [];
+          if (!(token.owner in owners)) {
+            owners[token.owner] = [];
           }
-          owners[item.owner].push(item.tokenId);
+          owners[token.owner].push(token.tokenId);
         }
         rows = parseInt(rows) + data.length;
         done = data.length < context.state.DB_PROCESSING_BATCH_SIZE;
       } while (!done);
       context.commit('setCollection', collection);
       context.commit('setTokens', tokens);
+      context.commit('setAttributes', attributes);
 
       // TODO: Only sort numerically if all tokenIds <= 5 characters
       const ownerList = Object.keys(owners);
@@ -1110,7 +1130,7 @@ const dataModule = {
       } while (!done);
       context.commit('setOffers', offers);
 
-      await context.dispatch('saveData', ['collection', 'tokens', 'owners', 'sales', 'listings', 'offers']);
+      await context.dispatch('saveData', ['collection', 'tokens', 'attributes', 'owners', 'sales', 'listings', 'offers']);
       logInfo("dataModule", "actions.collateIt END");
     },
 
