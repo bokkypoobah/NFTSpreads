@@ -10,9 +10,17 @@ Web3 UI [https://bokkypoobah.github.io/NFTSpreads/](https://bokkypoobah.github.i
 
 #### Collections
 
-Navigate to the Collection page, select "LChads: Larva Chads" from the drop down, click the Sync button.
+<kbd><img src="images/SampleScreen_Collections.png" /></kbd>
 
-<kbd><img src="images/SampleScreen_Collection.png" /></kbd>
+#### Tokens
+
+Navigate to the Tokens page, select "LChads: Larva Chads" from the drop down, click the Sync button.
+
+<kbd><img src="images/SampleScreen_Tokens.png" /></kbd>
+
+#### Owners
+
+<kbd><img src="images/SampleScreen_Owners.png" /></kbd>
 
 #### Sales
 
