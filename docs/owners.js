@@ -140,7 +140,7 @@ const Owners = {
 
           <template #cell(owner)="data">
             <b-link :href="'https://etherscan.io/address/' + data.item.owner" target="_blank">
-              <font size="-1">{{ nameOrAddress(data.item.owner) }}</font>
+              {{ nameOrAddress(data.item.owner) }}
             </b-link>
           </template>
 
@@ -149,14 +149,19 @@ const Owners = {
           </template>
 
           <template #cell(tokens)="data">
-            <!-- {{ data.item.tokenIds.join(", ") }} -->
-            <div v-for="(tokenId, index) in data.item.tokenIds" :key="index">
-              {{ tokens[tokenId].tokenId + ' ' + tokens[tokenId].image }}
-            </div>
+            <b-card-group deck>
+              <div v-for="(tokenId, index) in data.item.tokenIds" :key="index">
+                <b-card body-class="p-1" header-class="p-1" footer-class="p-1" img-top class="m-1 p-0 border-0">
+                  <b-img-lazy :width="'100%'" :src="tokens[tokenId].image" />
+                  <b-card-text>
+                    <font size="-1" class="muted">{{ tokens[tokenId].tokenId }}</font>
+                  </b-card-text>
+                </b-card>
+              </div>
+            </b-card-group>
           </template>
 
           <template #cell(attributes)="data">
-            <!-- {{ data.item.attributes }} -->
             <b-row v-for="(attribute, i) in data.item.attributes"  v-bind:key="i" class="m-0 p-0">
               <b-col cols="3" class="m-0 px-2 text-right"><font size="-3">{{ attribute.trait_type }}</font></b-col>
               <b-col cols="9" class="m-0 px-2"><b><font size="-2">{{ ["Created Date", "Registration Date", "Expiration Date"].includes(attribute.trait_type) ? formatTimestamp(attribute.value) : attribute.value }}</font></b></b-col>
