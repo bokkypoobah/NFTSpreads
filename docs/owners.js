@@ -154,7 +154,9 @@ const Owners = {
                 <b-card body-class="p-1" header-class="p-1" footer-class="p-1" img-top class="m-1 p-0 border-0">
                   <b-img-lazy :width="'100%'" :src="tokens[tokenId].image" />
                   <b-card-text>
-                    <font size="-1" class="muted">{{ tokens[tokenId].tokenId }}</font>
+                    <b-link :href="'https://opensea.io/assets/ethereum/' + tokens[tokenId].contract + '/' + tokens[tokenId].tokenId" target="_blank">
+                      <font size="-1">{{ tokens[tokenId].tokenId }}</font>
+                    </b-link>
                   </b-card-text>
                 </b-card>
               </div>
@@ -299,7 +301,7 @@ const Owners = {
         // { key: 'image', label: 'Image', sortable: false, thStyle: 'width: 10%;', thClass: 'text-left', tdClass: 'text-truncate' },
         // { key: 'name', label: 'Name/Description', sortable: false, thStyle: 'width: 16%;', thClass: 'text-left', tdClass: 'text-left' },
         { key: 'owner', label: 'Owner', sortable: false, thStyle: 'width: 15%;', thClass: 'text-left', tdClass: 'text-left' },
-        { key: 'count', label: 'Count', sortable: false, thStyle: 'width: 10%;', thClass: 'text-right', tdClass: 'text-right' },
+        { key: 'count', label: 'Count', sortable: false, thStyle: 'width: 10%;', thClass: 'text-left', tdClass: 'text-left' },
         { key: 'tokens', label: 'Tokens', sortable: false, thStyle: 'width: 70%;', thClass: 'text-left', tdClass: 'text-left' },
         // { key: 'attributes', label: 'Attributes', sortable: false, thStyle: 'width: 16%;', thClass: 'text-left', tdClass: 'text-left' },
       ],
