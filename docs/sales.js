@@ -193,7 +193,7 @@ const Sales = {
               <template #cell(what)="data">
                 <font size="-2">
                   <pre>
-    {{ data.item }}
+{{ data.item }}
                   </pre>
                 </font>
               </template>
