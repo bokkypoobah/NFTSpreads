@@ -108,10 +108,10 @@ const Collections = {
             <div>
               <ul>
                 <li>
-                  Check you are correctly connected to the Sepolia testnet
+                  Connect to Ethereum Mainnet, click <b-button size="sm" variant="link" class="m-0 p-0"><b-icon-power shift-v="+1" font-scale="1.2"></b-icon-power></b-button> on the top right, then refresh this page.
                 </li>
                 <li>
-                  Click <b-button size="sm" variant="link" class="m-0 p-0"><b-icon-cloud-download shift-v="+1" font-scale="1.2"></b-icon-cloud-download></b-button> above to sync this app to the blockchain
+                  Switch to the Tokens tab, select an NFT collection on the top left, then click <b-button size="sm" variant="link" class="m-0 p-0"><b-icon-cloud-download shift-v="+1" font-scale="1.2"></b-icon-cloud-download></b-button> above to sync this app to the blockchain
                 </li>
               </ul>
             </div>

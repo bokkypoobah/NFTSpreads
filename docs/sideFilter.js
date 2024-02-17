@@ -370,7 +370,7 @@ const sideFilterModule = {
     name: null,
     notes: null,
     source: null,
-    show: true,
+    show: false,
   },
   getters: {
     address: state => state.address,

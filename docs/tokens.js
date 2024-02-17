@@ -74,7 +74,7 @@ const Tokens = {
           <div class="mt-0 flex-grow-1">
           </div>
           <div v-if="sync.section == null" class="mt-0 pr-1">
-            <b-button size="sm" :disabled="!coinbase || !selectedCollection" @click="viewSyncOptions" variant="link" v-b-popover.hover.top="'Sync data from the blockchain'"><b-icon-arrow-repeat shift-v="+1" font-scale="1.2"></b-icon-arrow-repeat></b-button>
+            <b-button size="sm" :disabled="!coinbase || !selectedCollection" @click="viewSyncOptions" variant="link" v-b-popover.hover.top="'Sync data from the blockchain'"><b-icon-cloud-download shift-v="+1" font-scale="1.2"></b-icon-cloud-download></b-button>
           </div>
           <div v-if="sync.section != null" class="mt-1" style="width: 300px;">
             <b-progress height="1.5rem" :max="sync.total" show-progress :animated="sync.section != null" :variant="sync.section != null ? 'success' : 'secondary'" v-b-popover.hover.top="'Click the button on the right to stop. This process can be continued later'">
@@ -120,10 +120,10 @@ const Tokens = {
                 <div>
                   <ul>
                     <li>
-                      Check you are correctly connected to the Sepolia testnet
+                      Connect to Ethereum Mainnet, click <b-button size="sm" variant="link" class="m-0 p-0"><b-icon-power shift-v="+1" font-scale="1.2"></b-icon-power></b-button> on the top right, then refresh this page.
                     </li>
                     <li>
-                      Click <b-button size="sm" variant="link" class="m-0 p-0"><b-icon-cloud-download shift-v="+1" font-scale="1.2"></b-icon-cloud-download></b-button> above to sync this app to the blockchain
+                      Switch to the Tokens tab, select an NFT collection on the top left, then click <b-button size="sm" variant="link" class="m-0 p-0"><b-icon-cloud-download shift-v="+1" font-scale="1.2"></b-icon-cloud-download></b-button> above to sync this app to the blockchain
                     </li>
                   </ul>
                 </div>
@@ -525,8 +525,8 @@ const Tokens = {
       return e ? ethers.utils.formatUnits(e, decimals).replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",") : null;
     },
     saveSettings() {
-      logInfo("Tokens", "methods.saveSettings - nftSpreadsCollectionSettings: " + JSON.stringify(this.settings, null, 2));
-      localStorage.nftSpreadsCollectionSettings = JSON.stringify(this.settings);
+      logInfo("Tokens", "methods.saveSettings - nftSpreadsTokensSettings: " + JSON.stringify(this.settings, null, 2));
+      localStorage.nftSpreadsTokensSettings = JSON.stringify(this.settings);
     },
     async viewSyncOptions(blah) {
       store.dispatch('syncOptions/viewSyncOptions', blah);
@@ -635,8 +635,8 @@ const Tokens = {
   mounted() {
     logDebug("Tokens", "mounted() $route: " + JSON.stringify(this.$route.params));
     store.dispatch('data/restoreState');
-    if ('nftSpreadsCollectionSettings' in localStorage) {
-      const tempSettings = JSON.parse(localStorage.nftSpreadsCollectionSettings);
+    if ('nftSpreadsTokensSettings' in localStorage) {
+      const tempSettings = JSON.parse(localStorage.nftSpreadsTokensSettings);
       if ('version' in tempSettings && tempSettings.version == 0) {
         this.settings = tempSettings;
         this.settings.currentPage = 1;
