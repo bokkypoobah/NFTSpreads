@@ -6,6 +6,7 @@ Vue.use(Vuex);
 // Vue.component('apexchart', VueApexCharts);
 Vue.component('connection', Connection);
 Vue.component('coredata', Data);
+Vue.component('side-filter', SideFilter);
 Vue.component('new-address', NewAddress);
 Vue.component('new-transfer', NewTransfer);
 Vue.component('sync-options', SyncOptions);
@@ -68,6 +69,7 @@ const store = new Vuex.Store({
     listings: listingsModule,
     offers: offersModule,
     syncOptions: syncOptionsModule,
+    sideFilter: sideFilterModule,
 
     // TODO: Delete below
     registry: registryModule,
