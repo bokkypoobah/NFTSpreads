@@ -12,19 +12,29 @@ const SideFilter = {
                   {{ attribute.attributeType }}
                 </span>
               </template>
-              <font size="-2">
-                <b-table small fixed striped :fields="attributesFields" :items="attribute.attributeList" head-variant="light" thead-class="d-none">
-                  <!-- <template #cell(select)="data">
-                    <b-form-checkbox size="sm" :checked="(settings.filters[attribute.attributeType] && settings.filters[attribute.attributeType][data.item.attribute]) ? 1 : 0" value="1" @change="filterChanged(attribute.attributeType, data.item.attribute)"></b-form-checkbox>
-                  </template> -->
-                  <template #cell(attributeOption)="data">
-                    {{ data.item.attribute }}
-                  </template>
-                  <template #cell(attributeTotal)="data">
-                    {{ data.item.tokenIds.length }}
-                  </template>
-                </b-table>
-              </font>
+              <b-row v-for="(value, i) of attribute.attributeList" v-bind:key="i">
+                <b-col cols="8" class="mt-1">
+                  <b-form-checkbox size="sm" :checked="false"><font size="-2">{{ value.attribute }}</font></b-form-checkbox>
+                </b-col>
+                <b-col cols="4" class="text-right">
+                  <font size="-2">
+                      {{ value.tokenIds.length }}
+                  </font>
+                </b-col>
+              </b-row>
+
+              <!-- <b-table small fixed striped :fields="attributesFields" :items="attribute.attributeList" head-variant="light" thead-class="d-none">
+                <template #cell(select)="data"> -->
+                  <!-- <b-form-checkbox size="sm" :checked="(settings.filters[attribute.attributeType] && settings.filters[attribute.attributeType][data.item.attribute]) ? 1 : 0" value="1" @change="filterChanged(attribute.attributeType, data.item.attribute)"></b-form-checkbox> -->
+                  <!-- <b-form-checkbox size="sm" :checked="false"></b-form-checkbox>
+                </template>
+                <template #cell(attributeOption)="data">
+                  {{ data.item.attribute }}
+                </template>
+                <template #cell(attributeTotal)="data">
+                  {{ data.item.tokenIds.length }}
+                </template>
+              </b-table> -->
             </b-card>
           </div>
         </b-card-body>
