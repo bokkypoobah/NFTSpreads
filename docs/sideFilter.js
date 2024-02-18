@@ -12,20 +12,20 @@ const SideFilter = {
                   {{ attribute.attributeType }}
                 </span>
               </template>
+              <font size="-2">
+                <b-table small fixed striped :fields="attributesFields" :items="attribute.attributeList" head-variant="light" thead-class="d-none">
+                  <!-- <template #cell(select)="data">
+                    <b-form-checkbox size="sm" :checked="(settings.filters[attribute.attributeType] && settings.filters[attribute.attributeType][data.item.attribute]) ? 1 : 0" value="1" @change="filterChanged(attribute.attributeType, data.item.attribute)"></b-form-checkbox>
+                  </template> -->
+                  <template #cell(attributeOption)="data">
+                    {{ data.item.attribute }}
+                  </template>
+                  <template #cell(attributeTotal)="data">
+                    {{ data.item.tokenIds.length }}
+                  </template>
+                </b-table>
+              </font>
             </b-card>
-            <font size="-2">
-              <b-table small fixed striped sticky-header="200px" :fields="attributesFields" :items="attribute.attributeList" head-variant="light">
-                <!-- <template #cell(select)="data">
-                  <b-form-checkbox size="sm" :checked="(settings.filters[attribute.attributeType] && settings.filters[attribute.attributeType][data.item.attribute]) ? 1 : 0" value="1" @change="filterChanged(attribute.attributeType, data.item.attribute)"></b-form-checkbox>
-                </template> -->
-                <template #cell(attributeOption)="data">
-                  {{ data.item.attribute }}
-                </template>
-                <template #cell(attributeTotal)="data">
-                  {{ data.item.tokenIds.length }}
-                </template>
-              </b-table>
-            </font>
           </div>
         </b-card-body>
       </b-card>
@@ -337,7 +337,7 @@ const sideFilterModule = {
     name: null,
     notes: null,
     source: null,
-    show: false,
+    show: true,
   },
   getters: {
     address: state => state.address,
