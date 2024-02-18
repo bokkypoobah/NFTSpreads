@@ -650,7 +650,7 @@ const dataModule = {
         await context.dispatch('syncCollectionOffers', parameter);
       }
 
-      if (options.collection || options.collectionSales || options.collectionListings || options.collectionOffers) {
+      if (options.devThing || options.collection || options.collectionSales || options.collectionListings || options.collectionOffers) {
         await context.dispatch('collateIt', parameter);
       }
 
@@ -1020,7 +1020,7 @@ const dataModule = {
       let collection = null;
       const tokens = {};
       const owners = {};
-      const attributes = {};
+      const collator = {};
       do {
         let data = await db.tokens.where('[chainId+contract+tokenId]').between([parameter.chainId, context.state.selectedCollection, Dexie.minKey],[parameter.chainId, context.state.selectedCollection, Dexie.maxKey]).offset(rows).limit(context.state.DB_PROCESSING_BATCH_SIZE).toArray();
         logInfo("dataModule", "actions.collateIt - tokens - data.length: " + data.length + ", first[0..1]: " + JSON.stringify(data.slice(0, 2).map(e => e.contract + '/' + e.tokenId )));
@@ -1028,13 +1028,13 @@ const dataModule = {
           for (const attribute of token.attributes) {
             const trait_type = attribute.trait_type;
             const value = attribute.value;
-            if (!attributes[trait_type]) {
-              attributes[trait_type] = {};
+            if (!collator[trait_type]) {
+              collator[trait_type] = {};
             }
-            if (!attributes[trait_type][value]) {
-              attributes[trait_type][value] = [token.tokenId];
+            if (!collator[trait_type][value]) {
+              collator[trait_type][value] = [token.tokenId];
             } else {
-              attributes[trait_type][value].push(token.tokenId);
+              collator[trait_type][value].push(token.tokenId);
             }
           }
           if (collection == null) {
@@ -1075,6 +1075,17 @@ const dataModule = {
       } while (!done);
       context.commit('setCollection', collection);
       context.commit('setTokens', tokens);
+
+      const attributes = [];
+      for (const [attributeType, attributeData] of Object.entries(collator)) {
+        const attributeList = [];
+        for (const [attribute, tokenIds] of Object.entries(attributeData)) {
+          attributeList.push({ attribute, tokenIds });
+        }
+        attributeList.sort((a, b) => a.tokenIds.length - b.tokenIds.length);
+        attributes.push({ attributeType, attributeList });
+      }
+      attributes.sort((a, b) => ('' + a.attributeType).localeCompare(b.attributeType))
       context.commit('setAttributes', attributes);
 
       // TODO: Only sort numerically if all tokenIds <= 5 characters

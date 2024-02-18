@@ -1,77 +1,34 @@
 const SideFilter = {
   template: `
     <div>
-      FILTER
-      <b-modal v-if="false" ref="viewtoken" v-model="show" hide-footer header-class="m-0 px-3 py-2" body-bg-variant="light" size="lg">
-        <template #modal-title>ERC-721 Token</template>
 
-        <b-form-group label="Address:" label-for="token-address" label-size="sm" label-cols-sm="3" label-align-sm="right" class="mx-0 my-1 p-0">
-          <b-input-group size="sm" class="w-100">
-            <b-form-input size="sm" plaintext id="token-address" v-model.trim="address" class="px-2"></b-form-input>
-            <b-input-group-append>
-              <div>
-                <b-button v-if="chainInfo[chainId]" size="sm" :href="chainInfo[chainId].explorerTokenPrefix + address" variant="link" v-b-popover.hover="'View in explorer'" target="_blank" class="m-0 ml-1 p-0"><b-icon-link45deg shift-v="+1" font-scale="0.95"></b-icon-link45deg></b-button>
-              </div>
-            </b-input-group-append>
-          </b-input-group>
-        </b-form-group>
-
-        <b-form-group label="Token Id:" label-for="token-tokenid" label-size="sm" label-cols-sm="3" label-align-sm="right" class="mx-0 my-1 p-0">
-          <b-input-group size="sm" class="w-100">
-            <component size="sm" plaintext :is="tokenId && tokenId.length > 30 ? 'b-form-textarea' : 'b-form-input'" v-model="tokenId" rows="2" max-rows="3" class="px-2" />
-            <b-input-group-append>
-              <div>
-                <b-button v-if="chainInfo[chainId]" size="sm" :href="chainInfo[chainId].nftTokenPrefix + address + '/' + tokenId" variant="link" v-b-popover.hover="'View in NFT explorer'" target="_blank" class="m-0 ml-1 p-0"><b-icon-link45deg shift-v="+1" font-scale="0.95"></b-icon-link45deg></b-button>
-              </div>
-            </b-input-group-append>
-          </b-input-group>
-        </b-form-group>
-
-        <b-form-group label="Collection Symbol:" label-for="token-collectionsymbol" label-size="sm" label-cols-sm="3" label-align-sm="right" class="mx-0 my-1 p-0">
-          <b-form-input size="sm" plaintext id="token-collectionsymbol" :value="collectionSymbol" class="px-2 w-100"></b-form-input>
-        </b-form-group>
-
-        <b-form-group label="Collection Name:" label-for="token-collectionname" label-size="sm" label-cols-sm="3" label-align-sm="right" class="mx-0 my-1 p-0">
-          <b-form-input size="sm" plaintext id="token-collectionname" :value="collectionName" class="px-2 w-100"></b-form-input>
-        </b-form-group>
-
-        <b-form-group label="Name:" label-for="token-name" label-size="sm" label-cols-sm="3" label-align-sm="right" class="mx-0 my-1 p-0">
-          <b-form-input size="sm" plaintext id="token-name" :value="name" class="px-2 w-100"></b-form-input>
-        </b-form-group>
-
-        <b-form-group label="Description:" label-for="token-description" label-size="sm" label-cols-sm="3" label-align-sm="right" class="mx-0 my-1 p-0">
-          <component size="sm" plaintext :is="description && description.length > 60 ? 'b-form-textarea' : 'b-form-input'" :value="description" rows="3" max-rows="10" class="px-2" />
-        </b-form-group>
-
-        <b-form-group label="Image:" label-for="token-image" label-size="sm" label-cols-sm="3" label-align-sm="right" class="mx-0 my-1 p-0">
-          <!-- <b-avatar v-if="image" button rounded size="15rem" :src="image" class="m-2"> -->
-            <!-- <template v-if="selectedTraits[layer] && selectedTraits[layer][trait.value]" #badge><b-icon icon="check"></b-icon></template> -->
-          <!-- </b-avatar> -->
-
-          <b-img v-if="image" button rounded fluid size="15rem" :src="image" class="m-2" style="width: 300px;">
-            <!-- <template v-if="selectedTraits[layer] && selectedTraits[layer][trait.value]" #badge><b-icon icon="check"></b-icon></template> -->
-          </b-img>
-
-
-          <!-- <b-img v-if="data.item.image" button rounded fluid size="7rem" :src="data.item.image">
-          </b-img> -->
-
-        </b-form-group>
-        <b-form-group label="Attributes:" label-for="token-image" label-size="sm" label-cols-sm="3" label-align-sm="right" class="mx-0 my-1 p-0">
-          <b-row v-for="(attribute, i) in attributes"  v-bind:key="i" class="m-0 p-0">
-            <b-col cols="3" class="m-0 px-2 text-right"><font size="-3">{{ attribute.trait_type }}</font></b-col>
-            <b-col cols="9" class="m-0 px-2"><b><font size="-2">{{ ["Created Date", "Registration Date", "Expiration Date"].includes(attribute.trait_type) ? formatTimestamp(attribute.value) : attribute.value }}</font></b></b-col>
-          </b-row>
-        </b-form-group>
-
-        <b-form-group label="" label-for="token-refreshtokenmetadata" label-size="sm" label-cols-sm="3" label-align-sm="right" class="mx-0 my-1 p-0">
-          <b-button size="sm" @click="refreshTokenMetadata();" variant="link" v-b-popover.hover.top="'Refresh Token Metadata'"><b-icon-arrow-repeat shift-v="+1" font-scale="1.1" variant="primary"></b-icon-arrow-repeat></b-button>
-        </b-form-group>
-
-        <b-form-group v-if="false" label="" label-for="token-delete" label-size="sm" label-cols-sm="3" label-align-sm="right" class="mx-0 my-1 p-0">
-          <b-button size="sm" @click="deleteAddress(address);" variant="link" v-b-popover.hover.top="'Delete address ' + address.substring(0, 10) + '...' + address.slice(-8) + '?'"><b-icon-trash shift-v="+1" font-scale="1.1" variant="danger"></b-icon-trash></b-button>
-        </b-form-group>
-      </b-modal>
+      <b-card no-header no-body class="m-0 p-0 border-0">
+        <!-- <b-card-body class="m-0 p-1" style="flex-grow: 1; max-height: 3000px; overflow-y: auto;"> -->
+        <b-card-body class="m-0 mt-0 pl-0 pr-2 py-1" style="flex-grow: 1; max-height: 3000px; overflow-y: auto;">
+          <div v-for="attribute of attributes">
+            <b-card header-class="m-0 px-2 pt-2 pb-0" body-class="p-0" class="m-0 p-0 border-0">
+              <template #header>
+                <span variant="secondary" class="small truncate">
+                  {{ attribute.attributeType }}
+                </span>
+              </template>
+            </b-card>
+            <font size="-2">
+              <b-table small fixed striped sticky-header="200px" :fields="attributesFields" :items="attribute.attributeList" head-variant="light">
+                <!-- <template #cell(select)="data">
+                  <b-form-checkbox size="sm" :checked="(settings.filters[attribute.attributeType] && settings.filters[attribute.attributeType][data.item.attribute]) ? 1 : 0" value="1" @change="filterChanged(attribute.attributeType, data.item.attribute)"></b-form-checkbox>
+                </template> -->
+                <template #cell(attributeOption)="data">
+                  {{ data.item.attribute }}
+                </template>
+                <template #cell(attributeTotal)="data">
+                  {{ data.item.tokenIds.length }}
+                </template>
+              </b-table>
+            </font>
+          </div>
+        </b-card-body>
+      </b-card>
     </div>
   `,
   data: function () {
@@ -82,6 +39,11 @@ const SideFilter = {
         "stealthAddress": { variant: "dark", name: "My Stealth Address" },
         "stealthMetaAddress": { variant: "success", name: "My Stealth Meta-Address" },
       },
+      attributesFields: [
+        { key: 'select', label: '', thStyle: 'width: 10%;' },
+        { key: 'attributeOption', label: 'Attribute' /*, sortable: true*/ },
+        { key: 'attributeTotal', label: 'Count', /*sortable: true,*/ thStyle: 'width: 30%;', thClass: 'text-right', tdClass: 'text-right' },
+      ],
     }
   },
   computed: {
@@ -97,6 +59,11 @@ const SideFilter = {
     chainInfo() {
       return store.getters['config/chainInfo'];
     },
+    attributes() {
+      console.log("sideFilter.attributes");
+      return store.getters['data/attributes'];
+    },
+
     addresses() {
       return store.getters['data/addresses'];
     },
@@ -124,21 +91,21 @@ const SideFilter = {
       }
       return null;
     },
-    metadata() {
-      return this.address && this.tokenMetadata[this.chainId] && this.tokenMetadata[this.chainId][this.address] && this.tokenMetadata[this.chainId][this.address][this.tokenId] || {};
-    },
-    name() {
-      return this.metadata && this.metadata.name || null;
-    },
-    description() {
-      return this.metadata && this.metadata.description || null;
-    },
-    image() {
-      return this.metadata && this.metadata.image || null;
-    },
-    attributes() {
-      return this.metadata && this.metadata.attributes || [];
-    },
+    // metadata() {
+    //   return this.address && this.tokenMetadata[this.chainId] && this.tokenMetadata[this.chainId][this.address] && this.tokenMetadata[this.chainId][this.address][this.tokenId] || {};
+    // },
+    // name() {
+    //   return this.metadata && this.metadata.name || null;
+    // },
+    // description() {
+    //   return this.metadata && this.metadata.description || null;
+    // },
+    // image() {
+    //   return this.metadata && this.metadata.image || null;
+    // },
+    // attributes() {
+    //   return this.metadata && this.metadata.attributes || [];
+    // },
 
     linkedTo() {
       return store.getters['viewToken/linkedTo'];
