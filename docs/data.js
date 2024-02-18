@@ -1201,7 +1201,10 @@ const dataModule = {
         rows = parseInt(rows) + data.length;
         done = data.length < context.state.DB_PROCESSING_BATCH_SIZE;
       } while (!done);
-      console.log("owners: " + JSON.stringify(owners, null, 2));
+      // console.log("owners: " + JSON.stringify(owners, null, 2));
+
+      context.commit('setSyncSection', { section: "ENS", total: Object.keys(owners).length });
+      let completed = 0;
 
       const ensReverseRecordsContract = new ethers.Contract(ENSREVERSERECORDSADDRESS, ENSREVERSERECORDSABI, provider);
       const addresses = Object.keys(owners);
@@ -1234,6 +1237,8 @@ const dataModule = {
             }
           }
         }
+        completed += batch.length;
+        context.commit('setSyncCompleted', completed);
       }
       console.log("context.state.ens: " + JSON.stringify(context.state.ens, null, 2));
       context.dispatch('saveData', ['ens']);
