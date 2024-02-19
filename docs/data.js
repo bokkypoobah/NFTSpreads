@@ -138,6 +138,11 @@ const dataModule = {
           name: "NAH FUNGIBLE BONES",
           type: "erc721",
         },
+        "0x31385d3520bCED94f77AaE104b406994D8F2168C": {
+          symbol: "BGANPUNKV2",
+          name: "BASTARD GAN PUNKS V2",
+          type: "erc721",
+        },
         "0x8FA600364B93C53e0c71C7A33d2adE21f4351da3": {
           symbol: "LChads",
           name: "Larva Chads",
