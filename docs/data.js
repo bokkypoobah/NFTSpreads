@@ -166,6 +166,7 @@ const dataModule = {
       },
     },
     selectedCollection: null,
+    idFilter: null,
     ownerFilter: null,
     showSideFilter: false,
     collection: {}, // contract, id, symbol, name, image, slug, creator, tokenCount
@@ -211,6 +212,7 @@ const dataModule = {
   getters: {
     collections: state => state.collections,
     selectedCollection: state => state.selectedCollection,
+    idFilter: state => state.idFilter,
     ownerFilter: state => state.ownerFilter,
     showSideFilter: state => state.showSideFilter,
     collection: state => state.collection,
@@ -346,6 +348,10 @@ const dataModule = {
     setSelectedCollection(state, selectedCollection) {
       Vue.set(state, 'selectedCollection', selectedCollection);
       // logInfo("dataModule", "mutations.setSelectedCollection: " + selectedCollection);
+    },
+    setIdFilter(state, idFilter) {
+      Vue.set(state, 'idFilter', idFilter);
+      logInfo("dataModule", "mutations.setIdFilter: " + idFilter);
     },
     setOwnerFilter(state, ownerFilter) {
       Vue.set(state, 'ownerFilter', ownerFilter);
@@ -649,7 +655,7 @@ const dataModule = {
       if (Object.keys(context.state.stealthTransfers).length == 0) {
         const db0 = new Dexie(context.state.db.name);
         db0.version(context.state.db.version).stores(context.state.db.schemaDefinition);
-        for (let type of ['attributeFilter', 'selectedCollection', 'ownerFilter', 'collections', 'showSideFilter', 'collection', 'tokens', 'attributes', 'owners', 'sales', 'listings', 'offers', 'ens']) {
+        for (let type of ['attributeFilter', 'selectedCollection', 'idFilter', 'ownerFilter', 'collections', 'showSideFilter', 'collection', 'tokens', 'attributes', 'owners', 'sales', 'listings', 'offers', 'ens']) {
           const data = await db0.cache.where("objectName").equals(type).toArray();
           if (data.length == 1) {
             // logInfo("dataModule", "actions.restoreState " + type + " => " + JSON.stringify(data[0].object));
@@ -683,6 +689,11 @@ const dataModule = {
       await context.dispatch('saveData', ['selectedCollection']);
     },
 
+    async setIdFilter(context, idFilter) {
+      logInfo("dataModule", "actions.setIdFilter: " + idFilter);
+      await context.commit('setIdFilter', idFilter);
+      await context.dispatch('saveData', ['idFilter']);
+    },
     async setOwnerFilter(context, ownerFilter) {
       logInfo("dataModule", "actions.setOwnerFilter: " + ownerFilter);
       await context.commit('setOwnerFilter', ownerFilter);
