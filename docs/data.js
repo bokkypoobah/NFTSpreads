@@ -169,7 +169,7 @@ const dataModule = {
     ownerFilter: null,
     showSideFilter: false,
     collection: {}, // contract, id, symbol, name, image, slug, creator, tokenCount
-    tokens: {}, // TokenId => { chainId, contract, tokenId, name, description, image, kind, isFlagged, isSpam, isNsfw, metadataDisabled, rarity, rarityRank, attributes
+    tokens: {}, // chainId -> tokenId => { chainId, contract, tokenId, name, description, image, kind, isFlagged, isSpam, isNsfw, metadataDisabled, rarity, rarityRank, attributes
     attributes: [],
     attributeFilter: {},
     owners: {},
@@ -193,7 +193,7 @@ const dataModule = {
       halt: false,
     },
     db: {
-      name: "nftspreadsdata080c",
+      name: "nftspreadsdata080d",
       version: 1,
       schemaDefinition: {
         // announcements: '[chainId+blockNumber+logIndex],[blockNumber+contract],contract,confirmations,stealthAddress',
@@ -362,6 +362,31 @@ const dataModule = {
     setTokens(state, tokens) {
       Vue.set(state, 'tokens', tokens);
       // logInfo("dataModule", "mutations.setTokens tokens: " + JSON.stringify(tokens, null, 2));
+    },
+    addToken(state, token) {
+      if (!(token.chainId in state.tokens)) {
+        Vue.set(state.tokens, token.chainId, {});
+      }
+      if (!(token.contract in state.tokens[token.chainId])) {
+        Vue.set(state.tokens[token.chainId], token.contract, {});
+      }
+      if (!(token.tokenId in state.tokens[token.chainId][token.contract])) {
+        Vue.set(state.tokens[token.chainId][token.contract], token.tokenId, {
+          name: token.name,
+          description: token.description,
+          image: token.image,
+          kind: token.kind,
+          isFlagged: token.isFlagged,
+          isSpam: token.isSpam,
+          isNsfw: token.isNsfw,
+          metadataDisabled: token.metadataDisabled,
+          rarity: token.rarity,
+          rarityRank: token.rarityRank,
+          attributes: token.attributes,
+          owner: token.owner,
+          tags: [],
+        });
+      }
     },
     setAttributes(state, attributes) {
       Vue.set(state, 'attributes', attributes);
@@ -1176,7 +1201,7 @@ const dataModule = {
       let done = false;
 
       let collection = null;
-      const tokens = {};
+      // const tokens = {};
       const owners = {};
       const collator = {};
       do {
@@ -1204,7 +1229,7 @@ const dataModule = {
               tokenCount: token.collection.tokenCount,
             };
           }
-          tokens[token.tokenId] = {
+          context.commit('addToken', {
             chainId: token.chainId,
             contract: token.contract,
             tokenId: token.tokenId,
@@ -1221,7 +1246,25 @@ const dataModule = {
             attributes: token.attributes,
             owner: token.owner,
             tags: [],
-          };
+          });
+          // tokens[token.tokenId] = {
+          //   chainId: token.chainId,
+          //   contract: token.contract,
+          //   tokenId: token.tokenId,
+          //   name: token.name,
+          //   description: token.description,
+          //   image: token.image,
+          //   kind: token.kind,
+          //   isFlagged: token.isFlagged,
+          //   isSpam: token.isSpam,
+          //   isNsfw: token.isNsfw,
+          //   metadataDisabled: token.metadataDisabled,
+          //   rarity: token.rarity,
+          //   rarityRank: token.rarityRank,
+          //   attributes: token.attributes,
+          //   owner: token.owner,
+          //   tags: [],
+          // };
           if (!(token.owner in owners)) {
             owners[token.owner] = [];
           }
@@ -1231,7 +1274,7 @@ const dataModule = {
         done = data.length < context.state.DB_PROCESSING_BATCH_SIZE;
       } while (!done);
       context.commit('setCollection', collection);
-      context.commit('setTokens', tokens);
+      // context.commit('setTokens', tokens);
 
       const attributes = [];
       for (const [attributeType, attributeData] of Object.entries(collator)) {
