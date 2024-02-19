@@ -303,7 +303,9 @@ const Tokens = {
       return result;
     },
     filteredItems() {
-      const results = (store.getters['data/forceRefresh'] % 2) == 0 ? [] : [];
+      const results = (store.getters['data/forceRefresh'] % 2) == 0 ? store.getters['data/filteredTokens'] : store.getters['data/filteredTokens'];
+      // const test = store.getters['data/filteredTokens'];
+      // console.log("filteredItems - test: " + JSON.stringify(test, null, 2));
       // console.log("filteredItems - tokens: " + JSON.stringify(this.tokens, null, 2));
       let regex = null;
       if (this.settings.filter != null && this.settings.filter.length > 0) {
@@ -315,27 +317,30 @@ const Tokens = {
         }
       }
 
-      for (const [tokenId, token] of Object.entries(this.tokens)) {
-        // console.log(tokenId + " => " + JSON.stringify(token));
+      // const attributeFilter = store.getters['data/attributeFilter'];
+      // console.log("filteredItems - attributeFilter: " + JSON.stringify(attributeFilter, null, 2));
 
-        results.push({
-          chainId: token.chainId,
-          contract: token.contract,
-          tokenId: token.tokenId,
-          name: token.name || ('#' + token.tokenId),
-          description: token.description,
-          image: token.image,
-          kind: token.kind,
-          isFlagged: token.isFlagged,
-          isSpam: token.isSpam,
-          isNsfw: token.isNsfw,
-          metadataDisabled: token.metadataDisabled,
-          rarity: token.rarity,
-          rarityRank: token.rarityRank,
-          attributes: token.attributes,
-          owner: token.owner,
-        });
-      }
+      // for (const [tokenId, token] of Object.entries(this.tokens)) {
+      //   // console.log(tokenId + " => " + JSON.stringify(token));
+      //
+      //   results.push({
+      //     chainId: token.chainId,
+      //     contract: token.contract,
+      //     tokenId: token.tokenId,
+      //     name: token.name || ('#' + token.tokenId),
+      //     description: token.description,
+      //     image: token.image,
+      //     kind: token.kind,
+      //     isFlagged: token.isFlagged,
+      //     isSpam: token.isSpam,
+      //     isNsfw: token.isNsfw,
+      //     metadataDisabled: token.metadataDisabled,
+      //     rarity: token.rarity,
+      //     rarityRank: token.rarityRank,
+      //     attributes: token.attributes,
+      //     owner: token.owner,
+      //   });
+      // }
 
       // for (const [address, data] of Object.entries(this.collections[this.chainId] || {})) {
       //   if (data.type == "erc721") {

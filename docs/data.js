@@ -226,6 +226,78 @@ const dataModule = {
     forceRefresh: state => state.forceRefresh,
     sync: state => state.sync,
     db: state => state.db,
+
+    filteredTokens(state) {
+      logInfo("dataModule", "getters.filteredTokens");
+      const chainId = store.getters['connection/chainId'];
+      const tokens = state.tokens;
+      const attributes = state.attributes || {};
+      const attributeFilter = state.attributeFilter[state.selectedCollection] || {};
+      const results = [];
+      if (Object.keys(attributeFilter).length == 0) {
+        for (const [tokenId, token] of Object.entries(tokens)) {
+          results.push({
+            chainId: token.chainId,
+            contract: token.contract,
+            tokenId: token.tokenId,
+            name: token.name || ('#' + token.tokenId),
+            description: token.description,
+            image: token.image,
+            kind: token.kind,
+            isFlagged: token.isFlagged,
+            isSpam: token.isSpam,
+            isNsfw: token.isNsfw,
+            metadataDisabled: token.metadataDisabled,
+            rarity: token.rarity,
+            rarityRank: token.rarityRank,
+            attributes: token.attributes,
+            owner: token.owner,
+          });
+        }
+      } else {
+        let selectedTokenIds = [];
+        for (const [attributeType, attributeList] of Object.entries(attributeFilter)) {
+          let thisAttributeTypeTokenIds = [];
+          for (const attribute of Object.keys(attributeList)) {
+            for (const attributeInfo of attributes) {
+              if (attributeInfo.attributeType == attributeType) {
+                const tokenIds = attributeInfo.attributeList.filter(e => e.attribute == attribute).map(e => e.tokenIds).flat();
+                thisAttributeTypeTokenIds = [...thisAttributeTypeTokenIds, ...tokenIds];
+                break;
+              }
+            }
+          }
+          if (selectedTokenIds.length == 0) {
+            selectedTokenIds = thisAttributeTypeTokenIds;
+          } else {
+            selectedTokenIds = selectedTokenIds.filter(tokenId => thisAttributeTypeTokenIds.includes(tokenId));
+          }
+        }
+        for (const tokenId of selectedTokenIds) {
+          const token = tokens[tokenId];
+          results.push({
+            chainId: token.chainId,
+            contract: token.contract,
+            tokenId: token.tokenId,
+            name: token.name || ('#' + token.tokenId),
+            description: token.description,
+            image: token.image,
+            kind: token.kind,
+            isFlagged: token.isFlagged,
+            isSpam: token.isSpam,
+            isNsfw: token.isNsfw,
+            metadataDisabled: token.metadataDisabled,
+            rarity: token.rarity,
+            rarityRank: token.rarityRank,
+            attributes: token.attributes,
+            owner: token.owner,
+          });
+        }
+      }
+      // console.log("results: " + JSON.stringify(results.slice(0, 4), null, 2));
+      return results;
+    },
+
   },
   mutations: {
     setState(state, info) {
