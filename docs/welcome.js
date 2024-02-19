@@ -11,6 +11,10 @@ const Welcome = {
               <b-card-text>
                 <h5>Welcome</h5>
 
+                NFT Spreads (WIP) is a dapp to slice and dice through NFT collection ownership, sales, listings and offers.
+
+                NFT Spreads aims to allow users to group tokens withing collections into categories that can be analysed seperately.
+
                 <!--
                 Magical Internet Money is an lightweight serverless multi-chain implementation of <b-link href="https://eips.ethereum.org/EIPS/eip-5564" target="_blank">ERC-5564: Stealth Addresses</b-link> and <b-link href="https://eips.ethereum.org/EIPS/eip-6538" target="_blank">ERC-6538: Stealth Meta-Address Registry</b-link> (using <i>address</i> instead of <i>bytes</i>). Status: <b>WIP</b>
 
