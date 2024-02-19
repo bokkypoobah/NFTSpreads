@@ -1184,15 +1184,13 @@ const dataModule = {
         logInfo("dataModule", "actions.collateIt - tokens - data.length: " + data.length + ", first[0..1]: " + JSON.stringify(data.slice(0, 2).map(e => e.contract + '/' + e.tokenId )));
         for (const token of data) {
           for (const attribute of token.attributes) {
-            const trait_type = attribute.trait_type;
-            const value = attribute.value;
-            if (!collator[trait_type]) {
-              collator[trait_type] = {};
+            if (!collator[attribute.trait_type]) {
+              collator[attribute.trait_type] = {};
             }
-            if (!collator[trait_type][value]) {
-              collator[trait_type][value] = [token.tokenId];
+            if (!collator[attribute.trait_type][attribute.value]) {
+              collator[attribute.trait_type][attribute.value] = [token.tokenId];
             } else {
-              collator[trait_type][value].push(token.tokenId);
+              collator[attribute.trait_type][attribute.value].push(token.tokenId);
             }
           }
           if (collection == null) {
@@ -1222,6 +1220,7 @@ const dataModule = {
             rarityRank: token.rarityRank,
             attributes: token.attributes,
             owner: token.owner,
+            tags: [],
           };
           if (!(token.owner in owners)) {
             owners[token.owner] = [];
