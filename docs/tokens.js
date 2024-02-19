@@ -17,6 +17,9 @@ const Tokens = {
           <div class="mt-0 pr-1">
             <b-form-select size="sm" v-model="selectedCollection" @change="saveSettings" :options="collectionsOptions" v-b-popover.hover.top="'Select a collection, then click the Sync button'"></b-form-select>
           </div>
+          <div class="mt-0 pr-1" style="width: 200px;">
+            <b-form-input type="text" size="sm" v-model.trim="ownerFilter" debounce="600" v-b-popover.hover.top="'Regex filter by owner address or name'" placeholder="🔍 owner addr/name regex"></b-form-input>
+          </div>
           <div v-if="false" class="mt-0 pr-1" style="width: 200px;">
             <b-form-input type="text" size="sm" v-model.trim="settings.filter" @change="saveSettings" debounce="600" v-b-popover.hover.top="'Regex filter by address, symbol or name'" placeholder="🔍 addr/symb/name regex"></b-form-input>
           </div>
@@ -228,6 +231,14 @@ const Tokens = {
     },
     ens() {
       return store.getters['data/ens'];
+    },
+    ownerFilter: {
+      get: function () {
+        return store.getters['data/ownerFilter'];
+      },
+      set: function (ownerFilter) {
+        store.dispatch('data/setOwnerFilter', ownerFilter);
+      },
     },
     showSideFilter: {
       get: function () {

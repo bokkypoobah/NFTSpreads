@@ -161,10 +161,11 @@ const dataModule = {
       },
     },
     selectedCollection: null,
+    ownerFilter: null,
     showSideFilter: false,
     collection: {}, // contract, id, symbol, name, image, slug, creator, tokenCount
     tokens: {}, // TokenId => { chainId, contract, tokenId, name, description, image, kind, isFlagged, isSpam, isNsfw, metadataDisabled, rarity, rarityRank, attributes
-    attributes: {},
+    attributes: [],
     attributeFilter: {},
     owners: {},
     sales: [], //
@@ -205,6 +206,7 @@ const dataModule = {
   getters: {
     collections: state => state.collections,
     selectedCollection: state => state.selectedCollection,
+    ownerFilter: state => state.ownerFilter,
     showSideFilter: state => state.showSideFilter,
     collection: state => state.collection,
     tokens: state => state.tokens,
@@ -230,29 +232,50 @@ const dataModule = {
     filteredTokens(state) {
       logInfo("dataModule", "getters.filteredTokens");
       const chainId = store.getters['connection/chainId'];
-      const tokens = state.tokens;
-      const attributes = state.attributes || {};
+      const attributes = state.attributes || [];
       const attributeFilter = state.attributeFilter[state.selectedCollection] || {};
+
+      let ownerRegex = null;
+      if (state.ownerFilter) {
+        try {
+          ownerRegex = new RegExp(state.ownerFilter, 'i');
+        } catch (e) {
+          console.log("filteredTokens - owner regex error: " + e.message);
+          ownerRegex = new RegExp(/thequickbrowndogjumpsoverthelazyfox/, 'i');
+        }
+      }
+
       const results = [];
       if (Object.keys(attributeFilter).length == 0) {
-        for (const [tokenId, token] of Object.entries(tokens)) {
-          results.push({
-            chainId: token.chainId,
-            contract: token.contract,
-            tokenId: token.tokenId,
-            name: token.name || ('#' + token.tokenId),
-            description: token.description,
-            image: token.image,
-            kind: token.kind,
-            isFlagged: token.isFlagged,
-            isSpam: token.isSpam,
-            isNsfw: token.isNsfw,
-            metadataDisabled: token.metadataDisabled,
-            rarity: token.rarity,
-            rarityRank: token.rarityRank,
-            attributes: token.attributes,
-            owner: token.owner,
-          });
+        for (const [tokenId, token] of Object.entries(state.tokens)) {
+          let include = true;
+
+          if (ownerRegex) {
+            const name = state.ens[token.owner] || null;
+            if (!(ownerRegex.test(token.owner) || ownerRegex.test(name))) {
+              include = false;
+            }
+          }
+
+          if (include) {
+            results.push({
+              chainId: token.chainId,
+              contract: token.contract,
+              tokenId: token.tokenId,
+              name: token.name || ('#' + token.tokenId),
+              description: token.description,
+              image: token.image,
+              kind: token.kind,
+              isFlagged: token.isFlagged,
+              isSpam: token.isSpam,
+              isNsfw: token.isNsfw,
+              metadataDisabled: token.metadataDisabled,
+              rarity: token.rarity,
+              rarityRank: token.rarityRank,
+              attributes: token.attributes,
+              owner: token.owner,
+            });
+          }
         }
       } else {
         let selectedTokenIds = [];
@@ -274,24 +297,35 @@ const dataModule = {
           }
         }
         for (const tokenId of selectedTokenIds) {
-          const token = tokens[tokenId];
-          results.push({
-            chainId: token.chainId,
-            contract: token.contract,
-            tokenId: token.tokenId,
-            name: token.name || ('#' + token.tokenId),
-            description: token.description,
-            image: token.image,
-            kind: token.kind,
-            isFlagged: token.isFlagged,
-            isSpam: token.isSpam,
-            isNsfw: token.isNsfw,
-            metadataDisabled: token.metadataDisabled,
-            rarity: token.rarity,
-            rarityRank: token.rarityRank,
-            attributes: token.attributes,
-            owner: token.owner,
-          });
+          const token = state.tokens[tokenId];
+          let include = true;
+
+          if (ownerRegex) {
+            const name = state.ens[token.owner] || null;
+            if (!(ownerRegex.test(token.owner) || ownerRegex.test(name))) {
+              include = false;
+            }
+          }
+
+          if (include) {
+            results.push({
+              chainId: token.chainId,
+              contract: token.contract,
+              tokenId: token.tokenId,
+              name: token.name || ('#' + token.tokenId),
+              description: token.description,
+              image: token.image,
+              kind: token.kind,
+              isFlagged: token.isFlagged,
+              isSpam: token.isSpam,
+              isNsfw: token.isNsfw,
+              metadataDisabled: token.metadataDisabled,
+              rarity: token.rarity,
+              rarityRank: token.rarityRank,
+              attributes: token.attributes,
+              owner: token.owner,
+            });
+          }
         }
       }
       // console.log("results: " + JSON.stringify(results.slice(0, 4), null, 2));
@@ -307,6 +341,10 @@ const dataModule = {
     setSelectedCollection(state, selectedCollection) {
       Vue.set(state, 'selectedCollection', selectedCollection);
       // logInfo("dataModule", "mutations.setSelectedCollection: " + selectedCollection);
+    },
+    setOwnerFilter(state, ownerFilter) {
+      Vue.set(state, 'ownerFilter', ownerFilter);
+      logInfo("dataModule", "mutations.setOwnerFilter: " + ownerFilter);
     },
     setShowSideFilter(state, show) {
       Vue.set(state, 'showSideFilter', show);
@@ -581,7 +619,7 @@ const dataModule = {
       if (Object.keys(context.state.stealthTransfers).length == 0) {
         const db0 = new Dexie(context.state.db.name);
         db0.version(context.state.db.version).stores(context.state.db.schemaDefinition);
-        for (let type of ['collections', 'selectedCollection', 'showSideFilter', 'collection', 'tokens', 'attributes', 'attributeFilter', 'owners', 'sales', 'listings', 'offers', 'ens']) {
+        for (let type of ['attributeFilter', 'selectedCollection', 'ownerFilter', 'collections', 'showSideFilter', 'collection', 'tokens', 'attributes', 'owners', 'sales', 'listings', 'offers', 'ens']) {
           const data = await db0.cache.where("objectName").equals(type).toArray();
           if (data.length == 1) {
             // logInfo("dataModule", "actions.restoreState " + type + " => " + JSON.stringify(data[0].object));
@@ -615,6 +653,11 @@ const dataModule = {
       await context.dispatch('saveData', ['selectedCollection']);
     },
 
+    async setOwnerFilter(context, ownerFilter) {
+      logInfo("dataModule", "actions.setOwnerFilter: " + ownerFilter);
+      await context.commit('setOwnerFilter', ownerFilter);
+      await context.dispatch('saveData', ['ownerFilter']);
+    },
     async setShowSideFilter(context, show) {
       logInfo("dataModule", "actions.setShowSideFilter: " + show);
       await context.commit('setShowSideFilter', show);
