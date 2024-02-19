@@ -3,13 +3,6 @@ const Owners = {
     <div class="m-0 p-0">
       <b-card no-body no-header class="border-0">
 
-        <!-- :MODALFAUCETS -->
-        <b-modal ref="modalfaucet" id="modal-faucets" hide-footer body-bg-variant="light" size="md">
-          <template #modal-title>ERC-721 Faucets</template>
-          <b-form-select size="sm" v-model="modalFaucet.selectedFaucet" :options="faucetsOptions" v-b-popover.hover.bottom="'Select faucet'"></b-form-select>
-          <b-button size="sm" block :disabled="!modalFaucet.selectedFaucet" @click="drip()" variant="warning" class="mt-2">Drip {{ modalFaucet.selectedFaucet && faucets.filter(e => e.address == modalFaucet.selectedFaucet)[0] ? (faucets.filter(e => e.address == modalFaucet.selectedFaucet)[0].drip + ' Tokens') : '' }}</b-button>
-        </b-modal>
-
         <div class="d-flex flex-wrap m-0 p-0">
           <div class="mt-0 pr-1">
             <b-button size="sm" :pressed.sync="showSideFilter" variant="link" v-b-popover.hover.top="'Toggle filter'" class="m-0 p-1"><b-icon :icon="showSideFilter ? 'layout-sidebar-inset' : 'layout-sidebar'" shift-v="+1" font-scale="1.00"></b-icon></b-button>
@@ -67,9 +60,6 @@ const Owners = {
             <b-button size="sm" :pressed.sync="settings.favouritesOnly" @click="saveSettings" variant="transparent" v-b-popover.hover.bottom="'Show favourited only'"><b-icon :icon="settings.favouritesOnly ? 'heart-fill' : 'heart'" font-scale="0.95" variant="danger"></b-icon></b-button>
           </div>
           <div v-if="false" class="mt-0 flex-grow-1">
-          </div>
-          <div v-if="false" class="mt-0 pr-1">
-            <b-button size="sm" @click="viewFaucets" variant="link" v-b-popover.hover.bottom="'Drip tokens from ERC-20 and ERC-721 faucets'"><b-icon-plus shift-v="+1" font-scale="1.0"></b-icon-plus></b-button>
           </div>
           <div class="mt-0 flex-grow-1">
           </div>
@@ -179,78 +169,6 @@ const Owners = {
                   <b-col cols="9" class="m-0 px-2"><b><font size="-2">{{ ["Created Date", "Registration Date", "Expiration Date"].includes(attribute.trait_type) ? formatTimestamp(attribute.value) : attribute.value }}</font></b></b-col>
                 </b-row>
               </template>
-
-
-              <!-- <template #cell(info)="data">
-                <b-link v-if="chainInfo[chainId]" :href="chainInfo[chainId].nftTokenPrefix + data.item.address + '/' + data.item.tokenId" target="_blank">
-                  <span v-if="data.item.name">
-                    <font size="-1">{{ data.item.name }}</font>
-                  </span>
-                  <span v-else>
-                    <font size="-1">{{ '#' + (data.item.tokenId.length > 20 ? (data.item.tokenId.substring(0, 10) + '...' + data.item.tokenId.slice(-8)) : data.item.tokenId) }}</font>
-                  </span>
-                </b-link>
-                <br />
-
-                <b-link v-if="chainInfo[chainId]" :href="chainInfo[chainId].explorerTokenPrefix + data.item.address + '#code'" target="_blank">
-                  <font size="-1">{{ data.item.collectionName }}</font>
-                </b-link>
-                <b-button size="sm" @click="toggleTokenContractJunk(data.item);" variant="transparent"><b-icon :icon="data.item.junk ? 'trash-fill' : 'trash'" font-scale="0.9" :variant="data.item.junk ? 'info' : 'secondary'"></b-icon></b-button>
-                <b-button size="sm" :disabled="data.item.junk" @click="toggleTokenContractFavourite(data.item);" variant="transparent"><b-icon :icon="data.item.favourite & !data.item.junk ? 'heart-fill' : 'heart'" font-scale="0.9" :variant="data.item.junk ? 'dark' : 'danger'"></b-icon></b-button>
-              </template> -->
-
-              <!-- <template #cell(expiry)="data">
-                {{ formatTimestamp(data.item.expiry) }}
-              </template> -->
-
-              <!-- <template #cell(attributes)="data">
-                <b-row v-for="(attribute, i) in data.item.attributes"  v-bind:key="i" class="m-0 p-0">
-                  <b-col cols="3" class="m-0 px-2 text-right"><font size="-3">{{ attribute.trait_type }}</font></b-col>
-                  <b-col cols="9" class="m-0 px-2"><b><font size="-2">{{ ["Created Date", "Registration Date", "Expiration Date"].includes(attribute.trait_type) ? formatTimestamp(attribute.value) : attribute.value }}</font></b></b-col>
-                </b-row>
-              </template> -->
-
-              <!-- <template #cell(favourite)="data">
-                <b-button size="sm" @click="toggleTokenContractFavourite(data.item);" variant="transparent"><b-icon :icon="data.item.favourite ? 'heart-fill' : 'heart'" font-scale="0.9" variant="danger"></b-icon></b-button>
-              </template> -->
-
-              <!-- <template #cell(contract)="data">
-                <b-link v-if="chainInfo[chainId]" :href="chainInfo[chainId].explorerTokenPrefix + data.item.address + '#code'" target="_blank">
-                  <font size="-1">{{ data.item.address.substring(0, 10) + '...' + data.item.address.slice(-8) }}</font>
-                </b-link>
-              </template> -->
-              <!-- <template #cell(type)="data"> -->
-                <!-- <font size="-1">{{ data.item.type == "erc20" ? "ERC-20" : "ERC-721" }}</font> -->
-              <!-- </template> -->
-              <template #cell(symbol)="data">
-                {{ data.item.symbol }}
-              </template>
-              <!-- <template #cell(firstEventBlockNumber)="data"> -->
-                <!-- <font size="-1">{{ commify0(data.item.firstEventBlockNumber) }}</font> -->
-              <!-- </template> -->
-              <!-- <template #cell(lastEventBlockNumber)="data"> -->
-                <!-- <font size="-1">{{ commify0(data.item.lastEventBlockNumber) }}</font> -->
-              <!-- </template> -->
-              <!-- <template #cell(decimals)="data"> -->
-                <!-- <font size="-1">{{ data.item.type == "erc20" ? parseInt(data.item.decimals) : "" }}</font> -->
-              <!-- </template> -->
-              <!-- <template #cell(balance)="data"> -->
-                <!-- <span v-if="data.item.balances[coinbase] && data.item.type == 'erc20'">
-                  <b-button size="sm" :href="'https://sepolia.etherscan.io/token/' + data.item.address + '?a=' + coinbase" variant="link" class="m-0 ml-2 p-0" target="_blank">{{ formatDecimals(data.item.balances[coinbase], data.item.decimals || 0) }}</b-button>
-                </span>
-                <span v-if="data.item.type == 'erc721'">
-                  <font size="-1">
-                    <span v-for="(tokenData, tokenId) of data.item.tokenIds">
-                      <b-button v-if="chainInfo[chainId]" size="sm" :href="chainInfo[chainId].nftTokenPrefix + data.item.address + '/' + tokenId" variant="link" v-b-popover.hover.bottom="tokenId" class="m-0 ml-2 p-0" target="_blank">{{ tokenId.toString().length > 20 ? (tokenId.toString().substring(0, 8) + '...' + tokenId.toString().slice(-8)) : tokenId.toString() }}</b-button>
-                    </span>
-                  </font>
-                </span> -->
-              <!-- </template> -->
-
-              <!-- <template #cell(totalSupply)="data">
-                <font size="-1">{{ data.item.type == "erc20" ? formatDecimals(data.item.totalSupply, data.item.decimals || 0) : data.item.totalSupply }}</font>
-              </template> -->
-
 
               <template #cell(timestamp)="data">
                 <b-link :href="'https://sepolia.etherscan.io/tx/' + data.item.txHash" v-b-popover.hover.bottom="'Block #' + commify0(data.item.blockNumber) + ', txIndex: ' + data.item.txIndex + ', logIndex: ' + data.item.logIndex" target="_blank">
@@ -396,26 +314,6 @@ const Owners = {
       return results;
     },
 
-
-    faucets() {
-      return FAUCETS && FAUCETS[this.chainId];
-    },
-    faucetsOptions() {
-      const results = [];
-      if (FAUCETS && FAUCETS[this.chainId]) {
-        results.push({ value: null, text: '(select a faucet)' });
-        for (const item of FAUCETS[this.chainId]) {
-          if (item.type == "erc721") {
-            results.push({
-              value: item.address,
-              text: item.drip + " x " + (item.type == "erc20" ? "ERC-20 " : "ERC-721 ") + item.symbol + ' ' + item.name + (item.type == "erc20" ? " (" + item.decimals + " dp)" : "") + ' @ ' + item.address.substring(0, this.ADDRESS_SEGMENT_LENGTH + 2) + '...' + item.address.slice(-this.ADDRESS_SEGMENT_LENGTH),
-            });
-          }
-        }
-      }
-      return results;
-    },
-
     totalCollections() {
       let result = (store.getters['data/forceRefresh'] % 2) == 0 ? 0 : 0;
       for (const [owner, tokenIds] of Object.entries(this.owners)) {
@@ -425,7 +323,6 @@ const Owners = {
     },
     filteredItems() {
       const results = (store.getters['data/forceRefresh'] % 2) == 0 ? [] : [];
-      // console.log("filteredItems - tokens: " + JSON.stringify(this.tokens, null, 2));
       let regex = null;
       if (this.settings.filter != null && this.settings.filter.length > 0) {
         try {
@@ -436,90 +333,19 @@ const Owners = {
         }
       }
 
-      for (const [owner, tokenIds] of Object.entries(this.owners)) {
+      const collator = {};
+      for (const token of store.getters['data/filteredTokens']) {
+        if (!(token.owner in collator)) {
+          collator[token.owner] = [];
+        }
+        collator[token.owner].push(token.tokenId);
+      }
+      for (const [owner, tokenIds] of Object.entries(collator)) {
         results.push({
           owner,
           tokenIds,
         });
       }
-
-      // for (const [tokenId, token] of Object.entries(this.tokens)) {
-      //   // console.log(tokenId + " => " + JSON.stringify(token));
-      //
-      //   results.push({
-      //     chainId: token.chainId,
-      //     contract: token.contract,
-      //     tokenId: token.tokenId,
-      //     name: token.name || ('#' + token.tokenId),
-      //     description: token.description,
-      //     image: token.image,
-      //     kind: token.kind,
-      //     isFlagged: token.isFlagged,
-      //     isSpam: token.isSpam,
-      //     isNsfw: token.isNsfw,
-      //     metadataDisabled: token.metadataDisabled,
-      //     rarity: token.rarity,
-      //     rarityRank: token.rarityRank,
-      //     attributes: token.attributes,
-      //     owner: token.owner,
-      //   });
-      // }
-
-      // for (const [address, data] of Object.entries(this.collections[this.chainId] || {})) {
-      //   if (data.type == "erc721") {
-      //     // console.log(address + " => " + JSON.stringify(data, null, 2));
-      //     results.push({ address, symbol: data.symbol, name: data.name });
-      //
-      //     // for (const [tokenId, tokenData] of Object.entries(data.tokenIds)) {
-      //     //   // console.log(address + "/" + tokenId + " => " + JSON.stringify(tokenData, null, 2));
-      //     //
-      //     //   const metadata = this.tokenMetadata[this.chainId] &&
-      //     //     this.tokenMetadata[this.chainId][address] &&
-      //     //     this.tokenMetadata[this.chainId][address][tokenId] ||
-      //     //     {};
-      //     //
-      //     //   let include = true;
-      //     //   if (this.settings.junkFilter) {
-      //     //     if (this.settings.junkFilter == 'junk' && !data.junk) {
-      //     //       include = false;
-      //     //     } else if (this.settings.junkFilter == 'excludejunk' && data.junk) {
-      //     //       include = false;
-      //     //     }
-      //     //   }
-      //     //   if (include && this.settings.favouritesOnly && (!data.favourite || data.junk)) {
-      //     //     include = false;
-      //     //   }
-      //     //   if (include && regex) {
-      //     //     const name = metadata.name || null;
-      //     //     const description = metadata.description || null;
-      //     //     if (!(regex.test(collectionName) || regex.test(name) || regex.test(description))) {
-      //     //       include = false;
-      //     //     }
-      //     //   }
-      //     //   if (include) {
-      //     //     results.push({
-      //     //       address,
-      //     //       junk: data.junk,
-      //     //       favourite: data.favourite,
-      //     //       collectionSymbol: address == ENS_ERC721_ADDRESS ? "ENS" : data.symbol,
-      //     //       collectionName: address == ENS_ERC721_ADDRESS ? "Ethereum Name Service" : data.name,
-      //     //       totalSupply: data.totalSupply,
-      //     //       tokenId,
-      //     //       owner: tokenData.owner,
-      //     //       name: metadata.name || null,
-      //     //       description: metadata.description || null,
-      //     //       expiry: metadata.expiry || undefined,
-      //     //       attributes: metadata.attributes || null,
-      //     //       imageSource: metadata.imageSource || null,
-      //     //       image: metadata.image || null,
-      //     //       blockNumber: tokenData.blockNumber,
-      //     //       logIndex: tokenData.logIndex,
-      //     //     });
-      //     //   }
-      //     // }
-      //
-      //   }
-      // }
       return results;
     },
     filteredSortedItems() {
@@ -542,36 +368,6 @@ const Owners = {
 
   },
   methods: {
-    viewFaucets() {
-      console.log(moment().format("HH:mm:ss") + " viewFaucets");
-      this.$bvModal.show('modal-faucets');
-    },
-    async drip() {
-      console.log(moment().format("HH:mm:ss") + " drip BEGIN: " + JSON.stringify(this.modalFaucet, null, 2));
-      const provider = new ethers.providers.Web3Provider(window.ethereum);
-      const signer = provider.getSigner();
-      const faucetInfo = FAUCETS[this.chainId] && FAUCETS[this.chainId].filter(e => e.address == this.modalFaucet.selectedFaucet)[0] || null;
-      if (faucetInfo) {
-        console.log("faucetInfo: " + JSON.stringify(faucetInfo, null, 2));
-        if (faucetInfo.type == "erc20") {
-          try {
-            const tx = await signer.sendTransaction({ to: faucetInfo.address, value: "0" });
-            console.log("tx: " + JSON.stringify(tx));
-          } catch (e) {
-            console.log("drip ERC-20 - error: " + JSON.stringify(e));
-          }
-        } else {
-          const testToadzContract = new ethers.Contract(faucetInfo.address, TESTTOADZABI, provider);
-          const testToadzContractWithSigner = testToadzContract.connect(provider.getSigner());
-          try {
-            const tx = await testToadzContractWithSigner.mint(3);
-            console.log("tx: " + JSON.stringify(tx));
-          } catch (e) {
-            console.log("drip ERC-721 - error: " + JSON.stringify(e));
-          }
-        }
-      }
-    },
 
     toggleTokenContractJunk(item) {
       logInfo("Owners", ".methods.toggleTokenContractJunk - item: " + JSON.stringify(item, null, 2));
