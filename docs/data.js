@@ -164,6 +164,7 @@ const dataModule = {
     collection: {}, // contract, id, symbol, name, image, slug, creator, tokenCount
     tokens: {}, // TokenId => { chainId, contract, tokenId, name, description, image, kind, isFlagged, isSpam, isNsfw, metadataDisabled, rarity, rarityRank, attributes
     attributes: {},
+    attributeFilter: {},
     owners: {},
     sales: [], //
     listings: [], //
@@ -206,6 +207,7 @@ const dataModule = {
     collection: state => state.collection,
     tokens: state => state.tokens,
     attributes: state => state.attributes,
+    attributeFilter: state => state.attributeFilter,
     owners: state => state.owners,
     sales: state => state.sales,
     listings: state => state.listings,
@@ -263,6 +265,24 @@ const dataModule = {
     setENS(state, info) {
       Vue.set(state.ens, info.address, info.name);
       // logInfo("dataModule", "mutations.setENS info: " + JSON.stringify(info, null, 2));
+    },
+
+    attributeFilterChanged(state, info) {
+      if (!(state.selectedCollection in state.attributeFilter)) {
+        Vue.set(state.attributeFilter, state.selectedCollection, {});
+      }
+      if (!(info.type in state.attributeFilter[state.selectedCollection])) {
+        Vue.set(state.attributeFilter[state.selectedCollection], info.type, {});
+      }
+      if (state.attributeFilter[state.selectedCollection][info.type][info.value]) {
+        Vue.delete(state.attributeFilter[state.selectedCollection][info.type], info.value);
+        if (Object.keys(state.attributeFilter[state.selectedCollection][info.type]) == 0) {
+          Vue.delete(state.attributeFilter[state.selectedCollection], info.type);
+        }
+      } else {
+        Vue.set(state.attributeFilter[state.selectedCollection][info.type], info.value, true);
+      }
+      logInfo("dataModule", "mutations.attributeFilterChanged - state.attributeFilter: " + JSON.stringify(state.attributeFilter, null, 2));
     },
 
     toggleAddressField(state, info) {
@@ -483,7 +503,7 @@ const dataModule = {
       if (Object.keys(context.state.stealthTransfers).length == 0) {
         const db0 = new Dexie(context.state.db.name);
         db0.version(context.state.db.version).stores(context.state.db.schemaDefinition);
-        for (let type of ['collections', 'selectedCollection', 'collection', 'tokens', 'attributes', 'owners', 'sales', 'listings', 'offers', 'ens']) {
+        for (let type of ['collections', 'selectedCollection', 'collection', 'tokens', 'attributes', 'attributeFilter', 'owners', 'sales', 'listings', 'offers', 'ens']) {
           const data = await db0.cache.where("objectName").equals(type).toArray();
           if (data.length == 1) {
             // logInfo("dataModule", "actions.restoreState " + type + " => " + JSON.stringify(data[0].object));
@@ -503,6 +523,12 @@ const dataModule = {
         });
       }
       db0.close();
+    },
+
+    async attributeFilterChanged(context, info) {
+      logInfo("dataModule", "actions.attributeFilterChanged - info: " + JSON.stringify(info));
+      await context.commit('attributeFilterChanged', info);
+      await context.dispatch('saveData', ['attributeFilter']);
     },
 
     async setSelectedCollection(context, selectedCollection) {
