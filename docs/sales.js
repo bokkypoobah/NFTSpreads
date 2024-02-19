@@ -380,13 +380,12 @@ const Sales = {
     ens() {
       return store.getters['data/ens'];
     },
-
     showSideFilter: {
       get: function () {
-        return store.getters['sideFilter/show'];
+        return store.getters['data/showSideFilter'];
       },
       set: function (show) {
-        store.dispatch('sideFilter/setShow', show);
+        store.dispatch('data/setShowSideFilter', show);
       },
     },
     selectedCollection: {

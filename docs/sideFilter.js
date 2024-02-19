@@ -33,18 +33,6 @@ const SideFilter = {
     }
   },
   computed: {
-    powerOn() {
-      return store.getters['connection/powerOn'];
-    },
-    coinbase() {
-      return store.getters['connection/coinbase'];
-    },
-    chainId() {
-      return store.getters['connection/chainId'];
-    },
-    chainInfo() {
-      return store.getters['config/chainInfo'];
-    },
     selectedCollection() {
       return store.getters['data/selectedCollection'];
     },
@@ -54,61 +42,22 @@ const SideFilter = {
     attributeFilter() {
       return store.getters['data/attributeFilter'];
     },
-    show: {
-      get: function () {
-        return store.getters['viewToken/show'];
-      },
-      set: function (show) {
-        store.dispatch('viewToken/setShow', show);
-      },
-    },
   },
   methods: {
-    copyToClipboard(str) {
-      navigator.clipboard.writeText(str);
-    },
-    saveSettings() {
-      logInfo("SideFilter", "methods.saveSettings - transfersSettings: " + JSON.stringify(this.settings, null, 2));
-      localStorage.transfersSettings = JSON.stringify(this.settings);
-    },
     filterChanged(info) {
-      logInfo("SideFilter", "methods.filterChanged - info: " + JSON.stringify(info));
       store.dispatch('data/attributeFilterChanged', info);
     },
-    setShow(show) {
-      store.dispatch('viewToken/setShow', show);
-    },
-  },
-  beforeDestroy() {
-    logDebug("SideFilter", "beforeDestroy()");
-  },
-  mounted() {
-    logDebug("SideFilter", "mounted() $route: " + JSON.stringify(this.$route.params));
-    if ('transfersSettings' in localStorage) {
-      const tempSettings = JSON.parse(localStorage.transfersSettings);
-      if ('version' in tempSettings && tempSettings.version == 0) {
-        this.settings = tempSettings;
-      }
-    }
   },
 };
 
 const sideFilterModule = {
   namespaced: true,
   state: {
-    show: true,
   },
   getters: {
-    show: state => state.show,
   },
   mutations: {
-    setShow(state, show) {
-      state.show = show;
-    },
   },
   actions: {
-    async setShow(context, show) {
-      await context.commit('setShow', show);
-    },
   },
 };

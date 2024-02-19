@@ -161,6 +161,7 @@ const dataModule = {
       },
     },
     selectedCollection: null,
+    showSideFilter: false,
     collection: {}, // contract, id, symbol, name, image, slug, creator, tokenCount
     tokens: {}, // TokenId => { chainId, contract, tokenId, name, description, image, kind, isFlagged, isSpam, isNsfw, metadataDisabled, rarity, rarityRank, attributes
     attributes: {},
@@ -204,6 +205,7 @@ const dataModule = {
   getters: {
     collections: state => state.collections,
     selectedCollection: state => state.selectedCollection,
+    showSideFilter: state => state.showSideFilter,
     collection: state => state.collection,
     tokens: state => state.tokens,
     attributes: state => state.attributes,
@@ -233,6 +235,10 @@ const dataModule = {
     setSelectedCollection(state, selectedCollection) {
       Vue.set(state, 'selectedCollection', selectedCollection);
       // logInfo("dataModule", "mutations.setSelectedCollection: " + selectedCollection);
+    },
+    setShowSideFilter(state, show) {
+      Vue.set(state, 'showSideFilter', show);
+      logInfo("dataModule", "mutations.setShowSideFilter: " + show);
     },
     setCollection(state, collection) {
       Vue.set(state, 'collection', collection);
@@ -503,7 +509,7 @@ const dataModule = {
       if (Object.keys(context.state.stealthTransfers).length == 0) {
         const db0 = new Dexie(context.state.db.name);
         db0.version(context.state.db.version).stores(context.state.db.schemaDefinition);
-        for (let type of ['collections', 'selectedCollection', 'collection', 'tokens', 'attributes', 'attributeFilter', 'owners', 'sales', 'listings', 'offers', 'ens']) {
+        for (let type of ['collections', 'selectedCollection', 'showSideFilter', 'collection', 'tokens', 'attributes', 'attributeFilter', 'owners', 'sales', 'listings', 'offers', 'ens']) {
           const data = await db0.cache.where("objectName").equals(type).toArray();
           if (data.length == 1) {
             // logInfo("dataModule", "actions.restoreState " + type + " => " + JSON.stringify(data[0].object));
@@ -535,6 +541,12 @@ const dataModule = {
       // logInfo("dataModule", "actions.setSelectedCollection: " + selectedCollection);
       await context.commit('setSelectedCollection', selectedCollection);
       await context.dispatch('saveData', ['selectedCollection']);
+    },
+
+    async setShowSideFilter(context, show) {
+      logInfo("dataModule", "actions.setShowSideFilter: " + show);
+      await context.commit('setShowSideFilter', show);
+      await context.dispatch('saveData', ['showSideFilter']);
     },
 
     async toggleAddressField(context, info) {
