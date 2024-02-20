@@ -43,3 +43,7 @@ Filtered by `Bone Tone: Unbroken` and owner name including the text `vault`.
 #### Tokens Filtered By TokenId Including Ranges
 
 <kbd><img src="images/SampleScreen_Tokens_TokenIdFilter.png" /></kbd>
+
+#### Tokens With Tags
+
+<kbd><img src="images/SampleScreen_Tokens_WithTags.png" /></kbd>
