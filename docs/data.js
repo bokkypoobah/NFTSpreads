@@ -409,7 +409,7 @@ const dataModule = {
       Vue.set(state, 'tokens', tokens);
       // logInfo("dataModule", "mutations.setTokens tokens: " + JSON.stringify(tokens, null, 2));
     },
-    addToken(state, token) {
+    addOrUpdateToken(state, token) {
       if (!(token.chainId in state.tokens)) {
         Vue.set(state.tokens, token.chainId, {});
       }
@@ -432,6 +432,19 @@ const dataModule = {
           owner: token.owner,
           tags: [],
         });
+      } else {
+        Vue.set(state.tokens[token.chainId][token.contract][token.tokenId], 'name', token.name);
+        Vue.set(state.tokens[token.chainId][token.contract][token.tokenId], 'description', token.description);
+        Vue.set(state.tokens[token.chainId][token.contract][token.tokenId], 'image', token.image);
+        Vue.set(state.tokens[token.chainId][token.contract][token.tokenId], 'kind', token.kind);
+        Vue.set(state.tokens[token.chainId][token.contract][token.tokenId], 'isFlagged', token.isFlagged);
+        Vue.set(state.tokens[token.chainId][token.contract][token.tokenId], 'isSpam', token.isSpam);
+        Vue.set(state.tokens[token.chainId][token.contract][token.tokenId], 'isNsfw', token.isNsfw);
+        Vue.set(state.tokens[token.chainId][token.contract][token.tokenId], 'metadataDisabled', token.metadataDisabled);
+        Vue.set(state.tokens[token.chainId][token.contract][token.tokenId], 'rarity', token.rarity);
+        Vue.set(state.tokens[token.chainId][token.contract][token.tokenId], 'rarityRank', token.rarityRank);
+        Vue.set(state.tokens[token.chainId][token.contract][token.tokenId], 'attributes', token.attributes);
+        Vue.set(state.tokens[token.chainId][token.contract][token.tokenId], 'owner', token.owner);
       }
     },
     setAttributes(state, attributes) {
@@ -1280,7 +1293,7 @@ const dataModule = {
               tokenCount: token.collection.tokenCount,
             };
           }
-          context.commit('addToken', {
+          context.commit('addOrUpdateToken', {
             chainId: token.chainId,
             contract: token.contract,
             tokenId: token.tokenId,
@@ -1298,24 +1311,6 @@ const dataModule = {
             owner: token.owner,
             tags: [],
           });
-          // tokens[token.tokenId] = {
-          //   chainId: token.chainId,
-          //   contract: token.contract,
-          //   tokenId: token.tokenId,
-          //   name: token.name,
-          //   description: token.description,
-          //   image: token.image,
-          //   kind: token.kind,
-          //   isFlagged: token.isFlagged,
-          //   isSpam: token.isSpam,
-          //   isNsfw: token.isNsfw,
-          //   metadataDisabled: token.metadataDisabled,
-          //   rarity: token.rarity,
-          //   rarityRank: token.rarityRank,
-          //   attributes: token.attributes,
-          //   owner: token.owner,
-          //   tags: [],
-          // };
           if (!(token.owner in owners)) {
             owners[token.owner] = [];
           }
