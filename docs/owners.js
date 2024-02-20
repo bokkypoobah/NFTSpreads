@@ -157,11 +157,11 @@ const Owners = {
               <template #cell(tokens)="data">
                 <b-card-group deck>
                   <div v-for="(tokenId, index) in data.item.tokenIds" :key="index">
-                    <b-card body-class="p-1" header-class="p-1" footer-class="p-1" img-top class="m-1 p-0 border-0">
-                      <b-img-lazy :width="'100%'" :src="tokens[tokenId].image" />
+                    <b-card v-if="chainId && selectedCollection && tokens[chainId] && tokens[chainId][selectedCollection] && tokens[chainId][selectedCollection][tokenId]" body-class="p-1" header-class="p-1" footer-class="p-1" img-top class="m-1 p-0 border-0">
+                      <b-img-lazy :width="'100%'" :src="tokens[chainId][selectedCollection][tokenId].image" />
                       <b-card-text>
-                        <b-link :href="'https://opensea.io/assets/ethereum/' + tokens[tokenId].contract + '/' + tokens[tokenId].tokenId" target="_blank">
-                          <font size="-1">{{ tokens[tokenId].tokenId }}</font>
+                        <b-link :href="'https://opensea.io/assets/ethereum/' + tokens[chainId][selectedCollection][tokenId].contract + '/' + tokenId" target="_blank">
+                          <font size="-1">{{ tokenId }}</font>
                         </b-link>
                       </b-card-text>
                     </b-card>

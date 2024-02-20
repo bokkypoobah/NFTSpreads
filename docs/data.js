@@ -237,10 +237,12 @@ const dataModule = {
     db: state => state.db,
 
     filteredTokens(state) {
-      logInfo("dataModule", "getters.filteredTokens");
+      // logInfo("dataModule", "getters.filteredTokens");
       const chainId = store.getters['connection/chainId'];
       const attributes = state.attributes || [];
       const attributeFilter = state.attributeFilter[state.selectedCollection] || {};
+      const tokens = state.selectedCollection && state.tokens[chainId] && state.tokens[chainId][state.selectedCollection] || {};
+      // console.log("tokens: " + JSON.stringify(tokens, null, 2));
 
       let filteredIds = null;
       if (state.idFilter) {
@@ -258,10 +260,10 @@ const dataModule = {
             filteredIds.push(parseInt(s));
           } else {
             console.log("searchIds: " + JSON.stringify(searchIds, null, 2));
+            // TODO: Fix loading first
             if (s.match(/[a-zA-Z0-9 \-]{3,}/)) {
               const searchFor = s.toLowerCase();
               console.log("searchFor: " + searchFor);
-              // TODO: Fix loading first
               console.log("attributeFilter: " + JSON.stringify(attributeFilter, null, 2));
               for (const [attributeType, attributeList] of Object.entries(attributeFilter)) {
                 console.log(attributeType + " => " + JSON.stringify(attributeFilter, null, 2));
@@ -292,7 +294,7 @@ const dataModule = {
 
       const results = [];
       if (Object.keys(attributeFilter).length == 0) {
-        for (const [tokenId, token] of Object.entries(state.tokens)) {
+        for (const [tokenId, token] of Object.entries(tokens)) {
           let include = true;
 
           if (ownerRegex) {
@@ -304,9 +306,9 @@ const dataModule = {
 
           if (include) {
             results.push({
-              chainId: token.chainId,
-              contract: token.contract,
-              tokenId: token.tokenId,
+              chainId: chainId,
+              contract: state.selectedCollection,
+              tokenId: tokenId,
               name: token.name || ('#' + token.tokenId),
               description: token.description,
               image: token.image,
@@ -342,7 +344,7 @@ const dataModule = {
           }
         }
         for (const tokenId of selectedTokenIds) {
-          const token = state.tokens[tokenId];
+          const token = chainId && state.selectedCollection && state.tokens[chainId][state.selectedCollection][tokenId] || {};
           let include = true;
 
           if (ownerRegex) {
@@ -354,10 +356,10 @@ const dataModule = {
 
           if (include) {
             results.push({
-              chainId: token.chainId,
-              contract: token.contract,
-              tokenId: token.tokenId,
-              name: token.name || ('#' + token.tokenId),
+              chainId: chainId,
+              contract: state.selectedCollection,
+              tokenId: tokenId,
+              name: token.name || ('#' + tokenId),
               description: token.description,
               image: token.image,
               kind: token.kind,
