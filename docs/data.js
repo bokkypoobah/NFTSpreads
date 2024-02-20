@@ -242,6 +242,44 @@ const dataModule = {
       const attributes = state.attributes || [];
       const attributeFilter = state.attributeFilter[state.selectedCollection] || {};
 
+      let filteredIds = null;
+      if (state.idFilter) {
+        const searchIds = state.idFilter.split(/[, \t\n]+/).map(s => s.trim());
+        filteredIds = [];
+        for (s of searchIds) {
+          var range = s.match(/(\d+)-(\d+)/)
+          if (range != null) {
+            for (let i = parseInt(range[1]); i <= parseInt(range[2]); i++) {
+              if (i >= 0 && i < 10000) {
+                filteredIds.push(i);
+              }
+            }
+          } else if (s >= 0 && s < 10000) {
+            filteredIds.push(parseInt(s));
+          } else {
+            console.log("searchIds: " + JSON.stringify(searchIds, null, 2));
+            if (s.match(/[a-zA-Z0-9 \-]{3,}/)) {
+              const searchFor = s.toLowerCase();
+              console.log("searchFor: " + searchFor);
+              // TODO: Fix loading first
+              console.log("attributeFilter: " + JSON.stringify(attributeFilter, null, 2));
+              for (const [attributeType, attributeList] of Object.entries(attributeFilter)) {
+                console.log(attributeType + " => " + JSON.stringify(attributeFilter, null, 2));
+              }
+          //     for (const attributeInfo of this.punkAttributesWithTokenIds) {
+          //       for (const attribute of attributeInfo.attributeList) {
+          //         if (attribute.attribute.indexOf(searchFor) == 0) {
+          //           filteredIds = [...new Set([...filteredIds, ...attribute.punks])]
+          //         }
+          //       }
+              // }
+            }
+          }
+        }
+        // console.log("filteredIds: " + JSON.stringify(filteredIds, null, 2));
+      }
+
+
       let ownerRegex = null;
       if (state.ownerFilter) {
         try {
