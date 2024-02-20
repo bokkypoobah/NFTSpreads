@@ -445,6 +445,7 @@ const dataModule = {
         Vue.set(state.tokens[token.chainId][token.contract][token.tokenId], 'rarityRank', token.rarityRank);
         Vue.set(state.tokens[token.chainId][token.contract][token.tokenId], 'attributes', token.attributes);
         Vue.set(state.tokens[token.chainId][token.contract][token.tokenId], 'owner', token.owner);
+        // Don't update user input tags[]
       }
     },
     setAttributes(state, attributes) {
