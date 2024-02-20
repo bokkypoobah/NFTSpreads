@@ -151,6 +151,9 @@ const Tokens = {
                 <font size="-2">
                   {{ data.item.description }}
                 </font>
+                <font size="-2">
+                  <b-form-tags size="sm" @input="saveTokenTag({ chainId, contract: selectedCollection, tokenId: data.item.tokenId, tags: $event })" v-model="data.item.tags" tag-variant="primary" tag-pills separator=" " v-b-popover.hover="'ENTER NEW TAGS'" placeholder="" class="ml-0 mt-1 mw-100"></b-form-tags>
+                </font>
                 <b-button size="sm" @click="requestReservoirAPITokenMetadataRefresh(data.item)" variant="link" v-b-popover.hover.top="'Request Reservoir API Metadata Refresh'"><b-icon-arrow-clockwise shift-v="+1" font-scale="1.2"></b-icon-arrow-clockwise></b-button>
               </template>
 
@@ -388,6 +391,10 @@ const Tokens = {
       }
     },
 
+    saveTokenTag(info) {
+      logInfo("Tokens", ".methods.saveTokenTag - info: " + JSON.stringify(info, null, 2));
+      store.dispatch('data/saveTokenTag', info);
+    },
     toggleTokenContractJunk(item) {
       logInfo("Tokens", ".methods.toggleTokenContractJunk - item: " + JSON.stringify(item, null, 2));
       store.dispatch('data/toggleTokenContractJunk', item);

@@ -320,6 +320,7 @@ const dataModule = {
               rarityRank: token.rarityRank,
               attributes: token.attributes,
               owner: token.owner,
+              tags: token.tags,
             });
           }
         }
@@ -372,6 +373,7 @@ const dataModule = {
               rarityRank: token.rarityRank,
               attributes: token.attributes,
               owner: token.owner,
+              tags: token.tags,
             });
           }
         }
@@ -447,6 +449,12 @@ const dataModule = {
         Vue.set(state.tokens[token.chainId][token.contract][token.tokenId], 'attributes', token.attributes);
         Vue.set(state.tokens[token.chainId][token.contract][token.tokenId], 'owner', token.owner);
         // Don't update user input tags[]
+      }
+    },
+    saveTokenTag(state, info) {
+      logInfo("dataModule", "mutations.saveTokenTag info: " + JSON.stringify(info, null, 2));
+      if (state.tokens[info.chainId] && state.tokens[info.chainId][info.contract] && state.tokens[info.chainId][info.contract][info.tokenId]) {
+        Vue.set(state.tokens[info.chainId][info.contract][info.tokenId], 'tags', info.tags);
       }
     },
     setAttributes(state, attributes) {
@@ -758,6 +766,11 @@ const dataModule = {
       logInfo("dataModule", "actions.setShowSideFilter: " + show);
       await context.commit('setShowSideFilter', show);
       await context.dispatch('saveData', ['showSideFilter']);
+    },
+    async saveTokenTag(context, info) {
+      logInfo("dataModule", "actions.saveTokenTag: " + JSON.stringify(info));
+      await context.commit('saveTokenTag', info);
+      await context.dispatch('saveData', ['tokens']);
     },
 
     async toggleAddressField(context, info) {
