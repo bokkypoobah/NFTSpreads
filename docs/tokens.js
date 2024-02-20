@@ -14,7 +14,7 @@ const Tokens = {
           <div class="mt-0 pr-1">
             <b-button size="sm" :pressed.sync="showSideFilter" variant="link" v-b-popover.hover.top="'Toggle filter'" class="m-0 p-1"><b-icon :icon="showSideFilter ? 'layout-sidebar-inset' : 'layout-sidebar'" shift-v="+1" font-scale="1.00"></b-icon></b-button>
           </div>
-          <div class="mt-0 pr-1">
+          <div class="mt-0 pr-1" style="width: 200px;">
             <b-form-select size="sm" v-model="selectedCollection" @change="saveSettings" :options="collectionsOptions" v-b-popover.hover.top="'Select a collection, then click the Sync button'"></b-form-select>
           </div>
           <div class="mt-0 pr-1" style="width: 200px;">
@@ -152,7 +152,7 @@ const Tokens = {
                   {{ data.item.description }}
                 </font>
                 <font size="-2">
-                  <b-form-tags size="sm" @input="saveTokenTag({ chainId, contract: selectedCollection, tokenId: data.item.tokenId, tags: $event })" v-model="data.item.tags" tag-variant="primary" tag-pills separator=" " v-b-popover.hover="'ENTER NEW TAGS'" placeholder="" class="ml-0 mt-1 mw-100"></b-form-tags>
+                  <!-- <b-form-tags size="sm" @input="saveTokenTag({ chainId, contract: selectedCollection, tokenId: data.item.tokenId, tags: $event })" v-model="data.item.tags" tag-variant="primary" tag-pills separator=" " v-b-popover.hover="'ENTER NEW TAGS'" placeholder="" class="ml-0 mt-1 mw-100"></b-form-tags> -->
                 </font>
                 <b-button size="sm" @click="requestReservoirAPITokenMetadataRefresh(data.item)" variant="link" v-b-popover.hover.top="'Request Reservoir API Metadata Refresh'"><b-icon-arrow-clockwise shift-v="+1" font-scale="1.2"></b-icon-arrow-clockwise></b-button>
               </template>
@@ -161,6 +161,7 @@ const Tokens = {
                 <b-link :href="'https://etherscan.io/address/' + data.item.owner" target="_blank">
                   <font size="-1">{{ nameOrAddress(data.item.owner) }}</font>
                 </b-link>
+                <b-form-tags size="sm" @input="saveTokenTag({ chainId, contract: selectedCollection, tokenId: data.item.tokenId, tags: $event })" v-model="data.item.tags" tag-variant="primary" tag-pills separator=" " v-b-popover.hover="'Enter tags'" placeholder="" class="mt-2"></b-form-tags>
               </template>
 
               <template #cell(attributes)="data">
@@ -208,7 +209,7 @@ const Tokens = {
         // { key: 'tokenId', label: 'TokenId', sortable: false, thStyle: 'width: 16%;', thClass: 'text-left', tdClass: 'text-truncate' },
         { key: 'image', label: 'Image', sortable: false, thStyle: 'width: 10%;', thClass: 'text-left', tdClass: 'text-truncate' },
         { key: 'name', label: 'Name/Description', sortable: false, thStyle: 'width: 25%;', thClass: 'text-left', tdClass: 'text-left' },
-        { key: 'owner', label: 'Owner', sortable: false, thStyle: 'width: 30%;', thClass: 'text-left', tdClass: 'text-left' },
+        { key: 'owner', label: 'Owner/Tags', sortable: false, thStyle: 'width: 30%;', thClass: 'text-left', tdClass: 'text-left' },
         { key: 'attributes', label: 'Attributes', sortable: false, thStyle: 'width: 30%;', thClass: 'text-left', tdClass: 'text-left' },
       ],
     }
