@@ -167,8 +167,8 @@ const Tokens = {
               <template #cell(attributes)="data">
                 <!-- {{ data.item.attributes }} -->
                 <b-row v-for="(attribute, i) in data.item.attributes"  v-bind:key="i" class="m-0 p-0">
-                  <b-col cols="3" class="m-0 px-2 text-right"><font size="-3">{{ attribute.trait_type }}</font></b-col>
-                  <b-col cols="9" class="m-0 px-2"><b><font size="-2">{{ ["Created Date", "Registration Date", "Expiration Date"].includes(attribute.trait_type) ? formatTimestamp(attribute.value) : attribute.value }}</font></b></b-col>
+                  <b-col cols="6" class="m-0 px-1 text-right"><font size="-2">{{ attribute.trait_type }}</font></b-col>
+                  <b-col cols="6" class="m-0 px-1"><b><font size="-2">{{ ["Created Date", "Registration Date", "Expiration Date"].includes(attribute.trait_type) ? formatTimestamp(attribute.value) : attribute.value }}</font></b></b-col>
                 </b-row>
               </template>
 
