@@ -158,6 +158,11 @@ const dataModule = {
           name: "PudgyPenguins",
           type: "erc721",
         },
+        "0xC2C747E0F7004F9E8817Db2ca4997657a7746928": {
+          symbol: "HM",
+          name: "Hashmasks",
+          type: "erc721",
+        },
         "0xc92cedDfb8dd984A89fb494c376f9A48b999aAFc": {
           symbol: "CREATURE",
           name: "Creature World",
@@ -239,8 +244,8 @@ const dataModule = {
     filteredTokens(state) {
       // logInfo("dataModule", "getters.filteredTokens");
       const chainId = store.getters['connection/chainId'];
-      const attributes = state.attributes || [];
-      const attributeFilter = state.attributeFilter[state.selectedCollection] || {};
+      const attributes = state.attributes[chainId] && state.attributes[chainId][state.selectedCollection] || [];
+      const attributeFilter = state.attributeFilter[chainId] && state.attributeFilter[chainId][state.selectedCollection] || {};
       const tokens = state.selectedCollection && state.tokens[chainId] && state.tokens[chainId][state.selectedCollection] || {};
 
       let filteredIds = null;
@@ -458,7 +463,13 @@ const dataModule = {
       }
     },
     setAttributes(state, attributes) {
-      Vue.set(state, 'attributes', attributes);
+      const chainId = store.getters['connection/chainId'];
+      if (!(chainId in state.attributes)) {
+        Vue.set(state.attributes, chainId, {});
+      }
+      if (!(state.selectedCollection in state.attributes[chainId])) {
+        Vue.set(state.attributes[chainId], state.selectedCollection, attributes);
+      }
       // logInfo("dataModule", "mutations.setAttributes attributes: " + JSON.stringify(attributes, null, 2));
     },
     setOwners(state, owners) {
@@ -483,21 +494,25 @@ const dataModule = {
     },
 
     attributeFilterChanged(state, info) {
-      if (!(state.selectedCollection in state.attributeFilter)) {
-        Vue.set(state.attributeFilter, state.selectedCollection, {});
+      const chainId = store.getters['connection/chainId'];
+      if (!(chainId in state.attributeFilter)) {
+        Vue.set(state.attributeFilter, chainId, {});
       }
-      if (!(info.type in state.attributeFilter[state.selectedCollection])) {
-        Vue.set(state.attributeFilter[state.selectedCollection], info.type, {});
+      if (!(state.selectedCollection in state.attributeFilter[chainId])) {
+        Vue.set(state.attributeFilter[chainId], state.selectedCollection, {});
       }
-      if (state.attributeFilter[state.selectedCollection][info.type][info.value]) {
-        Vue.delete(state.attributeFilter[state.selectedCollection][info.type], info.value);
-        if (Object.keys(state.attributeFilter[state.selectedCollection][info.type]) == 0) {
-          Vue.delete(state.attributeFilter[state.selectedCollection], info.type);
+      if (!(info.type in state.attributeFilter[chainId][state.selectedCollection])) {
+        Vue.set(state.attributeFilter[chainId][state.selectedCollection], info.type, {});
+      }
+      if (state.attributeFilter[chainId][state.selectedCollection][info.type][info.value]) {
+        Vue.delete(state.attributeFilter[chainId][state.selectedCollection][info.type], info.value);
+        if (Object.keys(state.attributeFilter[chainId][state.selectedCollection][info.type]) == 0) {
+          Vue.delete(state.attributeFilter[chainId][state.selectedCollection], info.type);
         }
       } else {
-        Vue.set(state.attributeFilter[state.selectedCollection][info.type], info.value, true);
+        Vue.set(state.attributeFilter[chainId][state.selectedCollection][info.type], info.value, true);
       }
-      logInfo("dataModule", "mutations.attributeFilterChanged - state.attributeFilter: " + JSON.stringify(state.attributeFilter, null, 2));
+      // logInfo("dataModule", "mutations.attributeFilterChanged - state.attributeFilter: " + JSON.stringify(state.attributeFilter, null, 2));
     },
 
     toggleAddressField(state, info) {
@@ -741,7 +756,7 @@ const dataModule = {
     },
 
     async attributeFilterChanged(context, info) {
-      logInfo("dataModule", "actions.attributeFilterChanged - info: " + JSON.stringify(info));
+      // logInfo("dataModule", "actions.attributeFilterChanged - info: " + JSON.stringify(info));
       await context.commit('attributeFilterChanged', info);
       await context.dispatch('saveData', ['attributeFilter']);
     },
