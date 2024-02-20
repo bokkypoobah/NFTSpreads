@@ -242,22 +242,21 @@ const dataModule = {
       const attributes = state.attributes || [];
       const attributeFilter = state.attributeFilter[state.selectedCollection] || {};
       const tokens = state.selectedCollection && state.tokens[chainId] && state.tokens[chainId][state.selectedCollection] || {};
-      // console.log("tokens: " + JSON.stringify(tokens, null, 2));
 
       let filteredIds = null;
       if (state.idFilter) {
         const searchIds = state.idFilter.split(/[, \t\n]+/).map(s => s.trim());
-        filteredIds = [];
+        const ids = [];
         for (s of searchIds) {
           var range = s.match(/(\d+)-(\d+)/)
           if (range != null) {
             for (let i = parseInt(range[1]); i <= parseInt(range[2]); i++) {
               if (i >= 0 && i < 10000) {
-                filteredIds.push(i);
+                ids.push(i);
               }
             }
           } else if (s >= 0 && s < 10000) {
-            filteredIds.push(parseInt(s));
+            ids.push(parseInt(s));
           } else {
             console.log("searchIds: " + JSON.stringify(searchIds, null, 2));
             // TODO: Fix loading first
@@ -271,16 +270,15 @@ const dataModule = {
           //     for (const attributeInfo of this.punkAttributesWithTokenIds) {
           //       for (const attribute of attributeInfo.attributeList) {
           //         if (attribute.attribute.indexOf(searchFor) == 0) {
-          //           filteredIds = [...new Set([...filteredIds, ...attribute.punks])]
+          //           ids = [...new Set([...ids, ...attribute.punks])]
           //         }
           //       }
               // }
             }
           }
         }
-        // console.log("filteredIds: " + JSON.stringify(filteredIds, null, 2));
+        filteredIds = new Set(ids);
       }
-
 
       let ownerRegex = null;
       if (state.ownerFilter) {
@@ -296,14 +294,15 @@ const dataModule = {
       if (Object.keys(attributeFilter).length == 0) {
         for (const [tokenId, token] of Object.entries(tokens)) {
           let include = true;
-
-          if (ownerRegex) {
+          if (filteredIds && !(filteredIds.has(parseInt(tokenId)))) {
+            include = false;
+          }
+          if (include && ownerRegex) {
             const name = state.ens[token.owner] || null;
             if (!(ownerRegex.test(token.owner) || ownerRegex.test(name))) {
               include = false;
             }
           }
-
           if (include) {
             results.push({
               chainId: chainId,
@@ -346,8 +345,10 @@ const dataModule = {
         for (const tokenId of selectedTokenIds) {
           const token = chainId && state.selectedCollection && state.tokens[chainId][state.selectedCollection][tokenId] || {};
           let include = true;
-
-          if (ownerRegex) {
+          if (filteredIds && !(filteredIds.has(parseInt(tokenId)))) {
+            include = false;
+          }
+          if (include && ownerRegex) {
             const name = state.ens[token.owner] || null;
             if (!(ownerRegex.test(token.owner) || ownerRegex.test(name))) {
               include = false;

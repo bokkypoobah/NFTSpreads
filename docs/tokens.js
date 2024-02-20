@@ -18,7 +18,7 @@ const Tokens = {
             <b-form-select size="sm" v-model="selectedCollection" @change="saveSettings" :options="collectionsOptions" v-b-popover.hover.top="'Select a collection, then click the Sync button'"></b-form-select>
           </div>
           <div class="mt-0 pr-1" style="width: 200px;">
-            <b-form-input type="text" size="sm" v-model.trim="idFilter" debounce="600" v-b-popover.hover.top="'Regex filter by owner address or name'" placeholder="🔍  id1 id2-id3 ..."></b-form-input>
+            <b-form-input type="text" size="sm" v-model.trim="idFilter" debounce="600" v-b-popover.hover.top="'List of tokenIds or tokenId ranges'" placeholder="🔍  id1 id2-id3 ..."></b-form-input>
           </div>
           <div class="mt-0 pr-1" style="width: 200px;">
             <b-form-input type="text" size="sm" v-model.trim="ownerFilter" debounce="600" v-b-popover.hover.top="'Regex filter by owner address or name'" placeholder="🔍 owner addr/name regex"></b-form-input>
@@ -232,6 +232,9 @@ const Tokens = {
     collections() {
       return store.getters['data/collections'];
     },
+    selectedCollection() {
+      return store.getters['data/selectedCollection'];
+    },
     ens() {
       return store.getters['data/ens'];
     },
@@ -318,17 +321,11 @@ const Tokens = {
     },
 
     totalCollections() {
-      let result = (store.getters['data/forceRefresh'] % 2) == 0 ? 0 : 0;
-      for (const [tokenId, token] of Object.entries(this.tokens)) {
-        result++;
-      }
-      return result;
+      const tokens = this.tokens[this.chainId] && this.tokens[this.chainId][this.selectedCollection] || {};
+      return (store.getters['data/forceRefresh'] % 2) == 0 ? Object.keys(tokens).length : Object.keys(tokens).length;
     },
     filteredItems() {
       const results = (store.getters['data/forceRefresh'] % 2) == 0 ? store.getters['data/filteredTokens'] : store.getters['data/filteredTokens'];
-      // const test = store.getters['data/filteredTokens'];
-      // console.log("filteredItems - test: " + JSON.stringify(test, null, 2));
-      // console.log("filteredItems - tokens: " + JSON.stringify(this.tokens, null, 2));
       let regex = null;
       if (this.settings.filter != null && this.settings.filter.length > 0) {
         try {
@@ -338,87 +335,6 @@ const Tokens = {
           regex = new RegExp(/thequickbrowndogjumpsoverthelazyfox/, 'i');
         }
       }
-
-      // const attributeFilter = store.getters['data/attributeFilter'];
-      // console.log("filteredItems - attributeFilter: " + JSON.stringify(attributeFilter, null, 2));
-
-      // for (const [tokenId, token] of Object.entries(this.tokens)) {
-      //   // console.log(tokenId + " => " + JSON.stringify(token));
-      //
-      //   results.push({
-      //     chainId: token.chainId,
-      //     contract: token.contract,
-      //     tokenId: token.tokenId,
-      //     name: token.name || ('#' + token.tokenId),
-      //     description: token.description,
-      //     image: token.image,
-      //     kind: token.kind,
-      //     isFlagged: token.isFlagged,
-      //     isSpam: token.isSpam,
-      //     isNsfw: token.isNsfw,
-      //     metadataDisabled: token.metadataDisabled,
-      //     rarity: token.rarity,
-      //     rarityRank: token.rarityRank,
-      //     attributes: token.attributes,
-      //     owner: token.owner,
-      //   });
-      // }
-
-      // for (const [address, data] of Object.entries(this.collections[this.chainId] || {})) {
-      //   if (data.type == "erc721") {
-      //     // console.log(address + " => " + JSON.stringify(data, null, 2));
-      //     results.push({ address, symbol: data.symbol, name: data.name });
-      //
-      //     // for (const [tokenId, tokenData] of Object.entries(data.tokenIds)) {
-      //     //   // console.log(address + "/" + tokenId + " => " + JSON.stringify(tokenData, null, 2));
-      //     //
-      //     //   const metadata = this.tokenMetadata[this.chainId] &&
-      //     //     this.tokenMetadata[this.chainId][address] &&
-      //     //     this.tokenMetadata[this.chainId][address][tokenId] ||
-      //     //     {};
-      //     //
-      //     //   let include = true;
-      //     //   if (this.settings.junkFilter) {
-      //     //     if (this.settings.junkFilter == 'junk' && !data.junk) {
-      //     //       include = false;
-      //     //     } else if (this.settings.junkFilter == 'excludejunk' && data.junk) {
-      //     //       include = false;
-      //     //     }
-      //     //   }
-      //     //   if (include && this.settings.favouritesOnly && (!data.favourite || data.junk)) {
-      //     //     include = false;
-      //     //   }
-      //     //   if (include && regex) {
-      //     //     const name = metadata.name || null;
-      //     //     const description = metadata.description || null;
-      //     //     if (!(regex.test(collectionName) || regex.test(name) || regex.test(description))) {
-      //     //       include = false;
-      //     //     }
-      //     //   }
-      //     //   if (include) {
-      //     //     results.push({
-      //     //       address,
-      //     //       junk: data.junk,
-      //     //       favourite: data.favourite,
-      //     //       collectionSymbol: address == ENS_ERC721_ADDRESS ? "ENS" : data.symbol,
-      //     //       collectionName: address == ENS_ERC721_ADDRESS ? "Ethereum Name Service" : data.name,
-      //     //       totalSupply: data.totalSupply,
-      //     //       tokenId,
-      //     //       owner: tokenData.owner,
-      //     //       name: metadata.name || null,
-      //     //       description: metadata.description || null,
-      //     //       expiry: metadata.expiry || undefined,
-      //     //       attributes: metadata.attributes || null,
-      //     //       imageSource: metadata.imageSource || null,
-      //     //       image: metadata.image || null,
-      //     //       blockNumber: tokenData.blockNumber,
-      //     //       logIndex: tokenData.logIndex,
-      //     //     });
-      //     //   }
-      //     // }
-      //
-      //   }
-      // }
       return results;
     },
     filteredSortedItems() {

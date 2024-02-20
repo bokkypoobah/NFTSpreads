@@ -11,7 +11,7 @@ const Owners = {
             <b-form-select size="sm" v-model="selectedCollection" @change="saveSettings" :options="collectionsOptions" v-b-popover.hover.top="'Select a collection, then click the Sync button'"></b-form-select>
           </div>
           <div class="mt-0 pr-1" style="width: 200px;">
-            <b-form-input type="text" size="sm" v-model.trim="idFilter" debounce="600" v-b-popover.hover.top="'Regex filter by owner address or name'" placeholder="🔍  id1 id2-id3 ..."></b-form-input>
+            <b-form-input type="text" size="sm" v-model.trim="idFilter" debounce="600" v-b-popover.hover.top="'List of tokenIds or tokenId ranges'" placeholder="🔍  id1 id2-id3 ..."></b-form-input>
           </div>
           <div class="mt-0 pr-1" style="width: 200px;">
             <b-form-input type="text" size="sm" v-model.trim="ownerFilter" debounce="600" v-b-popover.hover.top="'Regex filter by owner address or name'" placeholder="🔍 owner addr/name regex"></b-form-input>
